@@ -191,13 +191,7 @@ a.plitka.s-kartinkoy{
   background:linear-gradient(165deg,#171f2a 0%,#0f141b 100%);
   border-radius:18px; overflow:hidden;
 }
-.pleyer-ramka{border:0}
-/* Растягиваем на весь блок только кадр большого плеера. Баннерный кадр
-   носит тот же класс — по нему его находит восстановление позиции, —
-   но живёт в обычном потоке: абсолютный кадр в баннере не имел
-   позиционированного предка и накрывал собой всю страницу: сверху
-   чернел экран, а нажатия по списку лекций доставались кадру. */
-.pleyer .pleyer-ramka{position:absolute; inset:0; width:100%; height:100%}
+.pleyer-ramka{position:absolute; inset:0; width:100%; height:100%; border:0}
 /* Кнопки вариантов плейлиста — под плеером. Появляются, только когда
    вариантов больше одного: уроки по параграфам, короткие пересказы,
    разборы домашних заданий, повторение. */
@@ -223,10 +217,7 @@ summary.pl-imya{
 summary.pl-imya::-webkit-details-marker{display:none}
 summary.pl-imya::marker{content:''}
 summary.pl-imya .pl-nazv{flex:1 1 auto; min-width:0}
-/* Рамки на фокусе нет: открытый плейлист и без неё видно (название
-   ярче остальных), а жёсткая белая рамка превращала строку в кнопку. */
-summary.pl-imya:focus, summary.pl-imya:focus-visible{outline:none}
-summary.pl-imya:hover{color:#f3f5f9}
+summary.pl-imya:focus{outline:3px solid #f3f5f9; outline-offset:2px}
 summary.pl-imya .strela svg{width:30px; height:30px}
 details.pl-blok[open] > summary.pl-imya .strela{transform:rotate(180deg)}
 .pl-blok.aktiven > summary.pl-imya{color:#f3f5f9}
@@ -264,16 +255,7 @@ a.pleyer-knopka svg{width:34px; height:34px; display:block}
 a.pleyer-knopka:hover, a.pleyer-knopka:focus{
   border-color:#ffd23f; background:rgba(10,13,18,.92);
 }
-/* Карточка возврата лежит ПОВЕРХ кадра. Без этого кадр — он вставлен
-   абсолютно — рисовался выше неё, и уведомление «Вы остановились на
-   параграфе…» было не видно вовсе: в разметке есть, на экране нет. */
-.pleyer-vybor{
-  position:absolute; inset:0; z-index:5;
-  display:flex; align-items:center; justify-content:center;
-  padding:26px 30px; border-radius:18px;
-  background:linear-gradient(180deg, rgba(10,13,18,.5), rgba(10,13,18,.86));
-}
-.pleyer-vybor .vybor-karta{width:100%; max-width:920px}
+.pleyer-vybor{position:absolute; inset:auto 0 0 0; padding:0 22px 22px}
 .vybor-karta{
   display:flex; flex-direction:column; gap:18px;
   background:linear-gradient(180deg, rgba(10,13,18,.82), rgba(10,13,18,.96));
@@ -292,38 +274,22 @@ a.vybor-knopka{
 a.vybor-knopka.vtoraya{
   background:#2b3543; color:#f3f5f9; font-weight:600;
 }
-/* «Закрыть» — третья кнопка уведомления: убирает саму карточку, кадр
-   остаётся на паузе. Тише двух первых: это не выбор урока. */
-a.vybor-knopka.tretiya{
-  background:none; border-color:transparent; color:#8b95a5;
-  font-weight:600; padding-left:12px; padding-right:12px;
-}
-a.vybor-knopka.tretiya:hover, a.vybor-knopka.tretiya:focus{color:#f3f5f9}
 a.vybor-knopka:focus, a.vybor-knopka:hover{
   outline:none; border-color:#f3f5f9;
   box-shadow:0 0 0 6px rgba(255,210,63,.28);
 }
-/* Пункт плейлиста — просто текст, как и название плейлиста над ним.
-   Ни подложки, ни жёлтой полосы слева, ни рамки в фокусе: это строка
-   списка, а не кнопка. Реакция одна — при наведении или фокусе строка
-   становится чуть ярче. Синим не делаем никогда: цвет наш, серый.
-   Так выглядит и список под кадром, и список в панели, и меню:
-   стандарт один. */
+/* Список плейлиста живёт внутри области прокрутки панели. */
 a.trek{
   display:flex; align-items:baseline; gap:18px; text-decoration:none;
-  color:#c9d2df; background:none; border:0; border-radius:0;
-  padding:11px 4px;
+  color:#f3f5f9; background:#1b212b; border-radius:14px;
+  border-left:6px solid #ffd23f; padding:16px 22px; margin-bottom:10px;
   hyphens:manual; overflow-wrap:break-word;
 }
-a.trek:hover, a.trek:focus, a.trek:focus-visible{
-  background:none; outline:none; color:#f3f5f9;
-}
-.trek-nomer{
-  flex:0 0 auto; min-width:96px; font-size:28px; color:#8b95a5;
-}
+a.trek:hover, a.trek:focus{background:#2c3745; outline:3px solid #ffd23f}
+.trek-nomer{flex:0 0 auto; min-width:96px; font-size:30px; font-weight:700;
+            color:#ffd23f}
 .trek-tema{flex:1 1 auto; min-width:0; font-size:28px; line-height:1.25}
-/* Играющий пункт ярче остальных — и только цветом: никаких рамок. */
-a.trek.aktiven{color:#f3f5f9}
+a.trek.aktiven{background:#3d4c5f; border-color:#ffd23f}
 /* Заголовок группы («Глава I. Первобытное общество») — подпись к идущим
    за ним пунктам. Он серый, как название учебника: его видно, но он не
    спорит с пунктами и не сбивает с ориентировки. От текста до верхней
@@ -397,20 +363,19 @@ a.panel-zakryt{
 }
 a.panel-zakryt svg{width:32px; height:32px; display:block}
 a.panel-zakryt:focus, a.panel-zakryt:hover{border-color:#ffd23f; background:#202836}
-/* Пункты меню — тот же стандарт, что и пункты плейлиста: просто текст,
-   при наведении чуть ярче, текущий страница ярче остальных. Никаких
-   плашек с фоном и жёлтых полос слева. */
 a.panel-plitka{
-  display:block; background:none; border:0; border-radius:0;
-  padding:10px 2px; margin-bottom:2px;
-  color:#c9d2df; text-decoration:none; font-size:30px;
+  display:block; background:#1b212b; border-radius:14px;
+  border-left:6px solid #ffd23f; padding:18px 22px; margin-bottom:12px;
+  color:#f3f5f9; text-decoration:none; font-size:29px;
   overflow-wrap:break-word;
 }
-a.panel-plitka:focus, a.panel-plitka:hover, a.panel-plitka:focus-visible{
-  background:none; outline:none; color:#f3f5f9;
+a.panel-plitka:focus, a.panel-plitka:hover{
+  background:#2c3745; outline:3px solid #ffd23f; outline-offset:0;
 }
 a.panel-plitka.tuskly{font-size:25px; color:#98a2b3}
-a.panel-plitka.tekushchiy{background:none; border:0; color:#f3f5f9}
+a.panel-plitka.tekushchiy{background:#2c3745; border-left-color:#f3f5f9;
+                          color:#ffd23f}
+.panel-razd{height:2px; background:#2a3340; margin:22px 4px}
 
 /* ---- выбор класса: раскрывающийся список в меню ----
    Обычный details/summary: работает и без javascript, на пульте
@@ -427,10 +392,7 @@ summary.klass-knopka{
 summary.klass-knopka::-webkit-details-marker{display:none}
 summary.klass-knopka > span:first-child{flex:1 1 auto; min-width:0}
 /* Рамки на фокусе нет: при открытии меню фокус встаёт на название
-   класса, и браузер рисовал вокруг него свой прямоугольник — строка
-   выглядела плашкой с обводкой. При наведении название чуть ярче. */
-summary.klass-knopka:focus, summary.klass-knopka:focus-visible{outline:none}
-summary.klass-knopka:hover{color:#f3f5f9}
+   класса, и жёлтая обводка превращала простой текст в кнопку. */
 .strela{flex:0 0 auto; display:flex; color:inherit; transition:transform .15s}
 .strela svg{width:34px; height:34px; display:block}
 details.vybor-klassa[open] .strela{transform:rotate(180deg)}
@@ -439,13 +401,13 @@ details.vybor-klassa[open] .strela{transform:rotate(180deg)}
    полосы слева, ни рамки. Отличаются только цветом: текущий класс
    такой же яркий, как название сверху, остальные — приглушённые. */
 .klass-spisok a.panel-plitka{
-  padding:7px 2px; margin-bottom:2px; font-size:30px; color:#98a2b3;
+  background:none; border:0; border-radius:0; padding:6px 2px;
+  margin-bottom:6px; font-size:30px; color:#98a2b3;
 }
 .klass-spisok a.panel-plitka:hover,
-.klass-spisok a.panel-plitka:focus,
-.klass-spisok a.panel-plitka:focus-visible{background:none; outline:none;
-                                           color:#f3f5f9}
-.klass-spisok a.panel-plitka.tekushchiy{color:#f3f5f9}
+.klass-spisok a.panel-plitka:focus{background:none; outline:none;
+                                   color:#f3f5f9}
+.klass-spisok a.panel-plitka.tekushchiy{background:none; color:#f3f5f9}
 
 
 /* ---- баннер лекций: полоса во всю ширину страницы предмета ----
@@ -507,23 +469,9 @@ a.banner-trek .bt-vremya{
 a.banner-trek .bt-tema{flex:1 1 auto; hyphens:manual}
 a.banner-trek:focus, a.banner-trek:hover{outline:none; color:#f3f5f9}
 a.banner-trek.aktiven{color:#f3f5f9}
-/* Активная лекция отличается только цветом строки — как и в списках
-   под кадром. Жёлтое время было единственной подсветкой в баннере и
-   спорило с их стандартом, поэтому его убрали. */
+a.banner-trek.aktiven .bt-vremya{color:#ffd23f}
 /* Плитки под баннером: воздух больше, чем между самими плитками. */
 .setka.posle-bannera{margin-top:64px}
-
-/* ---- кто учится и зачем ----
-   Маленькая строка под путём, выше учебника: имя и цель с главного
-   экрана. Она не заголовок страницы — тот большой, — а напоминание:
-   видно на каждой странице, в том числе когда смотришь видео. Ничего
-   не выдумываем: имя и цель человек написал сам, пусто — строки нет. */
-.imya-stroka{
-  margin:2px 0 0; padding:0 4px;
-  font-size:24px; color:#8b95a5;
-  hyphens:manual; overflow-wrap:break-word;
-}
-.imya-stroka b{font-weight:600; color:#c9d2df}
 
 h1{font-size:50px; margin:0 0 8px; letter-spacing:-.01em}
 .pod{color:#98a2b3; font-size:26px; margin:0 0 10px}
@@ -680,12 +628,11 @@ a.knopka:focus, a.knopka:hover, a.knopka:active{
 <span class="pravo"><a class="tumbler ikonka" id="pin" href="#" aria-label="Закрепить"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 17v5"/><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z"/></svg></a><a class="tumbler ikonka" href="#panel" aria-label="Меню" onclick="return shkMenu()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16"/><path d="M4 12h16"/><path d="M4 17h16"/></svg></a></span>
 </nav>
 <div class="put-stroka"><a href="../../5 класс.html">5 класс</a><span class="razd">›</span><a href="../История.html">История</a><span class="razd">›</span><span class="zdes">Кино и документалистика</span></div>
-<div class="imya-stroka" id="imya-stroka" hidden></div>
 <details class="kniga-stroka"><summary><span class="kn-nazv">История Древнего мира. 5 класс</span><span class="strela"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 9l7 7 7-7"/></svg></span></summary><div class="kn-podrobno"><div class="kn-kartochka"><img src="../../Обложки/История-5.jpg" alt="" loading="lazy"><div class="kn-kartotekst"><span class="kn-knazv">История Древнего мира. 5 класс</span><span class="kn-kavt">Мединский В. Р., Чубарьян А. О. · Про­све­ще­ние, 2026</span></div></div></div></details>
-<aside class="panel" id="panel"><div class="panel-verh"><details class="vybor-klassa"><summary class="klass-knopka"><span>5 класс</span><span class="strela"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 9l7 7 7-7"/></svg></span></summary><div class="klass-spisok"><a class="panel-plitka tekushchiy" href="../../5 класс.html">5 класс</a><a class="panel-plitka" href="../../7 класс.html">7 класс</a><a class="panel-plitka" href="../../8 класс.html">8 класс</a></div></details><a class="panel-zakryt" href="#" aria-label="Закрыть" onclick="return shkPanel(false)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6.5 6.5l11 11"/><path d="M17.5 6.5l-11 11"/></svg></a></div><div class="panel-telo"><a class="panel-plitka" href="../География.html">География</a><a class="panel-plitka" href="../История.html">История</a></div></aside><div class="panel-tyanulka menyu" tabindex="0" role="separator" aria-orientation="vertical" aria-label="Изменить ширину" onkeydown="return shkTyan(event)"></div>
+<aside class="panel" id="panel"><div class="panel-verh"><details class="vybor-klassa"><summary class="klass-knopka"><span>5 класс</span><span class="strela"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 9l7 7 7-7"/></svg></span></summary><div class="klass-spisok"><a class="panel-plitka tekushchiy" href="../../5 класс.html">5 класс</a><a class="panel-plitka" href="../../7 класс.html">7 класс</a><a class="panel-plitka" href="../../8 класс.html">8 класс</a></div></details><a class="panel-zakryt" href="#" aria-label="Закрыть" onclick="return shkPanel(false)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6.5 6.5l11 11"/><path d="M17.5 6.5l-11 11"/></svg></a></div><div class="panel-telo"><div class="panel-razd"></div><a class="panel-plitka" href="../География.html">География</a><a class="panel-plitka" href="../История.html">История</a></div></aside><div class="panel-tyanulka menyu" tabindex="0" role="separator" aria-orientation="vertical" aria-label="Изменить ширину" onkeydown="return shkTyan(event)"></div>
 
-<div class="pleyer-wrap"><div class="pleyer-shapka"><span class="pleyer-zag" id="pleyer-zag">Что будем смотреть?</span></div><div class="pleyer" id="pleyer"><a class="pleyer-knopka" href="#" aria-label="Плейлист" onclick="return shkPleylistTog()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7.6v8.8l7.4-4.4z"/><path d="M14.6 8.4h5.4"/><path d="M14.6 12h5.4"/><path d="M14.6 15.6h5.4"/></svg></a><div class="pleyer-vybor" id="pleyer-vybor" style="display:none"><div class="vybor-karta" id="vybor-karta"><span class="vybor-tekst" id="vybor-tekst"></span><span class="vybor-knopki"><a class="vybor-knopka" id="vybor-glavnaya" href="#"></a><a class="vybor-knopka vtoraya" id="vybor-vtoraya" href="#"></a><a class="vybor-knopka tretiya" id="vybor-tretiya" href="#" onclick="return shkZakrytKartu()">Закрыть</a></span></div></div></div><div class="pl-vse"><details class="pl-blok aktiven" data-nabor="0"><summary class="pl-imya" onclick="return shkRaskryt(this)"><span class="pl-nazv">Древний Египет</span><span class="strela"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 9l7 7 7-7"/></svg></span></summary><div class="pl-telo"><a class="trek" href="https://rutube.ru/video/01ea9178a93e8ee2d43280e395225afc/" data-video="https://rutube.ru/play/embed/01ea9178a93e8ee2d43280e395225afc/" data-zag="19 мин Древние монументы Египта" data-nomer="19 мин" data-tema="Древние монументы Египта" onclick="return shkIgrat(this)"><span class="trek-nomer">19 мин</span><span class="trek-tema">Древние монументы Египта</span></a><a class="trek" href="https://rutube.ru/video/ad68355cbfd28b4cfddc107caf1c3e28/" data-video="https://rutube.ru/play/embed/ad68355cbfd28b4cfddc107caf1c3e28/" data-zag="42 мин Гробница Ту­тан­ха­мо­на" data-nomer="42 мин" data-tema="Гробница Ту­тан­ха­мо­на" onclick="return shkIgrat(this)"><span class="trek-nomer">42 мин</span><span class="trek-tema">Гробница Ту­тан­ха­мо­на</span></a><a class="trek" href="https://rutube.ru/video/eec6b4644e4ab188de235dda8f324907/" data-video="https://rutube.ru/play/embed/eec6b4644e4ab188de235dda8f324907/" data-zag="45 мин Рамзес II" data-nomer="45 мин" data-tema="Рамзес II" onclick="return shkIgrat(this)"><span class="trek-nomer">45 мин</span><span class="trek-tema">Рамзес II</span></a><a class="trek" href="https://rutube.ru/video/a2d2d2bdc86d2a89ba5e3930f04b47c8/" data-video="https://rutube.ru/play/embed/a2d2d2bdc86d2a89ba5e3930f04b47c8/" data-zag="49 мин Древний Египет" data-nomer="49 мин" data-tema="Древний Египет" onclick="return shkIgrat(this)"><span class="trek-nomer">49 мин</span><span class="trek-tema">Древний Египет</span></a></div></details><details class="pl-blok" data-nabor="1"><summary class="pl-imya" onclick="return shkRaskryt(this)"><span class="pl-nazv">Древняя Греция</span><span class="strela"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 9l7 7 7-7"/></svg></span></summary><div class="pl-telo"><a class="trek" href="https://rutube.ru/video/3c9b4fe63438de025db933d7b4e4e14d/" data-video="https://rutube.ru/play/embed/3c9b4fe63438de025db933d7b4e4e14d/" data-zag="23 мин Это Спарта за 22 минуты" data-nomer="23 мин" data-tema="Это Спарта за 22 минуты" onclick="return shkIgrat(this)"><span class="trek-nomer">23 мин</span><span class="trek-tema">Это Спарта за 22 минуты</span></a><a class="trek" href="https://rutube.ru/video/d7647de2f49937d545650b12fba89836/" data-video="https://rutube.ru/play/embed/d7647de2f49937d545650b12fba89836/" data-zag="51 мин Театр античных ци­ви­ли­за­ций" data-nomer="51 мин" data-tema="Театр античных ци­ви­ли­за­ций" onclick="return shkIgrat(this)"><span class="trek-nomer">51 мин</span><span class="trek-tema">Театр античных ци­ви­ли­за­ций</span></a><a class="trek" href="https://rutube.ru/video/8a4485aec8c7d67304e3afdc11966182/" data-video="https://rutube.ru/play/embed/8a4485aec8c7d67304e3afdc11966182/" data-zag="56 мин Троя" data-nomer="56 мин" data-tema="Троя" onclick="return shkIgrat(this)"><span class="trek-nomer">56 мин</span><span class="trek-tema">Троя</span></a><a class="trek" href="https://rutube.ru/video/42fc91a0d8725dc6332765a8a29ffaef/" data-video="https://rutube.ru/play/embed/42fc91a0d8725dc6332765a8a29ffaef/" data-zag="56 мин Об­ра­зо­ва­ние и философия" data-nomer="56 мин" data-tema="Об­ра­зо­ва­ние и философия" onclick="return shkIgrat(this)"><span class="trek-nomer">56 мин</span><span class="trek-tema">Об­ра­зо­ва­ние и философия</span></a><a class="trek" href="https://rutube.ru/video/08789fd8c7cba3036c140785cb9480f2/" data-video="https://rutube.ru/play/embed/08789fd8c7cba3036c140785cb9480f2/" data-zag="57 мин Боги и мифология" data-nomer="57 мин" data-tema="Боги и мифология" onclick="return shkIgrat(this)"><span class="trek-nomer">57 мин</span><span class="trek-tema">Боги и мифология</span></a><a class="trek" href="https://rutube.ru/video/e665ff6e06d7d4c450f6fd0ca6d55926/" data-video="https://rutube.ru/play/embed/e665ff6e06d7d4c450f6fd0ca6d55926/" data-zag="59 мин История Древней Греции" data-nomer="59 мин" data-tema="История Древней Греции" onclick="return shkIgrat(this)"><span class="trek-nomer">59 мин</span><span class="trek-tema">История Древней Греции</span></a></div></details><details class="pl-blok" data-nabor="2"><summary class="pl-imya" onclick="return shkRaskryt(this)"><span class="pl-nazv">Древний Рим</span><span class="strela"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 9l7 7 7-7"/></svg></span></summary><div class="pl-telo"><a class="trek" href="https://rutube.ru/video/5787ba36a77a91590f5892d36e8b9344/" data-video="https://rutube.ru/play/embed/5787ba36a77a91590f5892d36e8b9344/" data-zag="1 ч 3 мин Скульп­ту­ра и ар­хи­тек­ту­ра ан­тич­но­сти" data-nomer="1 ч 3 мин" data-tema="Скульп­ту­ра и ар­хи­тек­ту­ра ан­тич­но­сти" onclick="return shkIgrat(this)"><span class="trek-nomer">1 ч 3 мин</span><span class="trek-tema">Скульп­ту­ра и ар­хи­тек­ту­ра ан­тич­но­сти</span></a><a class="trek" href="https://rutube.ru/video/2cadd1c9fd3ec73a3b9e99b6de549d33/" data-video="https://rutube.ru/play/embed/2cadd1c9fd3ec73a3b9e99b6de549d33/" data-zag="46 мин История Древнего Рима" data-nomer="46 мин" data-tema="История Древнего Рима" onclick="return shkIgrat(this)"><span class="trek-nomer">46 мин</span><span class="trek-tema">История Древнего Рима</span></a><a class="trek" href="https://rutube.ru/video/d8be908487c5cee5be7fe8bea0b6ed3b/" data-video="https://rutube.ru/play/embed/d8be908487c5cee5be7fe8bea0b6ed3b/" data-zag="50 мин Жизнь в античных городах" data-nomer="50 мин" data-tema="Жизнь в античных городах" onclick="return shkIgrat(this)"><span class="trek-nomer">50 мин</span><span class="trek-tema">Жизнь в античных городах</span></a><a class="trek" href="https://rutube.ru/video/25ebe670f770447f95d58f620399a2fb/" data-video="https://rutube.ru/play/embed/25ebe670f770447f95d58f620399a2fb/" data-zag="51 мин Римские дороги и акведуки" data-nomer="51 мин" data-tema="Римские дороги и акведуки" onclick="return shkIgrat(this)"><span class="trek-nomer">51 мин</span><span class="trek-tema">Римские дороги и акведуки</span></a><a class="trek" href="https://rutube.ru/video/9b86ddc3ce6976ee7b02475a01ec153a/" data-video="https://rutube.ru/play/embed/9b86ddc3ce6976ee7b02475a01ec153a/" data-zag="56 мин Древние рынки и торговля" data-nomer="56 мин" data-tema="Древние рынки и торговля" onclick="return shkIgrat(this)"><span class="trek-nomer">56 мин</span><span class="trek-tema">Древние рынки и торговля</span></a></div></details><details class="pl-blok" data-nabor="3"><summary class="pl-imya" onclick="return shkRaskryt(this)"><span class="pl-nazv">Мульт­филь­мы</span><span class="strela"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 9l7 7 7-7"/></svg></span></summary><div class="pl-telo"><a class="trek" href="https://rutube.ru/video/74a8a4e0d1d3b4359c889741b005048a/" data-video="https://rutube.ru/play/embed/74a8a4e0d1d3b4359c889741b005048a/" data-zag="18 мин Прометей (1974)" data-nomer="18 мин" data-tema="Прометей (1974)" onclick="return shkIgrat(this)"><span class="trek-nomer">18 мин</span><span class="trek-tema">Прометей (1974)</span></a><a class="trek" href="https://rutube.ru/video/d191d123f52fba9b99e3972b3f378153/" data-video="https://rutube.ru/play/embed/d191d123f52fba9b99e3972b3f378153/" data-zag="19 мин Аргонавты (1971)" data-nomer="19 мин" data-tema="Аргонавты (1971)" onclick="return shkIgrat(this)"><span class="trek-nomer">19 мин</span><span class="trek-tema">Аргонавты (1971)</span></a><a class="trek" href="https://rutube.ru/video/3c9f1d5b213773a4decf80a3a6cb381b/" data-video="https://rutube.ru/play/embed/3c9f1d5b213773a4decf80a3a6cb381b/" data-zag="19 мин Геракл у Адмета (1986)" data-nomer="19 мин" data-tema="Геракл у Адмета (1986)" onclick="return shkIgrat(this)"><span class="trek-nomer">19 мин</span><span class="trek-tema">Геракл у Адмета (1986)</span></a></div></details></div></div>
-<aside class="panel" id="pleylist-panel"><div class="panel-verh"><span class="panel-zag" id="pl-zag">Древний Египет</span><a class="panel-zakryt" href="#" aria-label="Закрыть плейлист" onclick="return shkPleylist(false)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6.5 6.5l11 11"/><path d="M17.5 6.5l-11 11"/></svg></a></div><div class="panel-telo"><div class="pleylist aktiven" data-nabor="0" data-imya="Древний Египет"><a class="trek" href="https://rutube.ru/video/01ea9178a93e8ee2d43280e395225afc/" data-video="https://rutube.ru/play/embed/01ea9178a93e8ee2d43280e395225afc/" data-zag="19 мин Древние монументы Египта" data-nomer="19 мин" data-tema="Древние монументы Египта" onclick="return shkIgrat(this)"><span class="trek-nomer">19 мин</span><span class="trek-tema">Древние монументы Египта</span></a><a class="trek" href="https://rutube.ru/video/ad68355cbfd28b4cfddc107caf1c3e28/" data-video="https://rutube.ru/play/embed/ad68355cbfd28b4cfddc107caf1c3e28/" data-zag="42 мин Гробница Ту­тан­ха­мо­на" data-nomer="42 мин" data-tema="Гробница Ту­тан­ха­мо­на" onclick="return shkIgrat(this)"><span class="trek-nomer">42 мин</span><span class="trek-tema">Гробница Ту­тан­ха­мо­на</span></a><a class="trek" href="https://rutube.ru/video/eec6b4644e4ab188de235dda8f324907/" data-video="https://rutube.ru/play/embed/eec6b4644e4ab188de235dda8f324907/" data-zag="45 мин Рамзес II" data-nomer="45 мин" data-tema="Рамзес II" onclick="return shkIgrat(this)"><span class="trek-nomer">45 мин</span><span class="trek-tema">Рамзес II</span></a><a class="trek" href="https://rutube.ru/video/a2d2d2bdc86d2a89ba5e3930f04b47c8/" data-video="https://rutube.ru/play/embed/a2d2d2bdc86d2a89ba5e3930f04b47c8/" data-zag="49 мин Древний Египет" data-nomer="49 мин" data-tema="Древний Египет" onclick="return shkIgrat(this)"><span class="trek-nomer">49 мин</span><span class="trek-tema">Древний Египет</span></a></div><div class="pleylist" data-nabor="1" data-imya="Древняя Греция" style="display:none"><a class="trek" href="https://rutube.ru/video/3c9b4fe63438de025db933d7b4e4e14d/" data-video="https://rutube.ru/play/embed/3c9b4fe63438de025db933d7b4e4e14d/" data-zag="23 мин Это Спарта за 22 минуты" data-nomer="23 мин" data-tema="Это Спарта за 22 минуты" onclick="return shkIgrat(this)"><span class="trek-nomer">23 мин</span><span class="trek-tema">Это Спарта за 22 минуты</span></a><a class="trek" href="https://rutube.ru/video/d7647de2f49937d545650b12fba89836/" data-video="https://rutube.ru/play/embed/d7647de2f49937d545650b12fba89836/" data-zag="51 мин Театр античных ци­ви­ли­за­ций" data-nomer="51 мин" data-tema="Театр античных ци­ви­ли­за­ций" onclick="return shkIgrat(this)"><span class="trek-nomer">51 мин</span><span class="trek-tema">Театр античных ци­ви­ли­за­ций</span></a><a class="trek" href="https://rutube.ru/video/8a4485aec8c7d67304e3afdc11966182/" data-video="https://rutube.ru/play/embed/8a4485aec8c7d67304e3afdc11966182/" data-zag="56 мин Троя" data-nomer="56 мин" data-tema="Троя" onclick="return shkIgrat(this)"><span class="trek-nomer">56 мин</span><span class="trek-tema">Троя</span></a><a class="trek" href="https://rutube.ru/video/42fc91a0d8725dc6332765a8a29ffaef/" data-video="https://rutube.ru/play/embed/42fc91a0d8725dc6332765a8a29ffaef/" data-zag="56 мин Об­ра­зо­ва­ние и философия" data-nomer="56 мин" data-tema="Об­ра­зо­ва­ние и философия" onclick="return shkIgrat(this)"><span class="trek-nomer">56 мин</span><span class="trek-tema">Об­ра­зо­ва­ние и философия</span></a><a class="trek" href="https://rutube.ru/video/08789fd8c7cba3036c140785cb9480f2/" data-video="https://rutube.ru/play/embed/08789fd8c7cba3036c140785cb9480f2/" data-zag="57 мин Боги и мифология" data-nomer="57 мин" data-tema="Боги и мифология" onclick="return shkIgrat(this)"><span class="trek-nomer">57 мин</span><span class="trek-tema">Боги и мифология</span></a><a class="trek" href="https://rutube.ru/video/e665ff6e06d7d4c450f6fd0ca6d55926/" data-video="https://rutube.ru/play/embed/e665ff6e06d7d4c450f6fd0ca6d55926/" data-zag="59 мин История Древней Греции" data-nomer="59 мин" data-tema="История Древней Греции" onclick="return shkIgrat(this)"><span class="trek-nomer">59 мин</span><span class="trek-tema">История Древней Греции</span></a></div><div class="pleylist" data-nabor="2" data-imya="Древний Рим" style="display:none"><a class="trek" href="https://rutube.ru/video/5787ba36a77a91590f5892d36e8b9344/" data-video="https://rutube.ru/play/embed/5787ba36a77a91590f5892d36e8b9344/" data-zag="1 ч 3 мин Скульп­ту­ра и ар­хи­тек­ту­ра ан­тич­но­сти" data-nomer="1 ч 3 мин" data-tema="Скульп­ту­ра и ар­хи­тек­ту­ра ан­тич­но­сти" onclick="return shkIgrat(this)"><span class="trek-nomer">1 ч 3 мин</span><span class="trek-tema">Скульп­ту­ра и ар­хи­тек­ту­ра ан­тич­но­сти</span></a><a class="trek" href="https://rutube.ru/video/2cadd1c9fd3ec73a3b9e99b6de549d33/" data-video="https://rutube.ru/play/embed/2cadd1c9fd3ec73a3b9e99b6de549d33/" data-zag="46 мин История Древнего Рима" data-nomer="46 мин" data-tema="История Древнего Рима" onclick="return shkIgrat(this)"><span class="trek-nomer">46 мин</span><span class="trek-tema">История Древнего Рима</span></a><a class="trek" href="https://rutube.ru/video/d8be908487c5cee5be7fe8bea0b6ed3b/" data-video="https://rutube.ru/play/embed/d8be908487c5cee5be7fe8bea0b6ed3b/" data-zag="50 мин Жизнь в античных городах" data-nomer="50 мин" data-tema="Жизнь в античных городах" onclick="return shkIgrat(this)"><span class="trek-nomer">50 мин</span><span class="trek-tema">Жизнь в античных городах</span></a><a class="trek" href="https://rutube.ru/video/25ebe670f770447f95d58f620399a2fb/" data-video="https://rutube.ru/play/embed/25ebe670f770447f95d58f620399a2fb/" data-zag="51 мин Римские дороги и акведуки" data-nomer="51 мин" data-tema="Римские дороги и акведуки" onclick="return shkIgrat(this)"><span class="trek-nomer">51 мин</span><span class="trek-tema">Римские дороги и акведуки</span></a><a class="trek" href="https://rutube.ru/video/9b86ddc3ce6976ee7b02475a01ec153a/" data-video="https://rutube.ru/play/embed/9b86ddc3ce6976ee7b02475a01ec153a/" data-zag="56 мин Древние рынки и торговля" data-nomer="56 мин" data-tema="Древние рынки и торговля" onclick="return shkIgrat(this)"><span class="trek-nomer">56 мин</span><span class="trek-tema">Древние рынки и торговля</span></a></div><div class="pleylist" data-nabor="3" data-imya="Мульт­филь­мы" style="display:none"><a class="trek" href="https://rutube.ru/video/74a8a4e0d1d3b4359c889741b005048a/" data-video="https://rutube.ru/play/embed/74a8a4e0d1d3b4359c889741b005048a/" data-zag="18 мин Прометей (1974)" data-nomer="18 мин" data-tema="Прометей (1974)" onclick="return shkIgrat(this)"><span class="trek-nomer">18 мин</span><span class="trek-tema">Прометей (1974)</span></a><a class="trek" href="https://rutube.ru/video/d191d123f52fba9b99e3972b3f378153/" data-video="https://rutube.ru/play/embed/d191d123f52fba9b99e3972b3f378153/" data-zag="19 мин Аргонавты (1971)" data-nomer="19 мин" data-tema="Аргонавты (1971)" onclick="return shkIgrat(this)"><span class="trek-nomer">19 мин</span><span class="trek-tema">Аргонавты (1971)</span></a><a class="trek" href="https://rutube.ru/video/3c9f1d5b213773a4decf80a3a6cb381b/" data-video="https://rutube.ru/play/embed/3c9f1d5b213773a4decf80a3a6cb381b/" data-zag="19 мин Геракл у Адмета (1986)" data-nomer="19 мин" data-tema="Геракл у Адмета (1986)" onclick="return shkIgrat(this)"><span class="trek-nomer">19 мин</span><span class="trek-tema">Геракл у Адмета (1986)</span></a></div></div></aside><div class="panel-tyanulka pleylista" tabindex="0" role="separator" aria-orientation="vertical" aria-label="Изменить ширину" onkeydown="return shkTyan(event)"></div>
+<div class="pleyer-wrap"><div class="pleyer-shapka"><span class="pleyer-zag" id="pleyer-zag">Что будем смотреть?</span></div><div class="pleyer" id="pleyer"><a class="pleyer-knopka" href="#" aria-label="Плейлист" onclick="return shkPleylistTog()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7.6v8.8l7.4-4.4z"/><path d="M14.6 8.4h5.4"/><path d="M14.6 12h5.4"/><path d="M14.6 15.6h5.4"/></svg></a><div class="pleyer-vybor" id="pleyer-vybor" style="display:none"><div class="vybor-karta" id="vybor-karta"><span class="vybor-tekst" id="vybor-tekst"></span><span class="vybor-knopki"><a class="vybor-knopka" id="vybor-glavnaya" href="#"></a><a class="vybor-knopka vtoraya" id="vybor-vtoraya" href="#"></a></span></div></div></div><div class="pl-vse"><details class="pl-blok aktiven" data-nabor="0"><summary class="pl-imya" onclick="return shkRaskryt(this)"><span class="pl-nazv">Древний Египет</span><span class="strela"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 9l7 7 7-7"/></svg></span></summary><div class="pl-telo"><a class="trek" href="https://rutube.ru/video/01ea9178a93e8ee2d43280e395225afc/" data-video="https://rutube.ru/play/embed/01ea9178a93e8ee2d43280e395225afc/" data-zag="19 мин Древние монументы Египта" data-nomer="19 мин" data-tema="Древние монументы Египта" onclick="return shkIgrat(this)"><span class="trek-nomer">19 мин</span><span class="trek-tema">Древние монументы Египта</span></a><a class="trek" href="https://rutube.ru/video/9f451a888e26434831bc9ec42cd2916a/" data-video="https://rutube.ru/play/embed/9f451a888e26434831bc9ec42cd2916a/" data-zag="51 мин Боги и фараоны" data-nomer="51 мин" data-tema="Боги и фараоны" onclick="return shkIgrat(this)"><span class="trek-nomer">51 мин</span><span class="trek-tema">Боги и фараоны</span></a><a class="trek" href="https://rutube.ru/video/ba332cccdb1e72c84db9026a2ae77269/" data-video="https://rutube.ru/play/embed/ba332cccdb1e72c84db9026a2ae77269/" data-zag="51 мин Культ мёртвых" data-nomer="51 мин" data-tema="Культ мёртвых" onclick="return shkIgrat(this)"><span class="trek-nomer">51 мин</span><span class="trek-tema">Культ мёртвых</span></a><a class="trek" href="https://rutube.ru/video/dd2021e18cbadb614dd5eef61d99303a/" data-video="https://rutube.ru/play/embed/dd2021e18cbadb614dd5eef61d99303a/" data-zag="51 мин Пирамиды" data-nomer="51 мин" data-tema="Пирамиды" onclick="return shkIgrat(this)"><span class="trek-nomer">51 мин</span><span class="trek-tema">Пирамиды</span></a></div></details><details class="pl-blok" data-nabor="1"><summary class="pl-imya" onclick="return shkRaskryt(this)"><span class="pl-nazv">Древняя Греция</span><span class="strela"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 9l7 7 7-7"/></svg></span></summary><div class="pl-telo"><a class="trek" href="https://rutube.ru/video/3c9b4fe63438de025db933d7b4e4e14d/" data-video="https://rutube.ru/play/embed/3c9b4fe63438de025db933d7b4e4e14d/" data-zag="23 мин Это Спарта за 22 минуты" data-nomer="23 мин" data-tema="Это Спарта за 22 минуты" onclick="return shkIgrat(this)"><span class="trek-nomer">23 мин</span><span class="trek-tema">Это Спарта за 22 минуты</span></a><a class="trek" href="https://rutube.ru/video/d7647de2f49937d545650b12fba89836/" data-video="https://rutube.ru/play/embed/d7647de2f49937d545650b12fba89836/" data-zag="51 мин Театр античных ци­ви­ли­за­ций" data-nomer="51 мин" data-tema="Театр античных ци­ви­ли­за­ций" onclick="return shkIgrat(this)"><span class="trek-nomer">51 мин</span><span class="trek-tema">Театр античных ци­ви­ли­за­ций</span></a><a class="trek" href="https://rutube.ru/video/8a4485aec8c7d67304e3afdc11966182/" data-video="https://rutube.ru/play/embed/8a4485aec8c7d67304e3afdc11966182/" data-zag="56 мин Троя" data-nomer="56 мин" data-tema="Троя" onclick="return shkIgrat(this)"><span class="trek-nomer">56 мин</span><span class="trek-tema">Троя</span></a><a class="trek" href="https://rutube.ru/video/42fc91a0d8725dc6332765a8a29ffaef/" data-video="https://rutube.ru/play/embed/42fc91a0d8725dc6332765a8a29ffaef/" data-zag="56 мин Об­ра­зо­ва­ние и философия" data-nomer="56 мин" data-tema="Об­ра­зо­ва­ние и философия" onclick="return shkIgrat(this)"><span class="trek-nomer">56 мин</span><span class="trek-tema">Об­ра­зо­ва­ние и философия</span></a><a class="trek" href="https://rutube.ru/video/08789fd8c7cba3036c140785cb9480f2/" data-video="https://rutube.ru/play/embed/08789fd8c7cba3036c140785cb9480f2/" data-zag="57 мин Боги и мифология" data-nomer="57 мин" data-tema="Боги и мифология" onclick="return shkIgrat(this)"><span class="trek-nomer">57 мин</span><span class="trek-tema">Боги и мифология</span></a><a class="trek" href="https://rutube.ru/video/e665ff6e06d7d4c450f6fd0ca6d55926/" data-video="https://rutube.ru/play/embed/e665ff6e06d7d4c450f6fd0ca6d55926/" data-zag="59 мин История Древней Греции" data-nomer="59 мин" data-tema="История Древней Греции" onclick="return shkIgrat(this)"><span class="trek-nomer">59 мин</span><span class="trek-tema">История Древней Греции</span></a></div></details><details class="pl-blok" data-nabor="2"><summary class="pl-imya" onclick="return shkRaskryt(this)"><span class="pl-nazv">Древний Рим</span><span class="strela"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 9l7 7 7-7"/></svg></span></summary><div class="pl-telo"><a class="trek" href="https://rutube.ru/video/5787ba36a77a91590f5892d36e8b9344/" data-video="https://rutube.ru/play/embed/5787ba36a77a91590f5892d36e8b9344/" data-zag="1 ч 3 мин Скульп­ту­ра и ар­хи­тек­ту­ра ан­тич­но­сти" data-nomer="1 ч 3 мин" data-tema="Скульп­ту­ра и ар­хи­тек­ту­ра ан­тич­но­сти" onclick="return shkIgrat(this)"><span class="trek-nomer">1 ч 3 мин</span><span class="trek-tema">Скульп­ту­ра и ар­хи­тек­ту­ра ан­тич­но­сти</span></a><a class="trek" href="https://rutube.ru/video/2cadd1c9fd3ec73a3b9e99b6de549d33/" data-video="https://rutube.ru/play/embed/2cadd1c9fd3ec73a3b9e99b6de549d33/" data-zag="46 мин История Древнего Рима" data-nomer="46 мин" data-tema="История Древнего Рима" onclick="return shkIgrat(this)"><span class="trek-nomer">46 мин</span><span class="trek-tema">История Древнего Рима</span></a><a class="trek" href="https://rutube.ru/video/d8be908487c5cee5be7fe8bea0b6ed3b/" data-video="https://rutube.ru/play/embed/d8be908487c5cee5be7fe8bea0b6ed3b/" data-zag="50 мин Жизнь в античных городах" data-nomer="50 мин" data-tema="Жизнь в античных городах" onclick="return shkIgrat(this)"><span class="trek-nomer">50 мин</span><span class="trek-tema">Жизнь в античных городах</span></a><a class="trek" href="https://rutube.ru/video/25ebe670f770447f95d58f620399a2fb/" data-video="https://rutube.ru/play/embed/25ebe670f770447f95d58f620399a2fb/" data-zag="51 мин Римские дороги и акведуки" data-nomer="51 мин" data-tema="Римские дороги и акведуки" onclick="return shkIgrat(this)"><span class="trek-nomer">51 мин</span><span class="trek-tema">Римские дороги и акведуки</span></a><a class="trek" href="https://rutube.ru/video/9b86ddc3ce6976ee7b02475a01ec153a/" data-video="https://rutube.ru/play/embed/9b86ddc3ce6976ee7b02475a01ec153a/" data-zag="56 мин Древние рынки и торговля" data-nomer="56 мин" data-tema="Древние рынки и торговля" onclick="return shkIgrat(this)"><span class="trek-nomer">56 мин</span><span class="trek-tema">Древние рынки и торговля</span></a></div></details><details class="pl-blok" data-nabor="3"><summary class="pl-imya" onclick="return shkRaskryt(this)"><span class="pl-nazv">Мульт­филь­мы</span><span class="strela"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 9l7 7 7-7"/></svg></span></summary><div class="pl-telo"><a class="trek" href="https://rutube.ru/video/74a8a4e0d1d3b4359c889741b005048a/" data-video="https://rutube.ru/play/embed/74a8a4e0d1d3b4359c889741b005048a/" data-zag="18 мин Прометей (1974)" data-nomer="18 мин" data-tema="Прометей (1974)" onclick="return shkIgrat(this)"><span class="trek-nomer">18 мин</span><span class="trek-tema">Прометей (1974)</span></a><a class="trek" href="https://rutube.ru/video/d191d123f52fba9b99e3972b3f378153/" data-video="https://rutube.ru/play/embed/d191d123f52fba9b99e3972b3f378153/" data-zag="19 мин Аргонавты (1971)" data-nomer="19 мин" data-tema="Аргонавты (1971)" onclick="return shkIgrat(this)"><span class="trek-nomer">19 мин</span><span class="trek-tema">Аргонавты (1971)</span></a><a class="trek" href="https://rutube.ru/video/3c9f1d5b213773a4decf80a3a6cb381b/" data-video="https://rutube.ru/play/embed/3c9f1d5b213773a4decf80a3a6cb381b/" data-zag="19 мин Геракл у Адмета (1986)" data-nomer="19 мин" data-tema="Геракл у Адмета (1986)" onclick="return shkIgrat(this)"><span class="trek-nomer">19 мин</span><span class="trek-tema">Геракл у Адмета (1986)</span></a></div></details></div></div>
+<aside class="panel" id="pleylist-panel"><div class="panel-verh"><span class="panel-zag" id="pl-zag">Древний Египет</span><a class="panel-zakryt" href="#" aria-label="Закрыть плейлист" onclick="return shkPleylist(false)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6.5 6.5l11 11"/><path d="M17.5 6.5l-11 11"/></svg></a></div><div class="panel-telo"><div class="pleylist aktiven" data-nabor="0" data-imya="Древний Египет"><a class="trek" href="https://rutube.ru/video/01ea9178a93e8ee2d43280e395225afc/" data-video="https://rutube.ru/play/embed/01ea9178a93e8ee2d43280e395225afc/" data-zag="19 мин Древние монументы Египта" data-nomer="19 мин" data-tema="Древние монументы Египта" onclick="return shkIgrat(this)"><span class="trek-nomer">19 мин</span><span class="trek-tema">Древние монументы Египта</span></a><a class="trek" href="https://rutube.ru/video/9f451a888e26434831bc9ec42cd2916a/" data-video="https://rutube.ru/play/embed/9f451a888e26434831bc9ec42cd2916a/" data-zag="51 мин Боги и фараоны" data-nomer="51 мин" data-tema="Боги и фараоны" onclick="return shkIgrat(this)"><span class="trek-nomer">51 мин</span><span class="trek-tema">Боги и фараоны</span></a><a class="trek" href="https://rutube.ru/video/ba332cccdb1e72c84db9026a2ae77269/" data-video="https://rutube.ru/play/embed/ba332cccdb1e72c84db9026a2ae77269/" data-zag="51 мин Культ мёртвых" data-nomer="51 мин" data-tema="Культ мёртвых" onclick="return shkIgrat(this)"><span class="trek-nomer">51 мин</span><span class="trek-tema">Культ мёртвых</span></a><a class="trek" href="https://rutube.ru/video/dd2021e18cbadb614dd5eef61d99303a/" data-video="https://rutube.ru/play/embed/dd2021e18cbadb614dd5eef61d99303a/" data-zag="51 мин Пирамиды" data-nomer="51 мин" data-tema="Пирамиды" onclick="return shkIgrat(this)"><span class="trek-nomer">51 мин</span><span class="trek-tema">Пирамиды</span></a></div><div class="pleylist" data-nabor="1" data-imya="Древняя Греция" style="display:none"><a class="trek" href="https://rutube.ru/video/3c9b4fe63438de025db933d7b4e4e14d/" data-video="https://rutube.ru/play/embed/3c9b4fe63438de025db933d7b4e4e14d/" data-zag="23 мин Это Спарта за 22 минуты" data-nomer="23 мин" data-tema="Это Спарта за 22 минуты" onclick="return shkIgrat(this)"><span class="trek-nomer">23 мин</span><span class="trek-tema">Это Спарта за 22 минуты</span></a><a class="trek" href="https://rutube.ru/video/d7647de2f49937d545650b12fba89836/" data-video="https://rutube.ru/play/embed/d7647de2f49937d545650b12fba89836/" data-zag="51 мин Театр античных ци­ви­ли­за­ций" data-nomer="51 мин" data-tema="Театр античных ци­ви­ли­за­ций" onclick="return shkIgrat(this)"><span class="trek-nomer">51 мин</span><span class="trek-tema">Театр античных ци­ви­ли­за­ций</span></a><a class="trek" href="https://rutube.ru/video/8a4485aec8c7d67304e3afdc11966182/" data-video="https://rutube.ru/play/embed/8a4485aec8c7d67304e3afdc11966182/" data-zag="56 мин Троя" data-nomer="56 мин" data-tema="Троя" onclick="return shkIgrat(this)"><span class="trek-nomer">56 мин</span><span class="trek-tema">Троя</span></a><a class="trek" href="https://rutube.ru/video/42fc91a0d8725dc6332765a8a29ffaef/" data-video="https://rutube.ru/play/embed/42fc91a0d8725dc6332765a8a29ffaef/" data-zag="56 мин Об­ра­зо­ва­ние и философия" data-nomer="56 мин" data-tema="Об­ра­зо­ва­ние и философия" onclick="return shkIgrat(this)"><span class="trek-nomer">56 мин</span><span class="trek-tema">Об­ра­зо­ва­ние и философия</span></a><a class="trek" href="https://rutube.ru/video/08789fd8c7cba3036c140785cb9480f2/" data-video="https://rutube.ru/play/embed/08789fd8c7cba3036c140785cb9480f2/" data-zag="57 мин Боги и мифология" data-nomer="57 мин" data-tema="Боги и мифология" onclick="return shkIgrat(this)"><span class="trek-nomer">57 мин</span><span class="trek-tema">Боги и мифология</span></a><a class="trek" href="https://rutube.ru/video/e665ff6e06d7d4c450f6fd0ca6d55926/" data-video="https://rutube.ru/play/embed/e665ff6e06d7d4c450f6fd0ca6d55926/" data-zag="59 мин История Древней Греции" data-nomer="59 мин" data-tema="История Древней Греции" onclick="return shkIgrat(this)"><span class="trek-nomer">59 мин</span><span class="trek-tema">История Древней Греции</span></a></div><div class="pleylist" data-nabor="2" data-imya="Древний Рим" style="display:none"><a class="trek" href="https://rutube.ru/video/5787ba36a77a91590f5892d36e8b9344/" data-video="https://rutube.ru/play/embed/5787ba36a77a91590f5892d36e8b9344/" data-zag="1 ч 3 мин Скульп­ту­ра и ар­хи­тек­ту­ра ан­тич­но­сти" data-nomer="1 ч 3 мин" data-tema="Скульп­ту­ра и ар­хи­тек­ту­ра ан­тич­но­сти" onclick="return shkIgrat(this)"><span class="trek-nomer">1 ч 3 мин</span><span class="trek-tema">Скульп­ту­ра и ар­хи­тек­ту­ра ан­тич­но­сти</span></a><a class="trek" href="https://rutube.ru/video/2cadd1c9fd3ec73a3b9e99b6de549d33/" data-video="https://rutube.ru/play/embed/2cadd1c9fd3ec73a3b9e99b6de549d33/" data-zag="46 мин История Древнего Рима" data-nomer="46 мин" data-tema="История Древнего Рима" onclick="return shkIgrat(this)"><span class="trek-nomer">46 мин</span><span class="trek-tema">История Древнего Рима</span></a><a class="trek" href="https://rutube.ru/video/d8be908487c5cee5be7fe8bea0b6ed3b/" data-video="https://rutube.ru/play/embed/d8be908487c5cee5be7fe8bea0b6ed3b/" data-zag="50 мин Жизнь в античных городах" data-nomer="50 мин" data-tema="Жизнь в античных городах" onclick="return shkIgrat(this)"><span class="trek-nomer">50 мин</span><span class="trek-tema">Жизнь в античных городах</span></a><a class="trek" href="https://rutube.ru/video/25ebe670f770447f95d58f620399a2fb/" data-video="https://rutube.ru/play/embed/25ebe670f770447f95d58f620399a2fb/" data-zag="51 мин Римские дороги и акведуки" data-nomer="51 мин" data-tema="Римские дороги и акведуки" onclick="return shkIgrat(this)"><span class="trek-nomer">51 мин</span><span class="trek-tema">Римские дороги и акведуки</span></a><a class="trek" href="https://rutube.ru/video/9b86ddc3ce6976ee7b02475a01ec153a/" data-video="https://rutube.ru/play/embed/9b86ddc3ce6976ee7b02475a01ec153a/" data-zag="56 мин Древние рынки и торговля" data-nomer="56 мин" data-tema="Древние рынки и торговля" onclick="return shkIgrat(this)"><span class="trek-nomer">56 мин</span><span class="trek-tema">Древние рынки и торговля</span></a></div><div class="pleylist" data-nabor="3" data-imya="Мульт­филь­мы" style="display:none"><a class="trek" href="https://rutube.ru/video/74a8a4e0d1d3b4359c889741b005048a/" data-video="https://rutube.ru/play/embed/74a8a4e0d1d3b4359c889741b005048a/" data-zag="18 мин Прометей (1974)" data-nomer="18 мин" data-tema="Прометей (1974)" onclick="return shkIgrat(this)"><span class="trek-nomer">18 мин</span><span class="trek-tema">Прометей (1974)</span></a><a class="trek" href="https://rutube.ru/video/d191d123f52fba9b99e3972b3f378153/" data-video="https://rutube.ru/play/embed/d191d123f52fba9b99e3972b3f378153/" data-zag="19 мин Аргонавты (1971)" data-nomer="19 мин" data-tema="Аргонавты (1971)" onclick="return shkIgrat(this)"><span class="trek-nomer">19 мин</span><span class="trek-tema">Аргонавты (1971)</span></a><a class="trek" href="https://rutube.ru/video/3c9f1d5b213773a4decf80a3a6cb381b/" data-video="https://rutube.ru/play/embed/3c9f1d5b213773a4decf80a3a6cb381b/" data-zag="19 мин Геракл у Адмета (1986)" data-nomer="19 мин" data-tema="Геракл у Адмета (1986)" onclick="return shkIgrat(this)"><span class="trek-nomer">19 мин</span><span class="trek-tema">Геракл у Адмета (1986)</span></a></div></div></aside><div class="panel-tyanulka pleylista" tabindex="0" role="separator" aria-orientation="vertical" aria-label="Изменить ширину" onkeydown="return shkTyan(event)"></div>
 <script>
 (function(){
   var pleerGotov=false, ozhidanie=null, tek=null, poslT=0;
@@ -830,13 +777,6 @@ a.knopka:focus, a.knopka:hover, a.knopka:active{
     var v=document.getElementById('pleyer-vybor');
     if(v){ v.style.display=skryt ? 'none' : ''; }
   }
-  /* «Закрыть» на уведомлении: карточка уходит, кадр остаётся на паузе —
-     тот урок, на котором остановились. Вернуть карточку можно тем, что
-     выбрать урок заново. */
-  window.shkZakrytKartu=function(){
-    karta(true);
-    return false;
-  };
 
   function vklyuchit(kod, zag, nomer, tema, igrat, sekunda){
     tek={kod:kod, zag:zag, nomer:nomer, tema:tema,
@@ -927,8 +867,6 @@ a.knopka:focus, a.knopka:hover, a.knopka:active{
   }
   function pokazat_kartu(h){
     var t=document.getElementById('vybor-tekst');
-    var tret=document.getElementById('vybor-tretiya');
-    if(tret){ tret.style.display=''; }
     var nomer=(h.nomer||'').trim();
     var tema=(h.tema||'').trim();
     /* Фильм или урок? У уроков подпись пункта — «§ 12», у фильмов —
@@ -1118,12 +1056,8 @@ a.knopka:focus, a.knopka:hover, a.knopka:active{
     if(otkryt){
       b.classList.add('menu-otkryto');
       b.classList.remove('pleylist-otkryto');
-      /* Фокус встаёт на первую строку списка — и в меню, и в плейлисте
-         одинаково. Крестик закрытия при открытии не подсвечивается
-         нигде: раньше в меню фокус шёл на название класса, а в панели
-         плейлиста на первый пункт, и крестики выглядели по-разному. */
       var p=document.getElementById('panel');
-      var perv=p && p.querySelector('.panel-telo a');
+      var perv=p && p.querySelector('summary, .panel-plitka');
       if(perv) perv.focus();
     } else {
       b.classList.remove('menu-otkryto');
@@ -1136,7 +1070,7 @@ a.knopka:focus, a.knopka:hover, a.knopka:active{
       b.classList.add('pleylist-otkryto');
       b.classList.remove('menu-otkryto');
       var p=document.getElementById('pleylist-panel');
-      var perv=p && p.querySelector('.panel-telo a');
+      var perv=p && p.querySelector('.trek, .panel-zakryt');
       if(perv) perv.focus();
     } else {
       b.classList.remove('pleylist-otkryto');
@@ -1257,33 +1191,6 @@ a.knopka:focus, a.knopka:hover, a.knopka:active{
     poleCeli.addEventListener('input', shirinaCeli);
     window.addEventListener('resize', shirinaCeli);
   }
-
-  /* ---- кто учится и зачем ----
-     Строка под путём на каждой странице. Имя и цель человек написал сам
-     на главном экране, здесь мы их только читаем из памяти браузера:
-     ничего не выдумываем и ничего не дописываем. Ни того, ни другого
-     нет — строки на странице тоже нет. */
-  function imya_stroka(){
-    var stroka=document.getElementById('imya-stroka');
-    if(!stroka){ return; }
-    /* На главном экране эти же имя и цель стоят полями — там строка
-       была бы повторением. */
-    if(document.getElementById('imya')){ stroka.hidden=true; return; }
-    var imya='', cel='';
-    try{
-      imya=(localStorage.getItem('shkola.imya')||'').trim();
-      cel=(localStorage.getItem('shkola.tsel')||'').trim();
-    }catch(e){}
-    if(!imya && !cel){ stroka.hidden=true; return; }
-    /* Цель читается как «Хочу …»: если так уже написано — не повторяем. */
-    if(cel && !/^хочу/i.test(cel)){ cel='Хочу '+cel; }
-    var kuski=[];
-    if(imya){ kuski.push('<b>'+imya+'</b>'); }
-    if(cel){ kuski.push(cel); }
-    stroka.innerHTML=kuski.join(' · ');
-    stroka.hidden=false;
-  }
-  imya_stroka();
 
   var polya=[['imya', 'shkola.imya'], ['tsel', 'shkola.tsel']];
   for(var p=0; p<polya.length; p++){

@@ -220,15 +220,6 @@ console.log('плейлистов в разметке: ' + spiski.length +
             ' (' + spiski.map(s => s.treks.length).join(', ') + ')' +
             ' | кнопок вариантов: ' + knopki_uzly.length);
 
-if (!spiski.length) {
-  // Страница предмета с баннером: списки лекций там свои (a.banner-trek),
-  // их проверяет proverka_bannera.js. Молча «0 ошибок» не пишем, чтобы
-  // пропавшие списки на видеостранице нельзя было принять за успех.
-  console.log('на странице нет списков под кадром — верный стенд: ' +
-              'proverka_bannera.js');
-  process.exit(3);
-}
-
 console.log('=== 1. пустая память: страница ничего не запускает');
 proverka('кадра нет', !elId.ramka);
 
@@ -421,46 +412,10 @@ proverka('значок меню зовёт shkMenu()',
          /aria-label="Меню"[^>]*onclick="return shkMenu\(\)"/.test(html));
 proverka('на кадре есть кнопка плейлиста',
          /class="pleyer-knopka"[^>]*onclick="return shkPleylistTog\(\)"/.test(html));
-console.log('=== 14. единый стандарт списков: просто текст');
-// Ни пункты меню, ни пункты плейлиста не носят ни подложки, ни жёлтой
-// полосы слева, ни рамки в фокусе. Проверяем сами правила оформления:
-// строка списка — это текст, а не кнопка.
-const blok = (ot, do_) => {
-  const i = html.indexOf(ot);
-  return i < 0 ? '' : html.slice(i, html.indexOf('}', i) + 1);
-};
-const plytka = blok('a.panel-plitka{');
-const trek = blok('a.trek{');
-proverka('у пункта меню нет подложки',
-         !!plytka && !/background:(?!none)/.test(plytka), plytka);
-proverka('у пункта меню нет жёлтой полосы слева',
-         !!plytka && !/border-left/.test(plytka), plytka);
-proverka('у пункта плейлиста нет подложки',
-         !!trek && !/background:(?!none)/.test(trek), trek);
-proverka('у пункта плейлиста нет полосы слева и рамки',
-         !!trek && !/border-left\s*:\s*[1-9]/.test(trek) &&
-         !/(^|;)\s*border\s*:\s*[1-9]/.test(trek) &&
-         !/outline\s*:\s*(?!none)/.test(trek), trek);
-proverka('синим ничего не подсвечиваем',
-         !/#[0-9a-f]*[0-9a-f]*(a0c|07c|1a4f7a|3b82f6)/i.test(html));
-proverka('название плейлиста не обводится рамкой в фокусе',
-         /summary\.pl-imya:focus[^}]*outline:none/.test(html));
-proverka('у названий плейлистов и глав нет жёлтого',
-         /summary\.pl-imya\{[\s\S]{0,320}color:#8b95a5/.test(html) &&
-         /\.trek-gruppa\{[\s\S]{0,220}color:#8b95a5/.test(html));
-proverka('в боковом меню не осталось задвоенного разделителя',
-         !/class="panel-razd"/.test(html));
-proverka('у пунктов меню нет обводки на фокусе',
-         /a\.panel-plitka:focus[^{]*\{[^}]*outline:none/.test(html));
-proverka('у пунктов плейлиста нет обводки на фокусе',
-         /a\.trek:focus[^{]*\{[^}]*outline:none/.test(html));
-proverka('на уведомлении есть кнопка «Закрыть»',
-         /id="vybor-tretiya"[^>]*>Закрыть</.test(html));
-proverka('строка с именем и целью есть на странице',
-         /id="imya-stroka"/.test(html));
-proverka('крестик подсвечивается одинаково в обеих панелях',
-         /a\.panel-zakryt:focus, a\.panel-zakryt:hover/.test(html) &&
-         !/\.panel-verh[^{]*\.panel-zakryt\{[^}]*border-color:#ffd23f/.test(html));
+proverka('у пунктов списка классов нет подложки',
+         /\.klass-spisok a\.panel-plitka\{[^}]*background:none/.test(html));
+proverka('у названия класса нет жёлтой обводки на фокусе',
+         !/klass-knopka:focus\{outline/.test(html));
 // Панель — столбик: шапка отдельной полосой, список прокручивается в
 // своей области. Иначе при прокрутке список уносил шапку с собой.
 proverka('панель собрана столбиком',

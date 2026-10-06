@@ -7,7 +7,7 @@
 // Берём ровно те ролики, что стоят в данных страниц кино и в баннере.
 const fs = require('fs');
 const path = require('path');
-const { chromium } = require('./плейрайт.js');
+const { chromium } = require('playwright');
 
 const fayly = [
   'Временные/kino_istoriya_5.json',
@@ -34,14 +34,9 @@ console.log('роликов к проверке: ' + vse.length);
   let ploho = 0, bezVideo = 0;
   for (const v of vse) {
     const u = 'https://rutube.ru/play/embed/' + v.kod + '/';
-    /* Встроенный кадр иногда не успевает отдать видео с первого раза —
-       это не блокировка. Поэтому «кадра нет» перепроверяем: закрываем
-       и открываем заново, до трёх раз, и верим только последнему. */
-    let sostoyanie = { video: false, dlina: 0, nedostupno: false };
-    for (let popytka = 0; popytka < 3; popytka++) {
-      await p.goto(u, { waitUntil: 'domcontentloaded' }).catch(() => {});
-      await p.waitForTimeout(3500);
-      sostoyanie = await p.evaluate(() => {
+    await p.goto(u, { waitUntil: 'domcontentloaded' }).catch(() => {});
+    await p.waitForTimeout(3500);
+    const sostoyanie = await p.evaluate(() => {
       const f = document.querySelector('iframe');
       const vn = f && f.contentDocument ? f.contentDocument : document;
       const t = (document.body.innerText || '').replace(/\s+/g, ' ');
@@ -52,9 +47,7 @@ console.log('роликов к проверке: ' + vse.length);
         dlina: video ? Math.round(video.duration || 0) : 0,
         nedostupno: /недоступно|ограничений|не найдено|удалено/i.test(t),
       };
-      });
-      if (sostoyanie.nedostupno || sostoyanie.video) break;
-    }
+    });
     let zametka = '';
     if (sostoyanie.nedostupno) {
       zametka = 'НЕДОСТУПНО В НАШЕМ КРАЮ';

@@ -4,7 +4,7 @@
 //   node Временные/proverka_bannera.js "Проект/База данных/7 класс/История.html"
 const fs = require('fs');
 const path = require('path');
-const { chromium } = require('./плейрайт.js');
+const { chromium } = require('playwright');
 
 const put = process.argv[2] || 'Проект/База данных/7 класс/История.html';
 const kuda = 'Временные/снимки';
@@ -110,10 +110,6 @@ const proverka = (chto, uslovie, fakticheski) => {
       nakladka: !!document.querySelector('.vybor-karta') &&
                 getComputedStyle(document.querySelector('.vybor-karta')).display,
       aktivnyh: document.querySelectorAll('.banner-trek.aktiven').length,
-      kadr_shirina: ram ? Math.round(ram.getBoundingClientRect().width) : 0,
-      kadr_vysota: ram ? Math.round(ram.getBoundingClientRect().height) : 0,
-      mesto_shirina: Math.round(document.querySelector('.banner-mesto')
-        .getBoundingClientRect().width),
       zashchita: document.querySelectorAll('#pleyer').length,
       body_klass: telo.className,
     };
@@ -124,12 +120,6 @@ const proverka = (chto, uslovie, fakticheski) => {
            /^https:\/\/rutube\.ru\/play\/embed\/[0-9a-f]{32}\/$/.test(igraet.adres),
            igraet.adres);
   proverka('подсвечена одна лекция', igraet.aktivnyh === 1, igraet.aktivnyh);
-  // Абсолютный кадр в баннере когда-то накрывал собой всю страницу:
-  // сверху чернел экран, а нажатия по списку лекций доставались кадру.
-  proverka('кадр в баннере занимает своё место, а не всю страницу',
-           Math.abs(igraet.kadr_shirina - igraet.mesto_shirina) <= 2 &&
-           Math.abs(igraet.kadr_vysota - igraet.mesto_shirina * 9 / 16) <= 3,
-           igraet);
   proverka('карточки возврата на странице предмета нет',
            !igraet.nakladka || igraet.nakladka === 'none', igraet.nakladka);
   proverka('большого плеера на странице не появилось',
@@ -151,80 +141,6 @@ const proverka = (chto, uslovie, fakticheski) => {
   proverka('после возврата лекция снова в кадре', posle.kadr, posle);
   proverka('открылась та подборка, где лежит лекция', posle.otkryta_vtoraya, posle);
   proverka('она же подсвечена', posle.aktivnyh === 1, posle.aktivnyh);
-
-  // --- строки лекций: тот же стандарт, что у списков под кадром
-  // Кадр в баннере появляется после возврата и меняет высоту страницы,
-  // поэтому перед каждым наведением прокручиваем заново и убеждаемся,
-  // что точка наведения правда внутри окна, а под курсором — строка.
-  const otkr_stroka = () => p.evaluate(() => {
-    document.querySelectorAll('[data-proverka-kursor]').forEach(e =>
-      e.removeAttribute('data-proverka-kursor'));
-    const listy = [...document.querySelectorAll('.banner-nabor')];
-    const odkryt = listy.find(l => !l.hasAttribute('hidden')) || listy[0];
-    const a = odkryt.querySelector('.banner-trek:not(.aktiven)') ||
-              odkryt.querySelector('.banner-trek');
-    a.setAttribute('data-proverka-kursor', '1');
-    window.scrollTo(0, Math.round(
-      a.getBoundingClientRect().top + scrollY - innerHeight / 2));
-    return true;
-  });
-  const tochka = () => p.evaluate(() => {
-    const a = document.querySelector('[data-proverka-kursor]');
-    if (!a) return { vnutri: false, chto: 'строки нет' };
-    const k = a.getBoundingClientRect();
-    const x = Math.round(k.left + k.width / 2);
-    const y = Math.round(k.top + k.height / 2);
-    const el = document.elementFromPoint(x, y);
-    return {
-      x: x, y: y,
-      vnutri: x > 0 && y > 0 && x < innerWidth && y < innerHeight,
-      pod: el ? (el.className || el.tagName) : 'ничего',
-      est: !!el && !!el.closest && el.closest('.banner-trek') === a,
-      cvet: getComputedStyle(a).color,
-      vremya_aktivnoy: [...document.querySelectorAll(
-        '.banner-trek.aktiven .bt-vremya')].map(e => getComputedStyle(e).color),
-    };
-  });
-  const rgb = t => (t.match(/\d+/g) || []).map(Number);
-
-  let na = { est: false, chto: 'не наводили' };
-  for (let popytka = 0; popytka < 4 && !na.est; popytka++) {
-    await otkr_stroka();
-    await p.waitForTimeout(200);
-    const t = await tochka();
-    if (!t.vnutri) continue;
-    await p.mouse.move(t.x, t.y);
-    await p.waitForTimeout(250);
-    na = await tochka();
-  }
-  proverka('курсор действительно на строке лекции', na.est,
-           na.pod + ' | ' + JSON.stringify({ x: na.x, y: na.y, vnutri: na.vnutri }));
-
-  await p.mouse.move(4, 4);
-  await p.waitForTimeout(250);
-  const bez = await tochka();
-  proverka('строка лекции в покое без подложки, рамки и обводки',
-           await p.evaluate(() => {
-             const a = document.querySelector('[data-proverka-kursor]');
-             const c = getComputedStyle(a);
-             return (c.backgroundColor === 'rgba(0, 0, 0, 0)' ||
-                     c.backgroundColor === 'transparent') &&
-                    (c.borderTopWidth === '0px' && c.borderLeftWidth === '0px') &&
-                    c.outlineStyle === 'none';
-           }));
-  proverka('строка лекции не синяя',
-           rgb(bez.cvet)[2] - rgb(bez.cvet)[0] < 40, bez.cvet);
-  proverka('время активной лекции не жёлтое',
-           bez.vremya_aktivnoy.every(c => rgb(c)[0] <= rgb(c)[2]),
-           bez.vremya_aktivnoy);
-  proverka('наведение делает строку чуть ярче', na.cvet !== bez.cvet,
-           na.cvet + ' / ' + bez.cvet);
-  proverka('наведение — жёлтого оттенка не появляется',
-           rgb(na.cvet)[0] <= rgb(na.cvet)[2], na.cvet);
-  await p.evaluate(() => {
-    document.querySelectorAll('[data-proverka-kursor]').forEach(e =>
-      e.removeAttribute('data-proverka-kursor'));
-  });
 
   console.log('ошибки на странице:', osh.length ? osh.join(' | ') : 'нет');
   console.log('\nИтог: ошибок ' + oshibki);

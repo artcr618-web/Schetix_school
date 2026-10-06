@@ -1,6 +1,6 @@
 // Смотрим карточку возврата на странице кино: открываем фильм, перезагружаем
 // и снимаем область плеера — там должны быть слова про фильм, а не про §.
-const { chromium } = require('./плейрайт.js');
+const { chromium } = require('playwright');
 const path = require('path');
 (async () => {
   const b = await chromium.launch();

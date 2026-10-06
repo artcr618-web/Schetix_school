@@ -316,13 +316,7 @@ a.plitka.s-kartinkoy{
   background:linear-gradient(165deg,#171f2a 0%,#0f141b 100%);
   border-radius:18px; overflow:hidden;
 }
-.pleyer-ramka{border:0}
-/* Растягиваем на весь блок только кадр большого плеера. Баннерный кадр
-   носит тот же класс — по нему его находит восстановление позиции, —
-   но живёт в обычном потоке: абсолютный кадр в баннере не имел
-   позиционированного предка и накрывал собой всю страницу: сверху
-   чернел экран, а нажатия по списку лекций доставались кадру. */
-.pleyer .pleyer-ramka{position:absolute; inset:0; width:100%; height:100%}
+.pleyer-ramka{position:absolute; inset:0; width:100%; height:100%; border:0}
 /* Кнопки вариантов плейлиста — под плеером. Появляются, только когда
    вариантов больше одного: уроки по параграфам, короткие пересказы,
    разборы домашних заданий, повторение. */
@@ -348,10 +342,7 @@ summary.pl-imya{
 summary.pl-imya::-webkit-details-marker{display:none}
 summary.pl-imya::marker{content:''}
 summary.pl-imya .pl-nazv{flex:1 1 auto; min-width:0}
-/* Рамки на фокусе нет: открытый плейлист и без неё видно (название
-   ярче остальных), а жёсткая белая рамка превращала строку в кнопку. */
-summary.pl-imya:focus, summary.pl-imya:focus-visible{outline:none}
-summary.pl-imya:hover{color:#f3f5f9}
+summary.pl-imya:focus{outline:3px solid #f3f5f9; outline-offset:2px}
 summary.pl-imya .strela svg{width:30px; height:30px}
 details.pl-blok[open] > summary.pl-imya .strela{transform:rotate(180deg)}
 .pl-blok.aktiven > summary.pl-imya{color:#f3f5f9}
@@ -389,16 +380,7 @@ a.pleyer-knopka svg{width:34px; height:34px; display:block}
 a.pleyer-knopka:hover, a.pleyer-knopka:focus{
   border-color:#ffd23f; background:rgba(10,13,18,.92);
 }
-/* Карточка возврата лежит ПОВЕРХ кадра. Без этого кадр — он вставлен
-   абсолютно — рисовался выше неё, и уведомление «Вы остановились на
-   параграфе…» было не видно вовсе: в разметке есть, на экране нет. */
-.pleyer-vybor{
-  position:absolute; inset:0; z-index:5;
-  display:flex; align-items:center; justify-content:center;
-  padding:26px 30px; border-radius:18px;
-  background:linear-gradient(180deg, rgba(10,13,18,.5), rgba(10,13,18,.86));
-}
-.pleyer-vybor .vybor-karta{width:100%; max-width:920px}
+.pleyer-vybor{position:absolute; inset:auto 0 0 0; padding:0 22px 22px}
 .vybor-karta{
   display:flex; flex-direction:column; gap:18px;
   background:linear-gradient(180deg, rgba(10,13,18,.82), rgba(10,13,18,.96));
@@ -417,38 +399,22 @@ a.vybor-knopka{
 a.vybor-knopka.vtoraya{
   background:#2b3543; color:#f3f5f9; font-weight:600;
 }
-/* «Закрыть» — третья кнопка уведомления: убирает саму карточку, кадр
-   остаётся на паузе. Тише двух первых: это не выбор урока. */
-a.vybor-knopka.tretiya{
-  background:none; border-color:transparent; color:#8b95a5;
-  font-weight:600; padding-left:12px; padding-right:12px;
-}
-a.vybor-knopka.tretiya:hover, a.vybor-knopka.tretiya:focus{color:#f3f5f9}
 a.vybor-knopka:focus, a.vybor-knopka:hover{
   outline:none; border-color:#f3f5f9;
   box-shadow:0 0 0 6px rgba(255,210,63,.28);
 }
-/* Пункт плейлиста — просто текст, как и название плейлиста над ним.
-   Ни подложки, ни жёлтой полосы слева, ни рамки в фокусе: это строка
-   списка, а не кнопка. Реакция одна — при наведении или фокусе строка
-   становится чуть ярче. Синим не делаем никогда: цвет наш, серый.
-   Так выглядит и список под кадром, и список в панели, и меню:
-   стандарт один. */
+/* Список плейлиста живёт внутри области прокрутки панели. */
 a.trek{
   display:flex; align-items:baseline; gap:18px; text-decoration:none;
-  color:#c9d2df; background:none; border:0; border-radius:0;
-  padding:11px 4px;
+  color:#f3f5f9; background:#1b212b; border-radius:14px;
+  border-left:6px solid #ffd23f; padding:16px 22px; margin-bottom:10px;
   hyphens:manual; overflow-wrap:break-word;
 }
-a.trek:hover, a.trek:focus, a.trek:focus-visible{
-  background:none; outline:none; color:#f3f5f9;
-}
-.trek-nomer{
-  flex:0 0 auto; min-width:96px; font-size:28px; color:#8b95a5;
-}
+a.trek:hover, a.trek:focus{background:#2c3745; outline:3px solid #ffd23f}
+.trek-nomer{flex:0 0 auto; min-width:96px; font-size:30px; font-weight:700;
+            color:#ffd23f}
 .trek-tema{flex:1 1 auto; min-width:0; font-size:28px; line-height:1.25}
-/* Играющий пункт ярче остальных — и только цветом: никаких рамок. */
-a.trek.aktiven{color:#f3f5f9}
+a.trek.aktiven{background:#3d4c5f; border-color:#ffd23f}
 /* Заголовок группы («Глава I. Первобытное общество») — подпись к идущим
    за ним пунктам. Он серый, как название учебника: его видно, но он не
    спорит с пунктами и не сбивает с ориентировки. От текста до верхней
@@ -522,20 +488,19 @@ a.panel-zakryt{
 }
 a.panel-zakryt svg{width:32px; height:32px; display:block}
 a.panel-zakryt:focus, a.panel-zakryt:hover{border-color:#ffd23f; background:#202836}
-/* Пункты меню — тот же стандарт, что и пункты плейлиста: просто текст,
-   при наведении чуть ярче, текущий страница ярче остальных. Никаких
-   плашек с фоном и жёлтых полос слева. */
 a.panel-plitka{
-  display:block; background:none; border:0; border-radius:0;
-  padding:10px 2px; margin-bottom:2px;
-  color:#c9d2df; text-decoration:none; font-size:30px;
+  display:block; background:#1b212b; border-radius:14px;
+  border-left:6px solid #ffd23f; padding:18px 22px; margin-bottom:12px;
+  color:#f3f5f9; text-decoration:none; font-size:29px;
   overflow-wrap:break-word;
 }
-a.panel-plitka:focus, a.panel-plitka:hover, a.panel-plitka:focus-visible{
-  background:none; outline:none; color:#f3f5f9;
+a.panel-plitka:focus, a.panel-plitka:hover{
+  background:#2c3745; outline:3px solid #ffd23f; outline-offset:0;
 }
 a.panel-plitka.tuskly{font-size:25px; color:#98a2b3}
-a.panel-plitka.tekushchiy{background:none; border:0; color:#f3f5f9}
+a.panel-plitka.tekushchiy{background:#2c3745; border-left-color:#f3f5f9;
+                          color:#ffd23f}
+.panel-razd{height:2px; background:#2a3340; margin:22px 4px}
 
 /* ---- выбор класса: раскрывающийся список в меню ----
    Обычный details/summary: работает и без javascript, на пульте
@@ -552,10 +517,7 @@ summary.klass-knopka{
 summary.klass-knopka::-webkit-details-marker{display:none}
 summary.klass-knopka > span:first-child{flex:1 1 auto; min-width:0}
 /* Рамки на фокусе нет: при открытии меню фокус встаёт на название
-   класса, и браузер рисовал вокруг него свой прямоугольник — строка
-   выглядела плашкой с обводкой. При наведении название чуть ярче. */
-summary.klass-knopka:focus, summary.klass-knopka:focus-visible{outline:none}
-summary.klass-knopka:hover{color:#f3f5f9}
+   класса, и жёлтая обводка превращала простой текст в кнопку. */
 .strela{flex:0 0 auto; display:flex; color:inherit; transition:transform .15s}
 .strela svg{width:34px; height:34px; display:block}
 details.vybor-klassa[open] .strela{transform:rotate(180deg)}
@@ -564,13 +526,13 @@ details.vybor-klassa[open] .strela{transform:rotate(180deg)}
    полосы слева, ни рамки. Отличаются только цветом: текущий класс
    такой же яркий, как название сверху, остальные — приглушённые. */
 .klass-spisok a.panel-plitka{
-  padding:7px 2px; margin-bottom:2px; font-size:30px; color:#98a2b3;
+  background:none; border:0; border-radius:0; padding:6px 2px;
+  margin-bottom:6px; font-size:30px; color:#98a2b3;
 }
 .klass-spisok a.panel-plitka:hover,
-.klass-spisok a.panel-plitka:focus,
-.klass-spisok a.panel-plitka:focus-visible{background:none; outline:none;
-                                           color:#f3f5f9}
-.klass-spisok a.panel-plitka.tekushchiy{color:#f3f5f9}
+.klass-spisok a.panel-plitka:focus{background:none; outline:none;
+                                   color:#f3f5f9}
+.klass-spisok a.panel-plitka.tekushchiy{background:none; color:#f3f5f9}
 
 
 /* ---- баннер лекций: полоса во всю ширину страницы предмета ----
@@ -632,23 +594,9 @@ a.banner-trek .bt-vremya{
 a.banner-trek .bt-tema{flex:1 1 auto; hyphens:manual}
 a.banner-trek:focus, a.banner-trek:hover{outline:none; color:#f3f5f9}
 a.banner-trek.aktiven{color:#f3f5f9}
-/* Активная лекция отличается только цветом строки — как и в списках
-   под кадром. Жёлтое время было единственной подсветкой в баннере и
-   спорило с их стандартом, поэтому его убрали. */
+a.banner-trek.aktiven .bt-vremya{color:#ffd23f}
 /* Плитки под баннером: воздух больше, чем между самими плитками. */
 .setka.posle-bannera{margin-top:64px}
-
-/* ---- кто учится и зачем ----
-   Маленькая строка под путём, выше учебника: имя и цель с главного
-   экрана. Она не заголовок страницы — тот большой, — а напоминание:
-   видно на каждой странице, в том числе когда смотришь видео. Ничего
-   не выдумываем: имя и цель человек написал сам, пусто — строки нет. */
-.imya-stroka{
-  margin:2px 0 0; padding:0 4px;
-  font-size:24px; color:#8b95a5;
-  hyphens:manual; overflow-wrap:break-word;
-}
-.imya-stroka b{font-weight:600; color:#c9d2df}
 
 h1{font-size:50px; margin:0 0 8px; letter-spacing:-.01em}
 .pod{color:#98a2b3; font-size:26px; margin:0 0 10px}
@@ -840,7 +788,6 @@ VERH = """<nav class="verh">
 <span class="pravo">{pin}{menyu}</span>
 </nav>
 {put}
-{imya}
 {kniga}
 {panel}"""
 
@@ -877,12 +824,8 @@ JS = """<script>
     if(otkryt){
       b.classList.add('menu-otkryto');
       b.classList.remove('pleylist-otkryto');
-      /* Фокус встаёт на первую строку списка — и в меню, и в плейлисте
-         одинаково. Крестик закрытия при открытии не подсвечивается
-         нигде: раньше в меню фокус шёл на название класса, а в панели
-         плейлиста на первый пункт, и крестики выглядели по-разному. */
       var p=document.getElementById('panel');
-      var perv=p && p.querySelector('.panel-telo a');
+      var perv=p && p.querySelector('summary, .panel-plitka');
       if(perv) perv.focus();
     } else {
       b.classList.remove('menu-otkryto');
@@ -895,7 +838,7 @@ JS = """<script>
       b.classList.add('pleylist-otkryto');
       b.classList.remove('menu-otkryto');
       var p=document.getElementById('pleylist-panel');
-      var perv=p && p.querySelector('.panel-telo a');
+      var perv=p && p.querySelector('.trek, .panel-zakryt');
       if(perv) perv.focus();
     } else {
       b.classList.remove('pleylist-otkryto');
@@ -1016,33 +959,6 @@ JS = """<script>
     poleCeli.addEventListener('input', shirinaCeli);
     window.addEventListener('resize', shirinaCeli);
   }
-
-  /* ---- кто учится и зачем ----
-     Строка под путём на каждой странице. Имя и цель человек написал сам
-     на главном экране, здесь мы их только читаем из памяти браузера:
-     ничего не выдумываем и ничего не дописываем. Ни того, ни другого
-     нет — строки на странице тоже нет. */
-  function imya_stroka(){
-    var stroka=document.getElementById('imya-stroka');
-    if(!stroka){ return; }
-    /* На главном экране эти же имя и цель стоят полями — там строка
-       была бы повторением. */
-    if(document.getElementById('imya')){ stroka.hidden=true; return; }
-    var imya='', cel='';
-    try{
-      imya=(localStorage.getItem('shkola.imya')||'').trim();
-      cel=(localStorage.getItem('shkola.tsel')||'').trim();
-    }catch(e){}
-    if(!imya && !cel){ stroka.hidden=true; return; }
-    /* Цель читается как «Хочу …»: если так уже написано — не повторяем. */
-    if(cel && !/^хочу/i.test(cel)){ cel='Хочу '+cel; }
-    var kuski=[];
-    if(imya){ kuski.push('<b>'+imya+'</b>'); }
-    if(cel){ kuski.push(cel); }
-    stroka.innerHTML=kuski.join(' · ');
-    stroka.hidden=false;
-  }
-  imya_stroka();
 
   var polya=[['imya', 'shkola.imya'], ['tsel', 'shkola.tsel']];
   for(var p=0; p<polya.length; p++){
@@ -1400,13 +1316,6 @@ JS_PLAYERA = """<script>
     var v=document.getElementById('pleyer-vybor');
     if(v){ v.style.display=skryt ? 'none' : ''; }
   }
-  /* «Закрыть» на уведомлении: карточка уходит, кадр остаётся на паузе —
-     тот урок, на котором остановились. Вернуть карточку можно тем, что
-     выбрать урок заново. */
-  window.shkZakrytKartu=function(){
-    karta(true);
-    return false;
-  };
 
   function vklyuchit(kod, zag, nomer, tema, igrat, sekunda){
     tek={kod:kod, zag:zag, nomer:nomer, tema:tema,
@@ -1497,8 +1406,6 @@ JS_PLAYERA = """<script>
   }
   function pokazat_kartu(h){
     var t=document.getElementById('vybor-tekst');
-    var tret=document.getElementById('vybor-tretiya');
-    if(tret){ tret.style.display=''; }
     var nomer=(h.nomer||'').trim();
     var tema=(h.tema||'').trim();
     /* Фильм или урок? У уроков подпись пункта — «§ 12», у фильмов —
@@ -1843,10 +1750,7 @@ def blok_playera(nabor):
              '<span class="vybor-knopki">'
              '<a class="vybor-knopka" id="vybor-glavnaya" href="#"></a>'
              '<a class="vybor-knopka vtoraya" id="vybor-vtoraya" '
-             'href="#"></a>'
-             '<a class="vybor-knopka tretiya" id="vybor-tretiya" href="#" '
-             'onclick="return shkZakrytKartu()">Закрыть</a>'
-             '</span></div>')
+             'href="#"></a></span></div>')
     zakryt = ('<a class="panel-zakryt" href="#" aria-label="Закрыть плейлист" '
               'onclick="return shkPleylist(false)">' + ikona('закрыть') + '</a>')
     # В шапке панели стоит название открытого плейлиста, а не слово
@@ -1954,12 +1858,9 @@ def sobrat(zagolovok, podzagolovok, bloki, fayl, put=None,
             f'<span class="strela">{ikona("шеврон")}</span></summary>'
             f'<div class="klass-spisok">{klassy_html}</div></details>')
 
-    # Разделитель здесь не нужен: у шапки панели своя нижняя линия, и
-    # два разделителя подряд читались одной задвоенной полосой. Список
-    # предметов отделён от шапки тем же воздухом, что и в панели плейлиста.
     punkte = ''
     if menyu_spisok:
-        punkte = ''.join(
+        punkte = '<div class="panel-razd"></div>' + ''.join(
             f'<a class="panel-plitka" href="{otnositelno(fayl, kuda)}">'
             f'{myagkie(tekst)}</a>'
             for tekst, kuda in menyu_spisok)
@@ -1973,13 +1874,7 @@ def sobrat(zagolovok, podzagolovok, bloki, fayl, put=None,
              'aria-label="Изменить ширину" '
              'onkeydown="return shkTyan(event)"></div>')
 
-    # Строка с именем и целью стоит под путём, выше учебника: маленькая,
-    # серым, как название учебника. Наполняет её скрипт из памяти браузера
-    # (там же, где живут имя и цель с главного экрана). Пусто — строки нет.
-    imya = ('<div class="imya-stroka" id="imya-stroka" hidden></div>')
-
     verh = (VERH.replace('{put}', kroshechki(put, fayl))
-                .replace('{imya}', imya)
                 .replace('{menyu}', menyu)
                 .replace('{kniga}', kniga or '')
                 .replace('{vhod}', vhod)

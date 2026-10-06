@@ -3,7 +3,7 @@
 // откроет наша страница.
 //
 //   node Временные/proverka_kandidatov.js <код> <код> ...
-const { chromium } = require('./плейрайт.js');
+const { chromium } = require('playwright');
 
 const kody = process.argv.slice(2);
 if (!kody.length) { console.error('нужны коды видео'); process.exit(2); }
