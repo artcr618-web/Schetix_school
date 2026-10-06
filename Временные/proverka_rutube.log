@@ -1,0 +1,39 @@
+# Проверка ссылок Rutube — страница «География, 5 класс: видео по параграфам»
+# Дата: 5 октября 2026 г.
+# Способ: oEmbed Rutube (https://rutube.ru/api/oembed/?url=...&format=json).
+#         Живое видео отдаёт JSON с названием; удалённое — 404.
+#         Обычный curl в этот день был закрыт WAF (403 Access Blocked),
+#         поэтому проверка шла через другой сетевой выход.
+# 200 = видео живо и отдаётся.
+
+§  1  200  Зачем нам география и как мы будем её изучать    https://rutube.ru/video/6c11d3d67883fb6e543d233a19069e5e/
+§  2  200  География в древности                            https://rutube.ru/video/eaea731acd29e06119ee177af5039305/
+§  3  200  География в средние века                         https://rutube.ru/video/30a50af9190efc390946ae95c21e4d75/
+§  4  200  Эпоха Великих географических открытий            https://rutube.ru/video/23e725a5ca19ef12d8e88a98e7b25ac0/
+§  5  200  Географические открытия XVII—XX вв.              https://rutube.ru/video/2363fa3df1e230dfe1cd713f5371cef4/
+§  6  200  Российские путешественники                       https://rutube.ru/video/bc6afbaf23b019bebf312172341f775b/
+§  7  200  География сегодня                                https://rutube.ru/video/d015f14b41e4c0b389c04f454b282011/
+§  8  200  Мы во Вселенной                                  https://rutube.ru/video/8cac8691e574a0480b23c088b2e810e4/
+§  9  200  Учимся с «Полярной звездой» (1)                  https://rutube.ru/video/9d6c3ff7231c916f64fa3837aa1a5b37/
+§ 10  200  Движения Земли                                   https://rutube.ru/video/7dd3adee22f3b2ea011b7b97848be289/
+§ 11  200  Солнечный свет на Земле                          https://rutube.ru/video/19eb7437acb011af7df24dcffddfdb64/
+§ 12  200  Ориентирование на местности                      https://rutube.ru/video/7e14cd4d24d6d34e5c44681cea56304c/
+§ 13  200  Земная поверхность на плане и карте (1)          https://rutube.ru/video/7b28bddfa3bad5094c907bfcca7732bd/
+§ 14  200  Земная поверхность на плане и карте (2)          https://rutube.ru/video/b0da1ce1aab2e3d37f19f6483d5595cc/
+§ 15  200  Учимся с «Полярной звездой» (2)                  https://rutube.ru/video/bdad743d40bd8f84d7522750257cb0f2/
+§ 16  200  Географическая карта                             https://rutube.ru/video/32767119d7df44a47afa1c449ca1e8c6/
+§ 17  200  Градусная сетка                                  https://rutube.ru/video/d0e21a51a5e873fc40743b46d36b2a38/
+§ 18  200  Географические координаты (1)                    https://rutube.ru/video/ad533adfb70165b816c86e74dfca81bf/
+§ 19  200  Географические координаты (2)                    https://rutube.ru/video/b53f7119a9fcae3c6d80e9ad7723c7a3/
+§ 20  200  Учимся с «Полярной звездой» (3)                  https://rutube.ru/video/650f01ee2723b16e4846dbda95696a21/
+§ 21  200  Земная кора — верхняя часть литосферы            https://rutube.ru/video/e29777cefd32ef11a56f572b0fc5a1cc/
+§ 22  200  Горные породы, минералы и полезные ископаемые    https://rutube.ru/video/38653764c11e0f3a9e6e33f30a162357/
+§ 23  200  Движения земной коры (1)                         https://rutube.ru/video/a28c937b536688da17658b79a0072fc0/
+§ 24  200  Движения земной коры (2)                         https://rutube.ru/video/acaede716b93b24bc9a9363954e91475/
+§ 25  200  Рельеф Земли. Равнины                            https://rutube.ru/video/e7aa86befad55e2e24b4df6929673206/
+§ 26  200  Рельеф Земли. Горы                               https://rutube.ru/video/d080c0b0f65d8fd6bd2804251d532d13/
+§ 27  200  Учимся с «Полярной звездой» (4)                  https://rutube.ru/video/aba8705ab9b7a302a3309d8097f18afb/
+§ 28  200  Литосфера и человек                              https://rutube.ru/video/1fcc57c9aa6652782242075e51e3b2df/
+§ 31  200  Мировой океан (2)                                https://rutube.ru/video/d6b022f09e07d641fe1e6d43852224a5/
+
+Итого: 29 ссылок, все живы; удалённых нет.

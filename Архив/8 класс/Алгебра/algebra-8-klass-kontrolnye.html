@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Алгебра. 8 класс — контрольные работы</title>
+<style>
+  :root{--ink:#1b1a17;--muted:#6a6355;--line:#d6d0c4;--accent:#8c2f21;--accent2:#244a63;--ok:#2f6b45}
+  *{box-sizing:border-box}
+  body{margin:0;background:#faf8f4;color:var(--ink);font-size:15.5px;line-height:1.55;
+    font-family:"Georgia","Times New Roman",serif}
+  .wrap{max-width:960px;margin:0 auto;padding:0 22px 70px}
+  header{background:#2b2620;color:#f5f1e8;padding:30px 22px 24px;margin-bottom:24px}
+  header .inner{max-width:960px;margin:0 auto}
+  h1{margin:0 0 8px;font-size:25px;font-weight:600}
+  header p{margin:0;color:#c8bfae;font-size:14.5px;font-family:system-ui,sans-serif}
+  h2{font-size:21px;margin:40px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--accent)}
+  h3{font-size:17.5px;margin:26px 0 6px;font-family:system-ui,sans-serif}
+  h4{font-size:15.5px;margin:16px 0 6px;font-family:system-ui,sans-serif;color:var(--accent2)}
+  p,li{font-size:15.5px}
+  .work{background:#fff;border:1px solid var(--line);border-radius:8px;padding:20px 24px;margin:16px 0;
+    box-shadow:0 1px 3px rgba(0,0,0,.04)}
+  table{border-collapse:collapse;width:100%;font-size:14.5px;margin:10px 0;background:#fff}
+  th,td{border:1px solid var(--line);padding:6px 9px;text-align:left;vertical-align:top}
+  th{background:#efeae1;font-family:system-ui,sans-serif;font-size:13.5px}
+  td a{white-space:nowrap}
+  .note{background:#fff8e8;border:1px solid #ecdcb4;border-radius:8px;padding:12px 17px;margin:16px 0;
+    font-family:system-ui,sans-serif;font-size:14.5px}
+  .ok{background:#f2f6f2;border:1px solid #bcd3c4;border-radius:8px;padding:12px 17px;margin:16px 0;
+    font-family:system-ui,sans-serif;font-size:14.5px}
+  .src{border-left:3px solid var(--accent);background:#f7f3ea;padding:10px 14px;margin:10px 0;font-size:15px}
+  .tag{display:inline-block;font-family:system-ui,sans-serif;font-size:11.5px;padding:1px 7px;border-radius:10px;white-space:nowrap}
+  .free{background:#e3f0e7;color:#2f6b45;border:1px solid #b9d6c3}
+  .part{background:#fbeedb;color:#8a5a12;border:1px solid #e6cf9f}
+  .paid{background:#f7e2e2;color:#8c2f21;border:1px solid #e5c2c2}
+  .reg{background:#e8eef4;color:#244a63;border:1px solid #c3d3e0}
+  a{color:#1a4f7a}
+  ul{margin:8px 0 8px 22px;padding:0}
+  .tt{font-family:system-ui,sans-serif;font-size:13px;color:var(--muted);letter-spacing:.03em;text-transform:uppercase}
+  .big{font-size:17px;font-weight:600;font-family:system-ui,sans-serif}
+  code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13.5px;background:#f0ece3;padding:1px 5px;border-radius:4px}
+  @media print{
+    body{background:#fff;font-size:11.5pt}
+    header{background:#fff;color:#000;border-bottom:2px solid #000;padding:0 0 10px;margin-bottom:14px}
+    header p{color:#333}
+    .work{border:none;padding:0}
+    h2{page-break-before:always;border-bottom:1px solid #000}
+    .no-print{display:none}
+  }
+
+  nav{background:#efeae1;border-bottom:1px solid var(--line)}
+  nav .inner{max-width:960px;margin:0 auto;padding:9px 22px;display:flex;
+    flex-wrap:wrap;gap:6px 18px}
+  nav a{font-family:system-ui,sans-serif;font-size:13.5px;color:#4a3f30;
+    text-decoration:none;border-bottom:1px dotted #b3a894}
+  nav a:hover{color:var(--accent);border-bottom-color:var(--accent)}
+  .lead{background:#fff;border:1px solid var(--line);
+    border-left:4px solid var(--accent);border-radius:8px;
+    padding:14px 18px;margin:16px 0;font-size:16px;line-height:1.5}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:18px 0}
+  .card{background:#fff;border:1px solid var(--line);border-radius:8px;
+    padding:16px 18px}
+  .tag.main{background:#efe4d6;color:#6b4a22;border-color:#d9c3a3}
+  .card h3{margin-top:8px}
+  .card p{margin:6px 0 0;font-size:14.5px}
+  @media(max-width:720px){.grid{grid-template-columns:1fr}}
+  .btnrow{display:flex;flex-wrap:wrap;gap:6px;margin:0}
+  .btn{display:inline-block;font-family:system-ui,sans-serif;font-size:13px;
+    line-height:1.25;text-decoration:none;color:#1a4f7a;background:#f3f6f9;
+    border:1px solid #b9cddd;border-radius:6px;padding:4px 9px;white-space:nowrap}
+  .btn:hover{background:#e4edf5;border-color:#7fa6c4}
+  .btn .vremya{opacity:.75;font-size:12px;margin-left:5px;color:var(--muted)}
+  .kids{background:#f2f6f2;border:1px solid #bcd3c4;border-radius:8px;
+    padding:14px 18px;margin:16px 0;font-family:system-ui,sans-serif;
+    font-size:14.5px;line-height:1.6}
+  .small{font-size:13.5px;color:var(--muted);font-family:system-ui,sans-serif}
+  tr.chapter td{background:#efeae1;font-weight:600;text-align:center}
+  .net{color:#8a7a63;font-size:13px}
+  .pills{display:flex;flex-wrap:wrap;gap:5px;margin:14px 0}
+  .pill{display:inline-block;font-family:system-ui,sans-serif;font-size:12.5px;
+    text-decoration:none;color:#1a4f7a;background:#fff;
+    border:1px solid var(--line);border-radius:5px;padding:3px 7px}
+  .pill:hover{background:#eef2f6;border-color:#b9cddd}
+  @media print{
+    nav{display:none}
+    .btn,.pill{color:#000;border:none;background:none;text-decoration:underline}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="inner">
+    <h1>Алгебра. 8 класс — контрольные работы</h1>
+    <p>10 контрольных по параграфам учебника Макарычева, 4 варианта каждая, с решениями и ответами</p>
+  </div>
+</header>
+
+<nav><div class="inner">
+  <a href="#chto">1. Что здесь</a>
+  <a href="#raboty">2. Контрольные работы</a>
+  <a href="#drugoe">3. Другие сборники</a>
+  <a href="#knigi">4. На бумаге</a>
+</div></nav>
+
+<div class="wrap">
+
+<h2 id="chto">1. Что здесь</h2>
+
+<div class="lead">
+<strong>Коротко.</strong> Весь год контрольных работ к учебнику
+Макарычева: <strong>10 работ, каждая в 4 вариантах</strong> —
+40 ссылок. У каждой работы указано, какие параграфы
+она проверяет, и есть не только задания, но и
+<strong>решения с ответами</strong> — можно проверить домашнюю
+подготовку перед самой контрольной.
+</div>
+
+<div class="note">
+<strong>Как пользоваться.</strong> Открыть вариант, решить
+в тетради, потом открыть ответы и сверить. Варианты 1—4 примерно
+одинаковой трудности, поэтому для тренировки берите любой,
+не обязательно по порядку. Ответы рассчитаны на родителей:
+они позволяют проверить, что ребёнок решил верно, даже если
+вы не помните тему.
+</div>
+
+<h2 id="raboty">2. Контрольные работы по параграфам</h2>
+
+<table>
+<thead><tr><th>Работа и проверяемые темы</th>
+<th style="width:52%">Варианты (задания + решения и ответы)</th></tr></thead>
+<tbody>
+<tr><td>КР-1. Проверяемые темы: § 1. Рациональные дроби и их свойства. § 2. Сумма и разность дробей.</td><td><div class="btnrow"><a class="btn" href="https://контрользнаний.рф/algebra-8-makarychev-kontrolnaya-1/">КР-1 Вариант 1</a><a class="btn" href="https://контрользнаний.рф/algebra-8-makarychev-kontrolnaya-1-2/">КР-1 Вариант 2</a><a class="btn" href="https://контрользнаний.рф/algebra-8-makarychev-kontrolnaya-1-3/">КР-1 Вариант 3</a><a class="btn" href="https://контрользнаний.рф/algebra-8-makarychev-kontrolnaya-1-4/">КР-1 Вариант 4</a></div></td></tr>
+<tr><td>КР-2. Проверяемые темы: §3. Произведение и частное дробей.</td><td><div class="btnrow"><a class="btn" href="https://контрользнаний.рф/algebra-8-makarychev-kontrolnaya-2/">КР-2 Вариант 1</a><a class="btn" href="https://контрользнаний.рф/algebra-8-makarychev-kontrolnaya-2-2/">КР-2 Вариант 2</a><a class="btn" href="https://контрользнаний.рф/algebra-8-makarychev-kontrolnaya-2-3/">КР-2 Вариант 3</a><a class="btn" href="https://контрользнаний.рф/algebra-8-makarychev-kontrolnaya-2-4/">КР-2 Вариант 4</a></div></td></tr>
+<tr><td>КР-3. Проверяемые темы: §5. Арифметический квадратный корень. §6. Свойства арифметического квадратного корня.</td><td><div class="btnrow"><a class="btn" href="https://контрользнаний.рф/algebra-8-makarychev-kontrolnaya-3/">КР-3 Вариант 1</a><a class="btn" href="https://контрользнаний.рф/algebra-8-makarychev-kontrolnaya-3-2/">КР-3 Вариант 2</a><a class="btn" href="https://контрользнаний.рф/algebra-8-makarychev-kontrolnaya-3-3/">КР-3 Вариант 3</a><a class="btn" href="https://контрользнаний.рф/algebra-8-makarychev-kontrolnaya-3-4/">КР-3 Вариант 4</a></div></td></tr>
+<tr><td>КР-4. Проверяемые темы: §7. Применение свойств арифметического квадратного корня.</td><td><div class="btnrow"><a class="btn" href="https://контрользнаний.рф/algebra-8-makarychev-kontrolnaya-4/">КР-4 Вариант 1</a><a class="btn" href="https://контрользнаний.рф/algebra-8-makarychev-kontrolnaya-4-2/">КР-4 Вариант 2</a><a class="btn" href="https://контрользнаний.рф/algebra-8-makarychev-kontrolnaya-4-3/">КР-4 Вариант 3</a><a class="btn" href="https://контрользнаний.рф/algebra-8-makarychev-kontrolnaya-4-4/">КР-4 Вариант 4</a></div></td></tr>
+<tr><td>КР-5. Проверяемые темы: §8. Квадратное уравнение и его корни.</td><td><div class="btnrow"><a class="btn" href="https://контрользнаний.рф/algebra-8-makarychev-kontrolnaya-5/">КР-5 Вариант 1</a><a class="btn" href="https://контрользнаний.рф/algebra-8-makarychev-kontrolnaya-5-2/">КР-5 Вариант 2</a><a class="btn" href="https://контрользнаний.рф/algebra-8-makarychev-kontrolnaya-5-3/">КР-5 Вариант 3</a><a class="btn" href="https://контрользнаний.рф/algebra-8-makarychev-kontrolnaya-5-4/">КР-5 Вариант 4</a></div></td></tr>
+<tr><td>КР-6. Проверяемые темы: §9. Дробные рациональные уравнения.</td><td><div class="btnrow"><a class="btn" href="https://контрользнаний.рф/algebra-8-makarychev-kontrolnaya-6/">КР-6 Вариант 1</a><a class="btn" href="https://контрользнаний.рф/algebra-8-makarychev-kontrolnaya-6-2/">КР-6 Вариант 2</a><a class="btn" href="https://контрользнаний.рф/algebra-8-makarychev-kontrolnaya-6-3/">КР-6 Вариант 3</a><a class="btn" href="https://контрользнаний.рф/algebra-8-makarychev-kontrolnaya-6-4/">КР-6 Вариант 4</a></div></td></tr>
+<tr><td>КР-7. Проверяемые темы: §10. Числовые неравенства и их свойства.</td><td><div class="btnrow"><a class="btn" href="https://контрользнаний.рф/algebra-8-makarychev-kontrolnaya-7/">КР-7 Вариант 1</a><a class="btn" href="https://контрользнаний.рф/algebra-8-makarychev-kontrolnaya-7-2/">КР-7 Вариант 2</a><a class="btn" href="https://контрользнаний.рф/algebra-8-makarychev-kontrolnaya-7-3/">КР-7 Вариант 3</a><a class="btn" href="https://контрользнаний.рф/algebra-8-makarychev-kontrolnaya-7-4/">КР-7 Вариант 4</a></div></td></tr>
+<tr><td>КР-8. Проверяемые темы: §11. Неравенства с одной переменной и их системы.</td><td><div class="btnrow"><a class="btn" href="https://контрользнаний.рф/algebra-8-makarychev-kontrolnaya-8/">КР-8 Вариант 1</a><a class="btn" href="https://контрользнаний.рф/algebra-8-makarychev-kontrolnaya-8-2/">КР-8 Вариант 2</a><a class="btn" href="https://контрользнаний.рф/algebra-8-makarychev-kontrolnaya-8-3/">КР-8 Вариант 3</a><a class="btn" href="https://контрользнаний.рф/algebra-8-makarychev-kontrolnaya-8-4/">КР-8 Вариант 4</a></div></td></tr>
+<tr><td>КР-9. Проверяемые темы: §12. Степень с целым показателем и её свойства.</td><td><div class="btnrow"><a class="btn" href="https://контрользнаний.рф/algebra-8-makarychev-kontrolnaya-9/">КР-9 Вариант 1</a><a class="btn" href="https://контрользнаний.рф/algebra-8-makarychev-kontrolnaya-9-2/">КР-9 Вариант 2</a><a class="btn" href="https://контрользнаний.рф/algebra-8-makarychev-kontrolnaya-9-3/">КР-9 Вариант 3</a><a class="btn" href="https://контрользнаний.рф/algebra-8-makarychev-kontrolnaya-9-4/">КР-9 Вариант 4</a></div></td></tr>
+<tr><td>КР-10. Итоговая контрольная работа за 8 класс.</td><td><div class="btnrow"><a class="btn" href="https://контрользнаний.рф/algebra-8-makarychev-kontrolnaya-10/">К-10 Вариант 1</a><a class="btn" href="https://контрользнаний.рф/algebra-8-makarychev-kontrolnaya-10-2/">К-10 Вариант 2</a><a class="btn" href="https://контрользнаний.рф/algebra-8-makarychev-kontrolnaya-10-3/">К-10 Вариант 3</a><a class="btn" href="https://контрользнаний.рф/algebra-8-makarychev-kontrolnaya-10-4/">К-10 Вариант 4</a></div></td></tr>
+</tbody>
+</table>
+
+<h2 id="drugoe">3. Другие сборники контрольных</h2>
+
+<p>Те же темы, но другими авторами и в других формулировках.
+Пригодится, когда все четыре варианта основной работы уже решены.</p>
+
+<ul>
+<li>Крайнева. Контрольные работы 2024: 11 работ по 4 варианта — <a href="https://всеконтрольные.рф/algebra-8-kontrolnye-makarychev-2/">открыть</a></li><li>Жохов. Дидактические материалы: 57 самостоятельных работ по 2 варианта — <a href="https://всеконтрольные.рф/algebra-8-makarychev-sr-zhohov/">открыть</a></li><li>Крайнева. Самостоятельные работы 2024: 48 работ по 2 варианта — <a href="https://контрользнаний.рф/algebra-8-klass-samostoyatelnye-rabot/">открыть</a></li><li>Лукьянова. Новые разноуровневые дидактические материалы: 31 самостоятельная работа — <a href="https://контрользнаний.рф/algebra-8-samostoyatelnye-makarychev/">открыть</a></li><li>Дудницын. Тематические тесты для 8 класса: 11 тестов — <a href="http://xn--8-8sb3ae5aa.xn--p1ai/algebra-8-makarychev-testy-dudnicyn/">открыть</a></li><li>Рурукин. Контрольные работы по алгебре 8 класса (поурочные разработки) — <a href="https://uchitel.pro/%D0%B0%D0%BB%D0%B3%D0%B5%D0%B1%D1%80%D0%B0-8-%D0%BA%D0%BE%D0%BD%D1%82%D1%80%D0%BE%D0%BB%D1%8C%D0%BD%D1%8B%D0%B5-%D1%80%D0%B0%D0%B1%D0%BE%D1%82%D1%8B-%D0%BC/">открыть</a></li>
+</ul>
+
+<h2 id="knigi">4. Сборники на бумаге</h2>
+
+<p>Если удобнее заниматься по книге, а не с экрана. Все они
+составлены именно к учебнику Макарычева, поэтому темы совпадают
+с тем, что проходят в школе.</p>
+
+<ul>
+<li>Глазков Ю. А., Гаиашвили М. Я. «Алгебра. 8 класс. Самостоятельные и контрольные работы» — Издательство «Экзамен», 143 страницы. 28 самостоятельных и 9 контрольных, каждая в 4 равных по трудности вариантах. Порядок тем — как в учебнике. <a href="https://www.chitai-gorod.ru/product/samostoyatelnye-i-kontrolnye-raboty-po-algebre-8-klass-k-uchebniku-yu-n-makarycheva-i-dr-pod-red-s-a-telyakovskogo-algebra-8-klass-2450027">в магазин</a></li><li>Крайнева Л. Б. «Математика. Алгебра. 8 класс. Контрольные и самостоятельные работы. Базовый уровень» — Просвещение, 2025, 96 страниц. Самое свежее пособие именно под УМК Макарычева. <a href="https://umkniga.ru/shkola/krayneva-matematika-algebra-8-klass-kontrolnye-i-samostoyatelnye-raboty-bazovyy-uroven-umk-makarycheva_259107.html">в магазин</a></li><li>Миронова Г. В. «Контрольно-измерительные материалы. Алгебра. 8 класс» — Издательство «Вако». 30 тематических тестов (по теме каждый) и 5 итоговых в двух вариантах, структура как в ОГЭ. Есть ответы. <a href="https://www.vaco.ru/product/testy-algebra-kontrolno-izmeritelnye-materialy-dlya-8-klassa/">в магазин</a></li><li>Ахременкова В. И. «Алгебра. Тематические тесты. 8 класс» — Издательство «Вако», 64 страницы. 8 тематических тестов в двух вариантах и итоговый за год, ко всем — ответы. <a href="https://www.vaco.ru/catalog/detail.php?ID=3225">в магазин</a></li>
+</ul>
+
+<footer>
+  <p>Подобрано под программу МБОУ «Средняя школа №56» г. Иваново
+  (ул. Лётчика Лазарева, 1/2). Учебник: Макарычев Ю. Н., Миндюк Н. Г., Нешков К. И., Суворова С. Б. «Алгебра. 8 класс», под ред. С. А. Теляковского, «Просвещение» — назван вами,
+  в школьной программе учебник алгебры не указан.</p>
+  <p class="src">Материал подготовлен 6 октября 2026 г.. Все ссылки проверены
+  в день сборки: битых нет.</p>
+</footer>
+</div>
+</body>
+</html>

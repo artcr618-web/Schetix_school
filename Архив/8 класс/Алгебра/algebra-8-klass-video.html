@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Алгебра. 8 класс — видеоуроки по учебнику Макарычева</title>
+<style>
+  :root{--ink:#1b1a17;--muted:#6a6355;--line:#d6d0c4;--accent:#8c2f21;--accent2:#244a63;--ok:#2f6b45}
+  *{box-sizing:border-box}
+  body{margin:0;background:#faf8f4;color:var(--ink);font-size:15.5px;line-height:1.55;
+    font-family:"Georgia","Times New Roman",serif}
+  .wrap{max-width:960px;margin:0 auto;padding:0 22px 70px}
+  header{background:#2b2620;color:#f5f1e8;padding:30px 22px 24px;margin-bottom:24px}
+  header .inner{max-width:960px;margin:0 auto}
+  h1{margin:0 0 8px;font-size:25px;font-weight:600}
+  header p{margin:0;color:#c8bfae;font-size:14.5px;font-family:system-ui,sans-serif}
+  h2{font-size:21px;margin:40px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--accent)}
+  h3{font-size:17.5px;margin:26px 0 6px;font-family:system-ui,sans-serif}
+  h4{font-size:15.5px;margin:16px 0 6px;font-family:system-ui,sans-serif;color:var(--accent2)}
+  p,li{font-size:15.5px}
+  .work{background:#fff;border:1px solid var(--line);border-radius:8px;padding:20px 24px;margin:16px 0;
+    box-shadow:0 1px 3px rgba(0,0,0,.04)}
+  table{border-collapse:collapse;width:100%;font-size:14.5px;margin:10px 0;background:#fff}
+  th,td{border:1px solid var(--line);padding:6px 9px;text-align:left;vertical-align:top}
+  th{background:#efeae1;font-family:system-ui,sans-serif;font-size:13.5px}
+  td a{white-space:nowrap}
+  .note{background:#fff8e8;border:1px solid #ecdcb4;border-radius:8px;padding:12px 17px;margin:16px 0;
+    font-family:system-ui,sans-serif;font-size:14.5px}
+  .ok{background:#f2f6f2;border:1px solid #bcd3c4;border-radius:8px;padding:12px 17px;margin:16px 0;
+    font-family:system-ui,sans-serif;font-size:14.5px}
+  .src{border-left:3px solid var(--accent);background:#f7f3ea;padding:10px 14px;margin:10px 0;font-size:15px}
+  .tag{display:inline-block;font-family:system-ui,sans-serif;font-size:11.5px;padding:1px 7px;border-radius:10px;white-space:nowrap}
+  .free{background:#e3f0e7;color:#2f6b45;border:1px solid #b9d6c3}
+  .part{background:#fbeedb;color:#8a5a12;border:1px solid #e6cf9f}
+  .paid{background:#f7e2e2;color:#8c2f21;border:1px solid #e5c2c2}
+  .reg{background:#e8eef4;color:#244a63;border:1px solid #c3d3e0}
+  a{color:#1a4f7a}
+  ul{margin:8px 0 8px 22px;padding:0}
+  .tt{font-family:system-ui,sans-serif;font-size:13px;color:var(--muted);letter-spacing:.03em;text-transform:uppercase}
+  .big{font-size:17px;font-weight:600;font-family:system-ui,sans-serif}
+  code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13.5px;background:#f0ece3;padding:1px 5px;border-radius:4px}
+  @media print{
+    body{background:#fff;font-size:11.5pt}
+    header{background:#fff;color:#000;border-bottom:2px solid #000;padding:0 0 10px;margin-bottom:14px}
+    header p{color:#333}
+    .work{border:none;padding:0}
+    h2{page-break-before:always;border-bottom:1px solid #000}
+    .no-print{display:none}
+  }
+
+  nav{background:#efeae1;border-bottom:1px solid var(--line)}
+  nav .inner{max-width:960px;margin:0 auto;padding:9px 22px;display:flex;
+    flex-wrap:wrap;gap:6px 18px}
+  nav a{font-family:system-ui,sans-serif;font-size:13.5px;color:#4a3f30;
+    text-decoration:none;border-bottom:1px dotted #b3a894}
+  nav a:hover{color:var(--accent);border-bottom-color:var(--accent)}
+  .lead{background:#fff;border:1px solid var(--line);
+    border-left:4px solid var(--accent);border-radius:8px;
+    padding:14px 18px;margin:16px 0;font-size:16px;line-height:1.5}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:18px 0}
+  .card{background:#fff;border:1px solid var(--line);border-radius:8px;
+    padding:16px 18px}
+  .tag.main{background:#efe4d6;color:#6b4a22;border-color:#d9c3a3}
+  .card h3{margin-top:8px}
+  .card p{margin:6px 0 0;font-size:14.5px}
+  @media(max-width:720px){.grid{grid-template-columns:1fr}}
+  .btnrow{display:flex;flex-wrap:wrap;gap:6px;margin:0}
+  .btn{display:inline-block;font-family:system-ui,sans-serif;font-size:13px;
+    line-height:1.25;text-decoration:none;color:#1a4f7a;background:#f3f6f9;
+    border:1px solid #b9cddd;border-radius:6px;padding:4px 9px;white-space:nowrap}
+  .btn:hover{background:#e4edf5;border-color:#7fa6c4}
+  .btn .vremya{opacity:.75;font-size:12px;margin-left:5px;color:var(--muted)}
+  .kids{background:#f2f6f2;border:1px solid #bcd3c4;border-radius:8px;
+    padding:14px 18px;margin:16px 0;font-family:system-ui,sans-serif;
+    font-size:14.5px;line-height:1.6}
+  .small{font-size:13.5px;color:var(--muted);font-family:system-ui,sans-serif}
+  tr.chapter td{background:#efeae1;font-weight:600;text-align:center}
+  .net{color:#8a7a63;font-size:13px}
+  .pills{display:flex;flex-wrap:wrap;gap:5px;margin:14px 0}
+  .pill{display:inline-block;font-family:system-ui,sans-serif;font-size:12.5px;
+    text-decoration:none;color:#1a4f7a;background:#fff;
+    border:1px solid var(--line);border-radius:5px;padding:3px 7px}
+  .pill:hover{background:#eef2f6;border-color:#b9cddd}
+  @media print{
+    nav{display:none}
+    .btn,.pill{color:#000;border:none;background:none;text-decoration:underline}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="inner">
+    <h1>Алгебра. 8 класс — видеоуроки по учебнику Макарычева</h1>
+    <p>Учебник Макарычева, Миндюка, Нешкова, Суворовой · весь курс 8 класса · МБОУ СШ №56, Иваново</p>
+  </div>
+</header>
+
+<nav><div class="inner">
+  <a href="#chto">1. Что это</a>
+  <a href="#kurs">2. Видеокурс</a>
+  <a href="#gdz">3. Разбор домашних заданий</a>
+  <a href="#chastyami">4. Курс частями</a>
+  <a href="#povtor">5. Повторение</a>
+  <a href="#kak">6. Как заниматься</a>
+</div></nav>
+
+<div class="wrap">
+
+<h2 id="chto">1. Что это и как пользоваться</h2>
+
+<div class="lead">
+<strong>Коротко.</strong> Ниже — полный видеокурс алгебры 8 класса
+по вашему учебнику: все 13 параграфов подряд, от «Рациональных дробей»
+до «Элементов статистики». На каждый урок — отдельное видео
+со ссылкой и длительностью: видно, сколько времени займёт просмотр.
+</div>
+
+<div class="grid">
+  <div class="card">
+    <span class="tag main">Учебник</span>
+    <h3 style="margin-top:8px">Макарычев, Миндюк, Нешков, Суворова</h3>
+    <p><strong>«Алгебра. 8 класс»</strong><br>
+    под ред. С. А. Теляковского, «Просвещение»<br>
+    5 глав, § 1—13 · <strong>102 часа</strong> за год
+    (3 часа в неделю при 34 учебных неделях)</p>
+  </div>
+  <div class="card">
+    <span class="tag">Два источника видео</span>
+    <h3 style="margin-top:8px">Короткий урок и подробный разбор</h3>
+    <p>Основной курс — «Математика for you»: урок строго по учебнику,
+    от 8 до 28 минут.<br>
+    Там, где тема сложная (корни, квадратные уравнения, неравенства,
+    задачи на движение и работу), добавлены подробные разборы —
+    «Математика от Баканчиковой».</p>
+  </div>
+</div>
+
+<div class="note">
+<strong>Про нумерацию параграфов.</strong> Порядок тем и номера §§
+приведены по изданию, которое сейчас в школах массово. В новых изданиях
+(2023 года и позже) главы местами переставлены: например, статистика
+может стоять не в конце года, а среди первых тем. Ориентируйтесь
+не на номер, а на <em>название темы</em> — сами темы и их порядок
+не изменились.
+</div>
+
+<h2 id="kurs">2. Видеокурс по параграфам</h2>
+
+<p>Таблица ниже — это и есть план года: 36 уроков, 85 видео.
+Идёте по порядку сверху вниз: каждый следующий урок опирается
+на предыдущий. Кнопка <strong>«Видеоурок»</strong> — основной урок
+по теме, остальные кнопки в той же строке — дополнительные разборы.</p>
+
+<table>
+<thead><tr><th style="width:52px">§</th><th>Тема</th>
+<th style="width:46%">Видео</th></tr></thead>
+<tbody>
+<tr class="chapter"><td colspan="3">Глава I. Рациональные дроби</td></tr>
+<tr><td class="ch">§ 1</td><td>Рациональные выражения (упр. 1—22)</td><td><div class="btnrow"><a class="btn" href="https://rutube.ru/video/938d570fe8fc3c5fe6d5ac45e538dc2f/">Видеоурок <span class="vremya">13 мин</span></a><a class="btn" href="https://rutube.ru/video/875061608a17b7b95ee4f6577245642e/">ОДЗ выражения <span class="vremya">25 мин</span></a></div></td></tr>
+<tr><td class="ch">§ 1</td><td>Основное свойство дроби. Сокращение дробей (упр. 23—52)</td><td><div class="btnrow"><a class="btn" href="https://rutube.ru/video/bdc87cbc8cbd6c052b0f85c6fa7bf650/">Видеоурок <span class="vremya">22 мин</span></a><a class="btn" href="https://rutube.ru/video/cb7f5095f347501c81a0e06b50ce4f5b/">Сокращение, часть 1 <span class="vremya">14 мин</span></a><a class="btn" href="https://rutube.ru/video/214ba9c7271f7eb5c5d54ae6212e1da3/">Сокращение, часть 2 <span class="vremya">17 мин</span></a></div></td></tr>
+<tr><td class="ch">§ 2</td><td>Сложение и вычитание дробей с одинаковыми знаменателями (упр. 53—72)</td><td><div class="btnrow"><a class="btn" href="https://rutube.ru/video/58784f5c6ff406eb0f97e3570beea3f4/">Видеоурок <span class="vremya">12 мин</span></a><a class="btn" href="https://rutube.ru/video/aea0f2debf1861cb5d11bdfa37646f97/">Ещё разбор <span class="vremya">22 мин</span></a></div></td></tr>
+<tr><td class="ch">§ 2</td><td>Сложение и вычитание дробей с разными знаменателями (упр. 73—107)</td><td><div class="btnrow"><a class="btn" href="https://rutube.ru/video/a887e1cd53b51bb82e9d2d5f820ace7e/">Видеоурок <span class="vremya">18 мин</span></a><a class="btn" href="https://rutube.ru/video/b2a41a9c9dbcd59022f75107647507ee/">Одночлены <span class="vremya">31 мин</span></a><a class="btn" href="https://rutube.ru/video/125beb88d1297e3ebff32dba7fabaf21/">Многочлены <span class="vremya">29 мин</span></a></div></td></tr>
+<tr><td class="ch">§ 3</td><td>Умножение дробей. Возведение дроби в степень (упр. 108—131)</td><td><div class="btnrow"><a class="btn" href="https://rutube.ru/video/f968c41d419f2d43948951c2d8419dad/">Видеоурок <span class="vremya">7 мин</span></a><a class="btn" href="https://rutube.ru/video/643a487fdb9c08e94cfbcc87f0d9f046/">Ещё разбор <span class="vremya">16 мин</span></a></div></td></tr>
+<tr><td class="ch">§ 3</td><td>Деление дробей (упр. 132—147)</td><td><div class="btnrow"><a class="btn" href="https://rutube.ru/video/8667206deb5d6bdcf9110927a1b3a830/">Видеоурок <span class="vremya">8 мин</span></a></div></td></tr>
+<tr><td class="ch">§ 3</td><td>Преобразование рациональных выражений (упр. 148—178)</td><td><div class="btnrow"><a class="btn" href="https://rutube.ru/video/1d5e1774a089abde29609d7123be9acf/">Видеоурок <span class="vremya">14 мин</span></a><a class="btn" href="https://rutube.ru/video/bc30d46821e1f5591b4c132d11470947/">Часть 1 <span class="vremya">20 мин</span></a><a class="btn" href="https://rutube.ru/video/a66cba638d7fe51e363238799bd9154a/">Часть 2 <span class="vremya">16 мин</span></a></div></td></tr>
+<tr><td class="ch">§ 3</td><td>Функция y = k/x и её график (упр. 179—196)</td><td><div class="btnrow"><a class="btn" href="https://rutube.ru/video/5476bfe06747662b01cb433c092e78e2/">Видеоурок <span class="vremya">10 мин</span></a><a class="btn" href="https://rutube.ru/video/3c0259b2ed8e101fb6af5c21d0573ce6/">Гипербола <span class="vremya">13 мин</span></a></div></td></tr>
+<tr><td class="ch">§ 3</td><td>Представление дроби в виде суммы дробей (упр. 197—207)</td><td><span class="net">в видеокурсе нет — тема проходится по учебнику</span></td></tr>
+<tr class="chapter"><td colspan="3">Глава II. Квадратные корни</td></tr>
+<tr><td class="ch">§ 4</td><td>Рациональные числа</td><td><div class="btnrow"><a class="btn" href="https://rutube.ru/video/63a2fd2d12521b5fb642d21e88e050d4/">Видеоурок <span class="vremya">10 мин</span></a><a class="btn" href="https://rutube.ru/video/03d750dd166b7b3d86b839af1748588d/">Все виды чисел <span class="vremya">12 мин</span></a></div></td></tr>
+<tr><td class="ch">§ 4</td><td>Иррациональные числа</td><td><div class="btnrow"><a class="btn" href="https://rutube.ru/video/3f1254055f947b14fd8854109ed15ab9/">Видеоурок <span class="vremya">17 мин</span></a><a class="btn" href="https://rutube.ru/video/74d7bf98175619ace459a3dd27e11c4c/">Как найти значение <span class="vremya">14 мин</span></a></div></td></tr>
+<tr><td class="ch">§ 5</td><td>Квадратные корни. Арифметический квадратный корень</td><td><div class="btnrow"><a class="btn" href="https://rutube.ru/video/6ea1c83e0a0608938021b45cdf1ba2c0/">Видеоурок <span class="vremya">15 мин</span></a><a class="btn" href="https://rutube.ru/video/f6b3e95850575a79820116e1eaf99690/">Что это за действие <span class="vremya">15 мин</span></a><a class="btn" href="https://rutube.ru/video/a1f135d897a31e096d939bdbf95588ba/">Как читать и записывать <span class="vremya">24 мин</span></a></div></td></tr>
+<tr><td class="ch">§ 5</td><td>Уравнение x² = a</td><td><div class="btnrow"><a class="btn" href="https://rutube.ru/video/4dddeb58dd7f6c359af2b344fab2ed97/">Видеоурок <span class="vremya">20 мин</span></a><a class="btn" href="https://rutube.ru/video/fdd413d766375b26c9cc74565c37e319/">Ещё разбор <span class="vremya">17 мин</span></a></div></td></tr>
+<tr><td class="ch">§ 5</td><td>Нахождение приближённых значений квадратного корня</td><td><div class="btnrow"><a class="btn" href="https://rutube.ru/video/0c76c0313fef79acb71eb128cdf8ede5/">Видеоурок <span class="vremya">5 мин</span></a></div></td></tr>
+<tr><td class="ch">§ 5</td><td>Функция y = √x и её график</td><td><div class="btnrow"><a class="btn" href="https://rutube.ru/video/082a3aa4d4388169198b4cbb45ac9eb6/">Видеоурок <span class="vremya">12 мин</span></a><a class="btn" href="https://rutube.ru/video/3f0556e4453e66cda1571b45672ceed4/">Ещё разбор <span class="vremya">9 мин</span></a></div></td></tr>
+<tr><td class="ch">§ 6</td><td>Квадратный корень из произведения и дроби</td><td><div class="btnrow"><a class="btn" href="https://rutube.ru/video/cae74fe2ac0951f62db7f5eb58728c8d/">Видеоурок <span class="vremya">9 мин</span></a><a class="btn" href="https://rutube.ru/video/a23e39a58d4ac573a02700bfb197371e/">Умножение корней <span class="vremya">9 мин</span></a><a class="btn" href="https://rutube.ru/video/1b38cd0c58d8c5c2ebe139bc5f353de7/">Деление корней <span class="vremya">9 мин</span></a></div></td></tr>
+<tr><td class="ch">§ 6</td><td>Квадратный корень из степени</td><td><div class="btnrow"><a class="btn" href="https://rutube.ru/video/8e856f578d6d6b10cd0141281ad7b19b/">Видеоурок <span class="vremya">8 мин</span></a><a class="btn" href="https://rutube.ru/video/2da6a9d5a693b09fd74b64369c50642c/">Вынесение степени <span class="vremya">15 мин</span></a></div></td></tr>
+<tr><td class="ch">§ 7</td><td>Вынесение множителя за знак корня. Внесение множителя под знак корня</td><td><div class="btnrow"><a class="btn" href="https://rutube.ru/video/7b03feeee17430124703d3c48d34d220/">Видеоурок <span class="vremya">9 мин</span></a><a class="btn" href="https://rutube.ru/video/550c5034c66ae2d63883151262b57c81/">Вынесение <span class="vremya">19 мин</span></a><a class="btn" href="https://rutube.ru/video/a2498118864da84b04249a4328f91d9b/">Внесение под знак <span class="vremya">13 мин</span></a></div></td></tr>
+<tr><td class="ch">§ 7</td><td>Преобразование выражений, содержащих квадратные корни</td><td><div class="btnrow"><a class="btn" href="https://rutube.ru/video/420e58fd30daf4c5bc0c9c18a0de1764/">Видеоурок <span class="vremya">20 мин</span></a><a class="btn" href="https://rutube.ru/video/eb95f2b84cded134706985f1edb9e813/">Сложение и вычитание <span class="vremya">24 мин</span></a><a class="btn" href="https://rutube.ru/video/b389448d428bc6815dd84ce0f4d1f14e/">Умножение и деление <span class="vremya">16 мин</span></a></div></td></tr>
+<tr><td class="ch">§ 7</td><td>Преобразование двойных радикалов</td><td><span class="net">в видеокурсе нет — тема проходится по учебнику</span></td></tr>
+<tr class="chapter"><td colspan="3">Глава III. Квадратные уравнения</td></tr>
+<tr><td class="ch">§ 8</td><td>Неполные квадратные уравнения</td><td><div class="btnrow"><a class="btn" href="https://rutube.ru/video/72ef7dd5b6b4136e84178aa8799282d1/">Видеоурок <span class="vremya">28 мин</span></a><a class="btn" href="https://rutube.ru/video/f0ab1ce15583b1e6d9e012c5ed3a1070/">Ещё разбор <span class="vremya">12 мин</span></a><a class="btn" href="https://rutube.ru/video/a6f2665892c09fd60985d9b85af4281f/">Графически <span class="vremya">11 мин</span></a></div></td></tr>
+<tr><td class="ch">§ 8</td><td>Формула корней квадратного уравнения</td><td><div class="btnrow"><a class="btn" href="https://rutube.ru/video/b5c9502f437fd61390057d128520b8d8/">Видеоурок <span class="vremya">21 мин</span></a><a class="btn" href="https://rutube.ru/video/fef21837a0ed59799245db5e30bb7ea3/">Выделение квадрата <span class="vremya">13 мин</span></a><a class="btn" href="https://rutube.ru/video/ce18bcb17dfe34236e6b2b4fbbb62754/">Приведённое уравнение <span class="vremya">11 мин</span></a><a class="btn" href="https://rutube.ru/video/22bcd63058ff61d084fb0b044ad95404/">Два правила <span class="vremya">8 мин</span></a><a class="btn" href="https://rutube.ru/video/22c3b52e9dcea4096335d767aae42953/">Ещё урок <span class="vremya">18 мин</span></a></div></td></tr>
+<tr><td class="ch">§ 8</td><td>Решение задач с помощью квадратных уравнений</td><td><div class="btnrow"><a class="btn" href="https://rutube.ru/video/3e1f25ef307a8062707cba45b03a671a/">Видеоурок <span class="vremya">27 мин</span></a><a class="btn" href="https://rutube.ru/video/63ddd6d63e98ef1e8b7297737df41de3/">Числа <span class="vremya">16 мин</span></a><a class="btn" href="https://rutube.ru/video/deb8dbb93ce7808c85b4c82f11e33710/">Движение <span class="vremya">20 мин</span></a><a class="btn" href="https://rutube.ru/video/500249bac51f9e45739c3dced3597a50/">Движение по воде <span class="vremya">20 мин</span></a></div></td></tr>
+<tr><td class="ch">§ 8</td><td>Теорема Виета</td><td><div class="btnrow"><a class="btn" href="https://rutube.ru/video/00fce6293112c924beeb913d4e33f04a/">Видеоурок <span class="vremya">14 мин</span></a><a class="btn" href="https://rutube.ru/video/150952ac92ea197b72435f43b5ed8a92/">Проверка корней <span class="vremya">15 мин</span></a><a class="btn" href="https://rutube.ru/video/5ecf8cbb485fb804d32e2068d0c26bd4/">Обратная теорема <span class="vremya">17 мин</span></a><a class="btn" href="https://rutube.ru/video/1166b1ed0260784054bcf9e322e66637/">Разложение на множители <span class="vremya">19 мин</span></a></div></td></tr>
+<tr><td class="ch">§ 9</td><td>Решение дробных рациональных уравнений</td><td><div class="btnrow"><a class="btn" href="https://rutube.ru/video/554fff0f67a41d2214d2b2245f0604fe/">Видеоурок <span class="vremya">19 мин</span></a><a class="btn" href="https://rutube.ru/video/c9193f66f99f77c486bb1deac537534d/">Часть 1 <span class="vremya">15 мин</span></a><a class="btn" href="https://rutube.ru/video/0b59d50179031d50f1ffe2352416abfd/">Часть 2 <span class="vremya">21 мин</span></a><a class="btn" href="https://rutube.ru/video/bfa41897df617c373f87d03d4b4a54f8/">Ещё разбор <span class="vremya">21 мин</span></a></div></td></tr>
+<tr><td class="ch">§ 9</td><td>Решение задач с помощью рациональных уравнений</td><td><div class="btnrow"><a class="btn" href="https://rutube.ru/video/74d93cc63a1414f49e92aac421f35924/">Видеоурок, часть 1 <span class="vremya">23 мин</span></a><a class="btn" href="https://rutube.ru/video/1f89da7f72f3b4d323c66a76abe99d0a/">Видеоурок, часть 2 <span class="vremya">22 мин</span></a><a class="btn" href="https://rutube.ru/video/c3572455511cd64445d06235e62d3c58/">Задачи на работу <span class="vremya">9 мин</span></a><a class="btn" href="https://rutube.ru/video/5595057eb623cd41f07d04da6d3b6975/">Совместная работа <span class="vremya">14 мин</span></a></div></td></tr>
+<tr><td class="ch">§ 9</td><td>Уравнения с параметром</td><td><div class="btnrow"><a class="btn" href="https://rutube.ru/video/d22017b03020be215aca8a13a2ab90f1/">Разбор <span class="vremya">13 мин</span></a></div></td></tr>
+<tr class="chapter"><td colspan="3">Глава IV. Неравенства</td></tr>
+<tr><td class="ch">§ 10</td><td>Числовые неравенства</td><td><div class="btnrow"><a class="btn" href="https://rutube.ru/video/6473dac22ea092a792f7ef0523bcb459/">Видеоурок <span class="vremya">8 мин</span></a><a class="btn" href="https://rutube.ru/video/a3e3b47ec6c9ca194d99d3dc0744aa6d/">Виды неравенств <span class="vremya">13 мин</span></a><a class="btn" href="https://rutube.ru/video/a65fce72ab1848a5c635144eb1a25b5a/">Двойные неравенства <span class="vremya">18 мин</span></a></div></td></tr>
+<tr><td class="ch">§ 10</td><td>Свойства числовых неравенств</td><td><div class="btnrow"><a class="btn" href="https://rutube.ru/video/090121ec329288ef505cdd229be3184c/">Видеоурок <span class="vremya">17 мин</span></a><a class="btn" href="https://rutube.ru/video/74a075d7d01debf1c82e1a73d09211b6/">Ещё разбор <span class="vremya">17 мин</span></a></div></td></tr>
+<tr><td class="ch">§ 10</td><td>Сложение и умножение числовых неравенств</td><td><div class="btnrow"><a class="btn" href="https://rutube.ru/video/ff027ed2d9b31aa5ea69e64a8c1be869/">Видеоурок <span class="vremya">10 мин</span></a><a class="btn" href="https://rutube.ru/video/d00f63e86e8d7bae3ac5859f18f60347/">Ещё разбор <span class="vremya">25 мин</span></a></div></td></tr>
+<tr><td class="ch">§ 10</td><td>Погрешность и точность приближения</td><td><div class="btnrow"><a class="btn" href="https://rutube.ru/video/8516c7776e504a759254c0f36b32325c/">Видеоурок <span class="vremya">16 мин</span></a></div></td></tr>
+<tr><td class="ch">§ 11</td><td>Пересечение и объединение множеств</td><td><div class="btnrow"><a class="btn" href="https://rutube.ru/video/19975cd6f7e60d1ff0070d46b4e10c46/">Видеоурок <span class="vremya">4 мин</span></a><a class="btn" href="https://rutube.ru/video/a9f34979cccda942daf3b9996c45e6d9/">Операции над множествами <span class="vremya">29 мин</span></a></div></td></tr>
+<tr><td class="ch">§ 11</td><td>Числовые промежутки</td><td><div class="btnrow"><a class="btn" href="https://rutube.ru/video/f3bc3f7fa5d09f1937846a35e23bb871/">Видеоурок <span class="vremya">19 мин</span></a><a class="btn" href="https://rutube.ru/video/0f2714959bde145fe9507ab7c0190ae8/">Промежутки в неравенствах <span class="vremya">27 мин</span></a></div></td></tr>
+<tr><td class="ch">§ 11</td><td>Решение неравенств с одной переменной</td><td><div class="btnrow"><a class="btn" href="https://rutube.ru/video/a6c207b4cd10ee98082f00912533df83/">Видеоурок <span class="vremya">19 мин</span></a></div></td></tr>
+<tr><td class="ch">§ 11</td><td>Решение систем неравенств с одной переменной</td><td><div class="btnrow"><a class="btn" href="https://rutube.ru/video/0f4d83ff567242e802bb4331aa3ac957/">Видеоурок <span class="vremya">26 мин</span></a><a class="btn" href="https://rutube.ru/video/ebdf02eddb3a6b4eb4f9baba1bfc5aa2/">Ещё разбор <span class="vremya">13 мин</span></a></div></td></tr>
+<tr><td class="ch">§ 11</td><td>Доказательство неравенств</td><td><span class="net">в видеокурсе нет — тема проходится по учебнику</span></td></tr>
+<tr class="chapter"><td colspan="3">Глава V. Степень с целым показателем. Элементы статистики</td></tr>
+<tr><td class="ch">§ 12</td><td>Степень с целым отрицательным показателем</td><td><div class="btnrow"><a class="btn" href="https://rutube.ru/video/ca85bd489a3e5ae83869b05729208fda/">Видеоурок <span class="vremya">22 мин</span></a><a class="btn" href="https://rutube.ru/video/c840c58e01f827230f77ddbfadd261f5/">Правило вычисления <span class="vremya">19 мин</span></a></div></td></tr>
+<tr><td class="ch">§ 12</td><td>Свойства степени с целым показателем</td><td><div class="btnrow"><a class="btn" href="https://rutube.ru/video/4b5016aec84d9883590b3187fdc99d34/">Видеоурок <span class="vremya">30 мин</span></a></div></td></tr>
+<tr><td class="ch">§ 12</td><td>Стандартный вид числа</td><td><div class="btnrow"><a class="btn" href="https://rutube.ru/video/02339930ea7ffb964c859242a22f9982/">Видеоурок <span class="vremya">13 мин</span></a></div></td></tr>
+<tr><td class="ch">§ 13</td><td>Сбор и группировка статистических данных</td><td><span class="net">в видеокурсе нет — тема проходится по учебнику</span></td></tr>
+<tr><td class="ch">§ 13</td><td>Наглядное представление статистической информации</td><td><span class="net">в видеокурсе нет — тема проходится по учебнику</span></td></tr>
+<tr><td class="ch">§ 13</td><td>Функции y = x⁻¹ и y = x⁻² и их свойства</td><td><span class="net">в видеокурсе нет — тема проходится по учебнику</span></td></tr>
+<tr><td class="ch">§ 13</td><td>Дисперсия и среднеквадратичное отклонение</td><td><span class="net">в видеокурсе нет — тема проходится по учебнику</span></td></tr>
+</tbody>
+</table>
+
+<p class="src">На четыре темы видео в открытых курсах не оказалось
+(представление дроби в виде суммы, двойные радикалы, доказательство
+неравенств и вся глава про статистику) — их проще разобрать
+по учебнику, они короткие. Статистику удобно проверить тестом
+на странице «Тренажёры».</p>
+
+<h2 id="gdz">3. Разбор домашних заданий</h2>
+
+<p>Если задача из учебника не получается решить даже после урока —
+здесь разобраны конкретные номера главы I (дроби), с 1-го по 180-й,
+по порядку. Канал «Математика, Маша Солдатова».</p>
+
+<p class="src">Видео длинные: это не объяснение темы, а решение номеров
+подряд, от 40 минут до двух часов. Нужен один конкретный номер —
+откройте видео и перемотайте, номера идут по порядку.</p>
+
+<ul>
+<li>Параграф 1, 1-24 номера — 64 мин · <a href="https://rutube.ru/video/b24f820bcfaf4aac6ae2a21bc4a2d5dc/">Смотреть</a></li><li>Параграф 1, 25-54 номера — 127 мин · <a href="https://rutube.ru/video/142d11a2c3ac885f6540366cba5da2db/">Смотреть</a></li><li>§ 2.3 Сложение и вычитание дробей с одинак. знамен., 55-74 номера — 91 мин · <a href="https://rutube.ru/video/fde1549feb6ffa218fe3ec4a16fe90ea/">Смотреть</a></li><li>§ 2.4 Сложение и вычитание дробей с разными знамен., 75-82 номера — 66 мин · <a href="https://rutube.ru/video/469e317e5cda1fd2d729cc6df0096a6b/">Смотреть</a></li><li>§ 2.4 Сложение и вычитание дробей с разными знамен., 83-90 номера — 62 мин · <a href="https://rutube.ru/video/d910b08234b23f485819c2cc119f52b1/">Смотреть</a></li><li>§ 2.4 Сложение и вычитание дробей с разными знамен., 91-97 номера — 67 мин · <a href="https://rutube.ru/video/46d177f87a3eb39c9cbdbef3d0f387b3/">Смотреть</a></li><li>§ 2.4 Сложение и вычитание дробей с разными знамен., 98-109 номера — 100 мин · <a href="https://rutube.ru/video/c0c25c27de0179db3cf64bff2b86004f/">Смотреть</a></li><li>§ 3.5 Умножение и возведение в степень дробей, 110-121 номера — 63 мин · <a href="https://rutube.ru/video/33038b0736e86e6ef4dc8161926c3af2/">Смотреть</a></li><li>§ 3.5 Умножение и возведение в степень дробей, 122-133 номера — 64 мин · <a href="https://rutube.ru/video/53cd18f21e610411f391f3e2c4f3cdc1/">Смотреть</a></li><li>§ 3.6 Деление дробей, 134-140 номера — 56 мин · <a href="https://rutube.ru/video/ccadb242dd84a9d1135cfb463c245966/">Смотреть</a></li><li>§ 3.6 Деление дробей, 141-149 номера — 43 мин · <a href="https://rutube.ru/video/2f5e95ca6f98743eea4883a5b5f46e77/">Смотреть</a></li><li>§ 3.7 Деление дробей, 150-154 номера — 48 мин · <a href="https://rutube.ru/video/5e4aefc80b0184a851629ac63c8deaac/">Смотреть</a></li><li>§ 3.7 Преобразование рациональных выражений, 155-163 номера — 64 мин · <a href="https://rutube.ru/video/fd9dd9c59f1cec3ace2758ef70b7516d/">Смотреть</a></li><li>§ 3.7 Преобразование рациональных выражений, 156-180 номера — 69 мин · <a href="https://rutube.ru/video/4d01dbe684406b0a75f2a0b04edabbd7/">Смотреть</a></li>
+</ul>
+
+<h2 id="chastyami">4. Курс большими частями</h2>
+
+<p>Тот же курс, но другими видео: в каждом — сразу по 2—5 пунктов
+учебника (в скобках указано, какие именно). Удобно, когда нужно быстро
+проскочить большой кусок перед контрольной. Канал
+«Математика доступным языком».</p>
+
+<ul>
+<li>Часть 1 (п 21-23) — 14 мин · <a href="https://rutube.ru/video/0e3cd1125b70518cdf51420b236287df/">Смотреть</a></li><li>Часть 2 (п 18-19 кр) — 14 мин · <a href="https://rutube.ru/video/4bd707ce820a0848dd9c2149c57e3775/">Смотреть</a></li><li>Часть 3 (п 17 кр) — 5 мин · <a href="https://rutube.ru/video/a4dbb8091bd6f533881c39475510efa7/">Смотреть</a></li><li>Часть 4 (п 12-16) — 13 мин · <a href="https://rutube.ru/video/1cedb1eab3ea6a28fd6ee3a87daa4338/">Смотреть</a></li><li>Часть 5 (п 10-11) — 11 мин · <a href="https://rutube.ru/video/f33915e2c3786e2771ceae7db4bfe60a/">Смотреть</a></li><li>Часть 6 (п.7 и 8) — 13 мин · <a href="https://rutube.ru/video/743d1c958e3a45bf0694568a32185748/">Смотреть</a></li><li>Часть 7 (п.5и6) — 12 мин · <a href="https://rutube.ru/video/f379f719a9b3cf54b512d9d59e679d41/">Смотреть</a></li><li>Часть 8 (п. 3и4) — 14 мин · <a href="https://rutube.ru/video/316f623259531861a53f3d34d3303762/">Смотреть</a></li><li>Часть 9 (п.1 и 2) — 14 мин · <a href="https://rutube.ru/video/bcb7fdda3a8bd1fad2aa1e0dd0aa9b17/">Смотреть</a></li>
+</ul>
+
+<h2 id="povtor">5. Повторение за год</h2>
+
+<p>Девять видео, которыми удобно пройтись перед итоговой:
+весь курс 8 класса короткими блоками. Канал «Математика доступным языком».</p>
+
+<ul>
+<li>Повторение, часть 1 — 14 мин · <a href="https://rutube.ru/video/e18a0fd5b4e3a7b5fe5e655761a3b6b3/">Смотреть</a></li><li>Повторение, часть 2 — 14 мин · <a href="https://rutube.ru/video/eb48a366d6a705abefe7f8df5e35e5a9/">Смотреть</a></li><li>Повторение, часть 3 — 14 мин · <a href="https://rutube.ru/video/8cc64824a601e8354f246776119bf3af/">Смотреть</a></li><li>Повторение, часть 4 — 12 мин · <a href="https://rutube.ru/video/ccb6e37ac2d325d12f4133b709b1f680/">Смотреть</a></li><li>Повторение, часть 5 — 12 мин · <a href="https://rutube.ru/video/be98395dfb8913035eefa2fdc806214b/">Смотреть</a></li><li>Повторение, часть 6 — 14 мин · <a href="https://rutube.ru/video/025fe7e7589c3f22c5e4053ea03ceaa7/">Смотреть</a></li><li>Повторение, часть 7 — 13 мин · <a href="https://rutube.ru/video/08b8aaa68e43870217f639d0c21dc5b3/">Смотреть</a></li><li>Повторение, часть 8 — 14 мин · <a href="https://rutube.ru/video/5b48a95bff911b61d1086e71540a35d8/">Смотреть</a></li><li>Повторение, часть 9 — 10 мин · <a href="https://rutube.ru/video/8eacbe025a64da0191496699d226ff9e/">Смотреть</a></li>
+</ul>
+
+<h2 id="kak">6. Как заниматься</h2>
+
+<div class="kids">
+<strong>Обычный урок — 25—30 минут.</strong><br>
+1. Откройте тему в таблице выше, посмотрите видеоурок.<br>
+2. Решите 3—5 заданий из учебника по этой теме.<br>
+3. Застряли — откройте разбор домашних заданий (раздел 3),
+найдите свой параграф.<br>
+4. Перед контрольной — пройдите тест по теме
+(страница «Тренажёры»).
+</div>
+
+<p class="small">Все видео — на Rutube. На телевизоре их удобнее
+смотреть через приложение Rutube (оно есть в Google Play для Android TV),
+а не в браузере: так не тормозит.</p>
+
+<footer>
+  <p>Подобрано под программу МБОУ «Средняя школа №56» г. Иваново
+  (ул. Лётчика Лазарева, 1/2). Учебник: Макарычев Ю. Н., Миндюк Н. Г., Нешков К. И., Суворова С. Б. «Алгебра. 8 класс», под ред. С. А. Теляковского, «Просвещение» — назван вами,
+  в школьной программе учебник алгебры не указан.</p>
+  <p class="src">Материал подготовлен 6 октября 2026 г.. Все ссылки проверены
+  в день сборки: битых нет.</p>
+</footer>
+</div>
+</body>
+</html>

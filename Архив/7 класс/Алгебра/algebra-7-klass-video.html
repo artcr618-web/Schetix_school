@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Алгебра. 7 класс — видеоуроки по учебнику Макарычева</title>
+<style>
+  :root{--ink:#1b1a17;--muted:#6a6355;--line:#d6d0c4;--accent:#8c2f21;--accent2:#244a63;--ok:#2f6b45}
+  *{box-sizing:border-box}
+  body{margin:0;background:#faf8f4;color:var(--ink);font-size:15.5px;line-height:1.55;
+    font-family:"Georgia","Times New Roman",serif}
+  .wrap{max-width:960px;margin:0 auto;padding:0 22px 70px}
+  header{background:#2b2620;color:#f5f1e8;padding:30px 22px 24px;margin-bottom:24px}
+  header .inner{max-width:960px;margin:0 auto}
+  h1{margin:0 0 8px;font-size:25px;font-weight:600}
+  header p{margin:0;color:#c8bfae;font-size:14.5px;font-family:system-ui,sans-serif}
+  h2{font-size:21px;margin:40px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--accent)}
+  h3{font-size:17.5px;margin:26px 0 6px;font-family:system-ui,sans-serif}
+  h4{font-size:15.5px;margin:16px 0 6px;font-family:system-ui,sans-serif;color:var(--accent2)}
+  p,li{font-size:15.5px}
+  .work{background:#fff;border:1px solid var(--line);border-radius:8px;padding:20px 24px;margin:16px 0;
+    box-shadow:0 1px 3px rgba(0,0,0,.04)}
+  table{border-collapse:collapse;width:100%;font-size:14.5px;margin:10px 0;background:#fff}
+  th,td{border:1px solid var(--line);padding:6px 9px;text-align:left;vertical-align:top}
+  th{background:#efeae1;font-family:system-ui,sans-serif;font-size:13.5px}
+  td a{white-space:nowrap}
+  .note{background:#fff8e8;border:1px solid #ecdcb4;border-radius:8px;padding:12px 17px;margin:16px 0;
+    font-family:system-ui,sans-serif;font-size:14.5px}
+  .ok{background:#f2f6f2;border:1px solid #bcd3c4;border-radius:8px;padding:12px 17px;margin:16px 0;
+    font-family:system-ui,sans-serif;font-size:14.5px}
+  .src{border-left:3px solid var(--accent);background:#f7f3ea;padding:10px 14px;margin:10px 0;font-size:15px}
+  .tag{display:inline-block;font-family:system-ui,sans-serif;font-size:11.5px;padding:1px 7px;border-radius:10px;white-space:nowrap}
+  .free{background:#e3f0e7;color:#2f6b45;border:1px solid #b9d6c3}
+  .part{background:#fbeedb;color:#8a5a12;border:1px solid #e6cf9f}
+  .paid{background:#f7e2e2;color:#8c2f21;border:1px solid #e5c2c2}
+  .reg{background:#e8eef4;color:#244a63;border:1px solid #c3d3e0}
+  a{color:#1a4f7a}
+  ul{margin:8px 0 8px 22px;padding:0}
+  .tt{font-family:system-ui,sans-serif;font-size:13px;color:var(--muted);letter-spacing:.03em;text-transform:uppercase}
+  .big{font-size:17px;font-weight:600;font-family:system-ui,sans-serif}
+  code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13.5px;background:#f0ece3;padding:1px 5px;border-radius:4px}
+  @media print{
+    body{background:#fff;font-size:11.5pt}
+    header{background:#fff;color:#000;border-bottom:2px solid #000;padding:0 0 10px;margin-bottom:14px}
+    header p{color:#333}
+    .work{border:none;padding:0}
+    h2{page-break-before:always;border-bottom:1px solid #000}
+    .no-print{display:none}
+  }
+
+  nav{background:#efeae1;border-bottom:1px solid var(--line)}
+  nav .inner{max-width:960px;margin:0 auto;padding:9px 22px;display:flex;
+    flex-wrap:wrap;gap:6px 18px}
+  nav a{font-family:system-ui,sans-serif;font-size:13.5px;color:#4a3f30;
+    text-decoration:none;border-bottom:1px dotted #b3a894}
+  nav a:hover{color:var(--accent);border-bottom-color:var(--accent)}
+  .lead{background:#fff;border:1px solid var(--line);
+    border-left:4px solid var(--accent);border-radius:8px;
+    padding:14px 18px;margin:16px 0;font-size:16px;line-height:1.5}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:18px 0}
+  .card{background:#fff;border:1px solid var(--line);border-radius:8px;
+    padding:16px 18px}
+  .tag.main{background:#efe4d6;color:#6b4a22;border-color:#d9c3a3}
+  .card h3{margin-top:8px}
+  .card p{margin:6px 0 0;font-size:14.5px}
+  @media(max-width:720px){.grid{grid-template-columns:1fr}}
+  .btnrow{display:flex;flex-wrap:wrap;gap:6px;margin:0}
+  .btn{display:inline-block;font-family:system-ui,sans-serif;font-size:13px;
+    line-height:1.25;text-decoration:none;color:#1a4f7a;background:#f3f6f9;
+    border:1px solid #b9cddd;border-radius:6px;padding:4px 9px;white-space:nowrap}
+  .btn:hover{background:#e4edf5;border-color:#7fa6c4}
+  .btn .vremya{opacity:.75;font-size:12px;margin-left:5px;color:var(--muted)}
+  .kids{background:#f2f6f2;border:1px solid #bcd3c4;border-radius:8px;
+    padding:14px 18px;margin:16px 0;font-family:system-ui,sans-serif;
+    font-size:14.5px;line-height:1.6}
+  .small{font-size:13.5px;color:var(--muted);font-family:system-ui,sans-serif}
+  tr.chapter td{background:#efeae1;font-weight:600;text-align:center}
+  .net{color:#8a7a63;font-size:13px}
+  .pills{display:flex;flex-wrap:wrap;gap:5px;margin:14px 0}
+  .pill{display:inline-block;font-family:system-ui,sans-serif;font-size:12.5px;
+    text-decoration:none;color:#1a4f7a;background:#fff;
+    border:1px solid var(--line);border-radius:5px;padding:3px 7px}
+  .pill:hover{background:#eef2f6;border-color:#b9cddd}
+  @media print{
+    nav{display:none}
+    .btn,.pill{color:#000;border:none;background:none;text-decoration:underline}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="inner">
+    <h1>Алгебра. 7 класс — видеоуроки по учебнику Макарычева</h1>
+    <p>Учебник Макарычева, Миндюка, Нешкова, Суворовой · весь курс 7 класса · МБОУ СШ №56, Иваново</p>
+  </div>
+</header>
+
+<nav><div class="inner">
+  <a href="#chto">1. Что это</a>
+  <a href="#kurs">2. Видеокурс</a>
+  <a href="#gdz">3. Разбор домашних заданий</a>
+  <a href="#povtor">4. Повторение</a>
+  <a href="#kak">5. Как заниматься</a>
+</div></nav>
+
+<div class="wrap">
+
+<h2 id="chto">1. Что это и как пользоваться</h2>
+
+<div class="lead">
+<strong>Коротко.</strong> Ниже — полный видеокурс алгебры 7 класса
+по вашему учебнику: все 16 параграфов подряд, от «Выражений»
+до «Систем линейных уравнений». На каждый урок — отдельное видео
+со ссылкой и длительностью: видно, сколько времени займёт просмотр.
+</div>
+
+<div class="grid">
+  <div class="card">
+    <span class="tag main">Учебник</span>
+    <h3 style="margin-top:8px">Макарычев, Миндюк, Нешков, Суворова</h3>
+    <p><strong>«Алгебра. 7 класс»</strong><br>
+    под ред. С. А. Теляковского, «Просвещение»<br>
+    6 главы, § 1—16 · <strong>102 часа</strong> за год
+    (3 часа в неделю при 34 учебных неделях)</p>
+  </div>
+  <div class="card">
+    <span class="tag">Два источника видео</span>
+    <h3 style="margin-top:8px">Короткий урок и подробный разбор</h3>
+    <p>Основной курс — «Математика for you»: урок строго по учебнику,
+    от 5 до 20 минут.<br>
+    Там, где тема сложная или в основном курсе её нет
+    (системы уравнений, задачи на движение и работу),
+    добавлены подробные разборы — «Математика от Баканчиковой».</p>
+  </div>
+</div>
+
+<div class="note">
+<strong>Про нумерацию параграфов.</strong> Порядок тем и номера §§
+приведены по изданию, которое сейчас в школах массово. В новых изданиях
+(2023 года и позже) главы местами переставлены: например, «Числа
+и выражения» может идти отдельным параграфом в начале. Ориентируйтесь
+не на номер, а на <em>название темы</em> — сами темы и их порядок
+не изменились.
+</div>
+
+<h2 id="kurs">2. Видеокурс по параграфам</h2>
+
+<p>Таблица ниже — это и есть план года. Идёте по порядку сверху вниз:
+каждый следующий урок опирается на предыдущий. Кнопка
+<strong>«Видеоурок»</strong> — основной урок по теме, остальные кнопки
+в той же строке — дополнительные разборы.</p>
+
+<table>
+<thead><tr><th style="width:52px">§</th><th>Тема</th>
+<th style="width:46%">Видео</th></tr></thead>
+<tbody>
+<tr class="chapter"><td colspan="3">Глава I. Выражения, тождества, уравнения</td></tr>
+<tr><td class="ch">§ 1</td><td>Числовые выражения</td><td><div class="btnrow"><a class="btn" href="https://rutube.ru/video/83d4b54f6eeed3eb76a021b1003b898f/">Видеоурок <span class="vremya">7:05</span></a></div></td></tr>
+<tr><td class="ch">§ 1</td><td>Выражения с переменными</td><td><div class="btnrow"><a class="btn" href="https://rutube.ru/video/1956bbe9fba301e79b203aecf01844bc/">Видеоурок <span class="vremya">9:41</span></a></div></td></tr>
+<tr><td class="ch">§ 1</td><td>Сравнение значений выражений</td><td><div class="btnrow"><a class="btn" href="https://rutube.ru/video/f63ae81b6171f5565d3b7a14f821bdd8/">Видеоурок <span class="vremya">8:29</span></a></div></td></tr>
+<tr><td class="ch">§ 2</td><td>Свойства действий над числами</td><td><div class="btnrow"><a class="btn" href="https://rutube.ru/video/7f4f9eee2a8598fe9742c4f95817c5c7/">Видеоурок <span class="vremya">14:00</span></a></div></td></tr>
+<tr><td class="ch">§ 2</td><td>Тождества. Тождественные преобразования</td><td><div class="btnrow"><a class="btn" href="https://rutube.ru/video/047c4116ae4083813f52cfa5c5f2677b/">Видеоурок <span class="vremya">7:34</span></a></div></td></tr>
+<tr><td class="ch">§ 2</td><td>Приведение подобных слагаемых</td><td><div class="btnrow"><a class="btn" href="https://rutube.ru/video/3c9e5af45a36a52688ec1e8fda882cc2/">Видеоурок <span class="vremya">18:26</span></a><a class="btn" href="https://rutube.ru/video/853a661da0cb4c9866c4e6d1cdaa01f3/">Ещё <span class="vremya">29:39</span></a></div></td></tr>
+<tr><td class="ch">§ 3</td><td>Уравнение и его корни</td><td><div class="btnrow"><a class="btn" href="https://rutube.ru/video/5137e1c06a82ac5b45dbb5c8b788ad93/">Видеоурок <span class="vremya">12:34</span></a></div></td></tr>
+<tr><td class="ch">§ 3</td><td>Линейное уравнение с одной переменной</td><td><div class="btnrow"><a class="btn" href="https://rutube.ru/video/919d551a0b8e93ba071c4f1fb46894ad/">Видеоурок <span class="vremya">9:46</span></a><a class="btn" href="https://rutube.ru/video/f0e3f219d18c4bbc28bb6ad5cd5f2c6e/">Ещё <span class="vremya">7:19</span></a><a class="btn" href="https://rutube.ru/video/c3e27eee3b1ebcd05e4ba6764e72a84f/">Ещё <span class="vremya">14:50</span></a><a class="btn" href="https://rutube.ru/video/7cc6b1e89b4dff58fad60cfc529e769a/">Ещё <span class="vremya">11:59</span></a><a class="btn" href="https://rutube.ru/video/0d1bbb20b9067438d1930ab620db4e2a/">Ещё <span class="vremya">8:40</span></a></div></td></tr>
+<tr><td class="ch">§ 3</td><td>Решение задач с помощью уравнений</td><td><div class="btnrow"><a class="btn" href="https://rutube.ru/video/abc805c5ee6c607c9b9f847b190fe87e/">Видеоурок <span class="vremya">15:13</span></a><a class="btn" href="https://rutube.ru/video/0b4ffdaa155e465ccd01b803ac31067a/">Движение <span class="vremya">24:08</span></a><a class="btn" href="https://rutube.ru/video/deb8dbb93ce7808c85b4c82f11e33710/">Движение <span class="vremya">20:49</span></a><a class="btn" href="https://rutube.ru/video/b46b75a6e676e3ddaf8c422ca7f8587b/">Движение <span class="vremya">17:53</span></a><a class="btn" href="https://rutube.ru/video/c3572455511cd64445d06235e62d3c58/">Работа <span class="vremya">9:57</span></a><a class="btn" href="https://rutube.ru/video/f4acd02db1210da8f1e787427a4fa8ae/">Работа <span class="vremya">16:47</span></a><a class="btn" href="https://rutube.ru/video/04086feacd962f61a706ef56a51491bc/">Проценты <span class="vremya">12:35</span></a><a class="btn" href="https://rutube.ru/video/8ff69d59492756d4a7647fdb687de8af/">Проценты <span class="vremya">21:19</span></a><a class="btn" href="https://rutube.ru/video/6e5cc3ebcf80a69df13f6a4ee71a4e85/">Смеси <span class="vremya">21:22</span></a><a class="btn" href="https://rutube.ru/video/986c2e6d0a3f385bd38024a619ed415d/">Смеси <span class="vremya">23:39</span></a><a class="btn" href="https://rutube.ru/video/63ddd6d63e98ef1e8b7297737df41de3/">Числа <span class="vremya">16:22</span></a></div></td></tr>
+<tr><td class="ch">§ 4</td><td>Среднее арифметическое, размах и мода</td><td><div class="btnrow"><a class="btn" href="https://rutube.ru/video/1b5b897affc1083b3baeae0a8d088d66/">Видеоурок <span class="vremya">11:43</span></a></div></td></tr>
+<tr><td class="ch">§ 4</td><td>Медиана как статистическая характеристика</td><td><div class="btnrow"><a class="btn" href="https://rutube.ru/video/d0a935c1fb3f8a529e889f25466bb80e/">Видеоурок <span class="vremya">10:35</span></a></div></td></tr>
+<tr class="chapter"><td colspan="3">Глава II. Функции</td></tr>
+<tr><td class="ch">§ 5</td><td>Что такое функция</td><td><div class="btnrow"><a class="btn" href="https://rutube.ru/video/2100bd5bf641de58ec6d66678fee2f92/">Видеоурок <span class="vremya">12:18</span></a><a class="btn" href="https://rutube.ru/video/e39b203540be6b34b1c6728b8a73a8c4/">Ещё <span class="vremya">26:08</span></a></div></td></tr>
+<tr><td class="ch">§ 5</td><td>Вычисление значений функции по формуле</td><td><div class="btnrow"><a class="btn" href="https://rutube.ru/video/299868b37b044dd2b3ff3199ea8fda17/">Видеоурок <span class="vremya">15:36</span></a></div></td></tr>
+<tr><td class="ch">§ 5</td><td>График функции</td><td><div class="btnrow"><a class="btn" href="https://rutube.ru/video/044d972e7252b310c114318e439a2c7e/">Видеоурок <span class="vremya">33:12</span></a><a class="btn" href="https://rutube.ru/video/f80ef74eb301c96a0159afedd02e6383/">Ещё <span class="vremya">28:25</span></a></div></td></tr>
+<tr><td class="ch">§ 5</td><td>Координатная плоскость</td><td><div class="btnrow"><a class="btn" href="https://rutube.ru/video/37a4ebf9c234063e743767e8a50b45c0/">Видеоурок <span class="vremya">12:14</span></a></div></td></tr>
+<tr><td class="ch">§ 6</td><td>Прямая пропорциональность и её график</td><td><div class="btnrow"><a class="btn" href="https://rutube.ru/video/8c5a8d71d7f59fde8b2eb4f45f0b3e14/">Видеоурок <span class="vremya">15:53</span></a></div></td></tr>
+<tr><td class="ch">§ 6</td><td>Линейная функция и её график</td><td><div class="btnrow"><a class="btn" href="https://rutube.ru/video/ba3584a48e6d012e09159639633cc9ac/">Видеоурок <span class="vremya">8:22</span></a><a class="btn" href="https://rutube.ru/video/08ee319cd7a68f2c8dd0774aaee04392/">Ещё <span class="vremya">28:41</span></a><a class="btn" href="https://rutube.ru/video/c4fcf1a3d08afbd0b53c51ab743f6ffe/">Ещё <span class="vremya">31:03</span></a></div></td></tr>
+<tr><td class="ch">§ 6</td><td>Графики функций y = x² и y = x³</td><td><div class="btnrow"><a class="btn" href="https://rutube.ru/video/6de972eb98abd96fab9c1764d0bb352f/">Видеоурок <span class="vremya">18:05</span></a></div></td></tr>
+<tr><td class="ch">§ 6</td><td>Чтение графика функции</td><td><div class="btnrow"><a class="btn" href="https://rutube.ru/video/ab44c1a294450741184f058b90f79302/">Точка на графике <span class="vremya">12:22</span></a><a class="btn" href="https://rutube.ru/video/6888f65fe1fb059593c8df0bf43f43de/">Пересечение <span class="vremya">27:35</span></a></div></td></tr>
+<tr class="chapter"><td colspan="3">Глава III. Степень с натуральным показателем</td></tr>
+<tr><td class="ch">§ 7</td><td>Определение степени с натуральным показателем</td><td><div class="btnrow"><a class="btn" href="https://rutube.ru/video/4e6ca1122e9fd9d66a0b615d94a28cf8/">Видеоурок <span class="vremya">12:17</span></a><a class="btn" href="https://rutube.ru/video/d70872cb3e43dad6eb4ad3bf16eaaa7c/">Ещё <span class="vremya">16:56</span></a></div></td></tr>
+<tr><td class="ch">§ 7</td><td>Умножение и деление степеней</td><td><div class="btnrow"><a class="btn" href="https://rutube.ru/video/88260d67ac592f87941f97f9c456354c/">Видеоурок <span class="vremya">7:06</span></a><a class="btn" href="https://rutube.ru/video/6d11db9686547a5726f32a64f5d9fe6f/">Ещё <span class="vremya">30:29</span></a></div></td></tr>
+<tr><td class="ch">§ 7</td><td>Возведение в степень произведения и степени</td><td><div class="btnrow"><a class="btn" href="https://rutube.ru/video/8971fc48ea0227cd52638bf81fa0ca22/">Видеоурок <span class="vremya">7:06</span></a></div></td></tr>
+<tr><td class="ch">§ 8</td><td>Одночлен и его стандартный вид</td><td><div class="btnrow"><a class="btn" href="https://rutube.ru/video/e041e74cbfe8e0ed43bc5c83a59105c2/">Видеоурок <span class="vremya">7:36</span></a></div></td></tr>
+<tr><td class="ch">§ 8</td><td>Умножение одночленов. Возведение одночлена в степень</td><td><div class="btnrow"><a class="btn" href="https://rutube.ru/video/bfbe4c1e77b5be978c844e75b4072bac/">Видеоурок <span class="vremya">14:17</span></a><a class="btn" href="https://rutube.ru/video/e153c4b44f74200f7c4baf8da9861672/">Умножение <span class="vremya">11:58</span></a><a class="btn" href="https://rutube.ru/video/dce3727e8b7ea237d953aec00a457a4a/">Деление <span class="vremya">23:52</span></a><a class="btn" href="https://rutube.ru/video/39301474c85fdc5819ab506f78e25814/">Степень <span class="vremya">13:41</span></a></div></td></tr>
+<tr class="chapter"><td colspan="3">Глава IV. Многочлены</td></tr>
+<tr><td class="ch">§ 9</td><td>Многочлен и его стандартный вид</td><td><div class="btnrow"><a class="btn" href="https://rutube.ru/video/ee665cc5385398de5dae4647d5d6d03d/">Видеоурок <span class="vremya">14:37</span></a></div></td></tr>
+<tr><td class="ch">§ 9</td><td>Сложение и вычитание многочленов</td><td><div class="btnrow"><a class="btn" href="https://rutube.ru/video/f13fa0686060038dbcdf072a64bbb737/">Видеоурок <span class="vremya">8:42</span></a></div></td></tr>
+<tr><td class="ch">§ 10</td><td>Умножение одночлена на многочлен</td><td><div class="btnrow"><a class="btn" href="https://rutube.ru/video/0e19ef2fc61ba2886449c54ee2e7e1a7/">Видеоурок <span class="vremya">14:59</span></a><a class="btn" href="https://rutube.ru/video/f9a0cf15de5bffb6ff95aaee0f7f78ff/">Ещё <span class="vremya">21:47</span></a></div></td></tr>
+<tr><td class="ch">§ 10</td><td>Вынесение общего множителя за скобки</td><td><div class="btnrow"><a class="btn" href="https://rutube.ru/video/a56bd5db9a127ba971f1e40289beb461/">Видеоурок <span class="vremya">11:22</span></a><a class="btn" href="https://rutube.ru/video/6d0a0ce6953e9a62a7dc0150ad3c1592/">Одночлен <span class="vremya">31:00</span></a><a class="btn" href="https://rutube.ru/video/0e8aff292a37999c69c4a5831d4db654/">Многочлен <span class="vremya">39:26</span></a></div></td></tr>
+<tr><td class="ch">§ 11</td><td>Умножение многочлена на многочлен</td><td><div class="btnrow"><a class="btn" href="https://rutube.ru/video/fbb4d0c94d001300eb22901a4db66465/">Видеоурок <span class="vremya">22:14</span></a><a class="btn" href="https://rutube.ru/video/69bde5d2cce83606f0ed9ba3a806bd49/">Ещё <span class="vremya">26:23</span></a></div></td></tr>
+<tr><td class="ch">§ 11</td><td>Разложение многочлена на множители способом группировки</td><td><div class="btnrow"><a class="btn" href="https://rutube.ru/video/83f299532d7ada252565763bdf0b9c3f/">Видеоурок <span class="vremya">16:40</span></a><a class="btn" href="https://rutube.ru/video/614f1f9034150f4a7d271256ec96f6c7/">Ещё <span class="vremya">24:28</span></a></div></td></tr>
+<tr class="chapter"><td colspan="3">Глава V. Формулы сокращённого умножения</td></tr>
+<tr><td class="ch">§ 12</td><td>Возведение в квадрат и в куб суммы и разности двух выражений</td><td><div class="btnrow"><a class="btn" href="https://rutube.ru/video/a7987f85d17c94903698d31981eb7f8d/">Видеоурок <span class="vremya">24:05</span></a><a class="btn" href="https://rutube.ru/video/a020561e2096a53c4c5e640f17d82eac/">Ещё <span class="vremya">32:27</span></a></div></td></tr>
+<tr><td class="ch">§ 12</td><td>Разложение на множители с помощью формул квадрата суммы и квадрата разности</td><td><div class="btnrow"><a class="btn" href="https://rutube.ru/video/c56a7bf7d725ce982bc98a1e1a8bfaa2/">Видеоурок <span class="vremya">13:24</span></a><a class="btn" href="https://rutube.ru/video/63b28750459aa583eb525c7086a4ff39/">Ещё <span class="vremya">31:27</span></a></div></td></tr>
+<tr><td class="ch">§ 13</td><td>Умножение разности двух выражений на их сумму</td><td><div class="btnrow"><a class="btn" href="https://rutube.ru/video/714199b3407bad1fff83b5c6f283177d/">Видеоурок <span class="vremya">12:30</span></a></div></td></tr>
+<tr><td class="ch">§ 13</td><td>Разложение разности квадратов на множители</td><td><div class="btnrow"><a class="btn" href="https://rutube.ru/video/eae0e3029320f639a07379dbad7a4ef3/">Видеоурок <span class="vremya">7:43</span></a><a class="btn" href="https://rutube.ru/video/077de8010f04048a811f020e83592df8/">Ещё <span class="vremya">33:27</span></a><a class="btn" href="https://rutube.ru/video/97a3410dd67f08691a3b148db5470edc/">Ещё <span class="vremya">26:37</span></a></div></td></tr>
+<tr><td class="ch">§ 13</td><td>Разложение на множители суммы и разности кубов</td><td><div class="btnrow"><a class="btn" href="https://rutube.ru/video/c91094e5b71d78c4a504fe07f81689ed/">Видеоурок <span class="vremya">19:58</span></a><a class="btn" href="https://rutube.ru/video/85d2ee1da3449d64a693814a806523dc/">Ещё <span class="vremya">19:35</span></a><a class="btn" href="https://rutube.ru/video/da5aa5290307c70ab22a9c5c412a6b68/">Ещё <span class="vremya">24:46</span></a></div></td></tr>
+<tr><td class="ch">§ 14</td><td>Преобразование целого выражения в многочлен</td><td><div class="btnrow"><a class="btn" href="https://rutube.ru/video/84dc1de58593086a2b0f6905ab99510f/">Видеоурок <span class="vremya">14:07</span></a></div></td></tr>
+<tr><td class="ch">§ 14</td><td>Применение различных способов для разложения на множители</td><td><div class="btnrow"><a class="btn" href="https://rutube.ru/video/6c01b9966e555928fbf24fec3bc075f9/">Видеоурок <span class="vremya">17:55</span></a><a class="btn" href="https://rutube.ru/video/9575ed8039138faded3cb23a08583197/">Комбинация <span class="vremya">27:15</span></a><a class="btn" href="https://rutube.ru/video/9dd08dd8f9c61946adfb2da548d1bfc8/">Уравнения <span class="vremya">32:40</span></a></div></td></tr>
+<tr class="chapter"><td colspan="3">Глава VI. Системы линейных уравнений</td></tr>
+<tr><td class="ch">§ 15</td><td>Линейное уравнение с двумя переменными</td><td><div class="btnrow"><a class="btn" href="https://rutube.ru/video/67bbb1424450bcebd1dffbaeb78501cc/">Видеоурок <span class="vremya">21:09</span></a><a class="btn" href="https://rutube.ru/video/2e31122e6c04a0d2bc4c16197532697c/">Ещё <span class="vremya">14:32</span></a><a class="btn" href="https://rutube.ru/video/4774d8f9ba8075b3d37d156477b0926e/">Ещё <span class="vremya">17:37</span></a></div></td></tr>
+<tr><td class="ch">§ 15</td><td>График линейного уравнения с двумя переменными</td><td><div class="btnrow"><a class="btn" href="https://rutube.ru/video/ca5b47a8834d5ededd45d88dd0b30c65/">Видеоурок <span class="vremya">17:28</span></a></div></td></tr>
+<tr><td class="ch">§ 15</td><td>Система двух линейных уравнений с двумя переменными</td><td><div class="btnrow"><a class="btn" href="https://rutube.ru/video/77d5ee995fb08189380a3ace855449ee/">Видеоурок <span class="vremya">12:16</span></a></div></td></tr>
+<tr><td class="ch">§ 16</td><td>Способ подстановки</td><td><div class="btnrow"><a class="btn" href="https://rutube.ru/video/9ceec0bf319ae9d17121d57912ff70ba/">Видеоурок <span class="vremya">17:28</span></a></div></td></tr>
+<tr><td class="ch">§ 16</td><td>Способ сложения</td><td><div class="btnrow"><a class="btn" href="https://rutube.ru/video/e92dccda054fbfc8d1f372d960ea8d21/">Видеоурок <span class="vremya">21:40</span></a></div></td></tr>
+<tr><td class="ch">§ 16</td><td>Графический способ</td><td><div class="btnrow"><a class="btn" href="https://rutube.ru/video/3a74b8d190779cd36a8da67c392342e6/">Видеоурок <span class="vremya">17:10</span></a></div></td></tr>
+<tr><td class="ch">§ 16</td><td>Задачи на системы уравнений</td><td><div class="btnrow"><a class="btn" href="https://rutube.ru/video/45c44acf19a60e4af3d1e3c41c424079/">На числа <span class="vremya">22:10</span></a><a class="btn" href="https://rutube.ru/video/38da6026994489669a94ec57c993d27c/">Движение <span class="vremya">12:31</span></a><a class="btn" href="https://rutube.ru/video/617a05cab7cb77c9609752939091fc0a/">Работа <span class="vremya">16:59</span></a></div></td></tr>
+</tbody>
+</table>
+
+<h2 id="gdz">3. Разбор домашних заданий</h2>
+
+<p>Если задачу из учебника не получается решить даже после урока —
+здесь разобраны конкретные номера из вашего учебника,
+по параграфам. Канал «Математика, Маша Солдатова».</p>
+
+<ul>
+<li>Алгебра 7 класс. Макарычев. Параграф 1, 1-13 номера — 83:05 · <a href="https://rutube.ru/video/79e6dbe0e3ecfcbbe731f8d5f7657682/">Смотреть</a></li><li>Алгебра 7 класс. Макарычев. Параграф 1, 14-36 номера — 86:55 · <a href="https://rutube.ru/video/2b70728728ddd3e0cd58b03a0f66e644/">Смотреть</a></li><li>Алгебра 7 класс. Макарычев. Параграф 1, 37-65 номера — 91:42 · <a href="https://rutube.ru/video/a29ddd16b4f934c62b218c1906ab6347/">Смотреть</a></li><li>Алгебра 7 класс. Макарычев. Параграф 1, 66-88 номера — 79:07 · <a href="https://rutube.ru/video/d803d7f046aaa8ccb1254b1c5290233d/">Смотреть</a></li><li>Алгебра 7 класс. Макарычев. Параграф 1, 89-103 номера — 49:09 · <a href="https://rutube.ru/video/d1463fe5d824407540b64d1d4597e068/">Смотреть</a></li><li>§ 2.6 Тождества, тождественные преобразования, 104-129 номера — 63:52 · <a href="https://rutube.ru/video/2a37b4726b977ba2f7b6321936cd5b0c/">Смотреть</a></li><li>§ 3.7 Уравнение и его корни, 130-144 номера — 29:28 · <a href="https://rutube.ru/video/d5035d22a669b542b16b3048154fdbb7/">Смотреть</a></li><li>§ 3.7 Уравнение и его корни, 145-151 номера — 47:56 · <a href="https://rutube.ru/video/ac2ed59088f4a94dbc935bb23730df9d/">Смотреть</a></li><li>§ 3.7 Уравнение и его корни, 146-162 номера — 48:46 · <a href="https://rutube.ru/video/bd38ca2f398790e037716080797f84d8/">Смотреть</a></li>
+</ul>
+
+<h2 id="povtor">4. Повторение за год</h2>
+
+<p>Восемь видео, которыми удобно пройтись перед контрольной
+или итоговой: весь курс 7 класса короткими блоками.
+Канал «Математика доступным языком».</p>
+
+<ul>
+<li>Алгебра 7 класс. Повторение. Ч.1 — 14:48 · <a href="https://rutube.ru/video/438e6b39bb5ff38c0f0dcecaabc10252/">Смотреть</a></li><li>Алгебра 7 класс. Повторение. Ч.2 — 14:30 · <a href="https://rutube.ru/video/edfc50733b8edeb68f8049c26963be1f/">Смотреть</a></li><li>Алгебра 7 класс. Повторение. Ч.3 — 14:20 · <a href="https://rutube.ru/video/539c8eba2d2c5d66c1dd42c59180a7f6/">Смотреть</a></li><li>Алгебра 7 класс. Повторение. Ч.4 — 13:41 · <a href="https://rutube.ru/video/4c47531f47f398b5d4c84b38dbaf1d88/">Смотреть</a></li><li>Алгебра 7 класс. Повторение. Ч.5 — 14:19 · <a href="https://rutube.ru/video/76d04928f8831581c6c1bf64a46cbd6c/">Смотреть</a></li><li>Алгебра 7 класс. Повторение. Ч.6 — 13:13 · <a href="https://rutube.ru/video/bf227de8a31360611deef18b636e116b/">Смотреть</a></li><li>Алгебра 7 класс. Повторение. Ч.7 — 13:09 · <a href="https://rutube.ru/video/f97626f156be3604a071261136bfbb3d/">Смотреть</a></li><li>Алгебра 7 класс. Повторение. Ч.8 — 14:47 · <a href="https://rutube.ru/video/174d98fa40c15390f8c8abfa353a9640/">Смотреть</a></li>
+</ul>
+
+<h2 id="kak">5. Как заниматься</h2>
+
+<div class="kids">
+<strong>Обычный урок — 20—25 минут.</strong><br>
+1. Откройте тему в таблице выше, посмотрите видеоурок.<br>
+2. Решите 3—5 заданий из учебника по этой теме.<br>
+3. Застряли — откройте разбор домашних заданий (раздел 3),
+найдите свой параграф.<br>
+4. Перед контрольной — пройдите тест по теме
+(страница «Тренажёры»).
+</div>
+
+<p class="small">Все видео — на Rutube. На телевизоре их удобнее
+смотреть через приложение Rutube (оно есть в Google Play для Android TV),
+а не в браузере: так не тормозит.</p>
+
+<footer>
+  <p>Подобрано под программу МБОУ «Средняя школа №56» г. Иваново
+  (ул. Лётчика Лазарева, 1/2). Учебник: Макарычев Ю. Н., Миндюк Н. Г., Нешков К. И., Суворова С. Б. «Алгебра. 7 класс», под ред. С. А. Теляковского, «Просвещение» — назван вами,
+  в школьной программе учебник алгебры не указан.</p>
+  <p class="src">Материал подготовлен 5 октября 2026 г.. Все ссылки проверены
+  в день сборки: битых нет.</p>
+</footer>
+</div>
+</body>
+</html>

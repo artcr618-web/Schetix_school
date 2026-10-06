@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Геометрия. 8 класс — видеоуроки по учебнику Атанасяна</title>
+<style>
+  :root{--ink:#1b1a17;--muted:#6a6355;--line:#d6d0c4;--accent:#8c2f21;--accent2:#244a63;--ok:#2f6b45}
+  *{box-sizing:border-box}
+  body{margin:0;background:#faf8f4;color:var(--ink);font-size:15.5px;line-height:1.55;
+    font-family:"Georgia","Times New Roman",serif}
+  .wrap{max-width:960px;margin:0 auto;padding:0 22px 70px}
+  header{background:#2b2620;color:#f5f1e8;padding:30px 22px 24px;margin-bottom:24px}
+  header .inner{max-width:960px;margin:0 auto}
+  h1{margin:0 0 8px;font-size:25px;font-weight:600}
+  header p{margin:0;color:#c8bfae;font-size:14.5px;font-family:system-ui,sans-serif}
+  h2{font-size:21px;margin:40px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--accent)}
+  h3{font-size:17.5px;margin:26px 0 6px;font-family:system-ui,sans-serif}
+  h4{font-size:15.5px;margin:16px 0 6px;font-family:system-ui,sans-serif;color:var(--accent2)}
+  p,li{font-size:15.5px}
+  .work{background:#fff;border:1px solid var(--line);border-radius:8px;padding:20px 24px;margin:16px 0;
+    box-shadow:0 1px 3px rgba(0,0,0,.04)}
+  table{border-collapse:collapse;width:100%;font-size:14.5px;margin:10px 0;background:#fff}
+  th,td{border:1px solid var(--line);padding:6px 9px;text-align:left;vertical-align:top}
+  th{background:#efeae1;font-family:system-ui,sans-serif;font-size:13.5px}
+  td a{white-space:nowrap}
+  .note{background:#fff8e8;border:1px solid #ecdcb4;border-radius:8px;padding:12px 17px;margin:16px 0;
+    font-family:system-ui,sans-serif;font-size:14.5px}
+  .ok{background:#f2f6f2;border:1px solid #bcd3c4;border-radius:8px;padding:12px 17px;margin:16px 0;
+    font-family:system-ui,sans-serif;font-size:14.5px}
+  .src{border-left:3px solid var(--accent);background:#f7f3ea;padding:10px 14px;margin:10px 0;font-size:15px}
+  .tag{display:inline-block;font-family:system-ui,sans-serif;font-size:11.5px;padding:1px 7px;border-radius:10px;white-space:nowrap}
+  .free{background:#e3f0e7;color:#2f6b45;border:1px solid #b9d6c3}
+  .part{background:#fbeedb;color:#8a5a12;border:1px solid #e6cf9f}
+  .paid{background:#f7e2e2;color:#8c2f21;border:1px solid #e5c2c2}
+  .reg{background:#e8eef4;color:#244a63;border:1px solid #c3d3e0}
+  a{color:#1a4f7a}
+  ul{margin:8px 0 8px 22px;padding:0}
+  .tt{font-family:system-ui,sans-serif;font-size:13px;color:var(--muted);letter-spacing:.03em;text-transform:uppercase}
+  .big{font-size:17px;font-weight:600;font-family:system-ui,sans-serif}
+  code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13.5px;background:#f0ece3;padding:1px 5px;border-radius:4px}
+  @media print{
+    body{background:#fff;font-size:11.5pt}
+    header{background:#fff;color:#000;border-bottom:2px solid #000;padding:0 0 10px;margin-bottom:14px}
+    header p{color:#333}
+    .work{border:none;padding:0}
+    h2{page-break-before:always;border-bottom:1px solid #000}
+    .no-print{display:none}
+  }
+
+  nav{background:#efeae1;border-bottom:1px solid var(--line)}
+  nav .inner{max-width:960px;margin:0 auto;padding:9px 22px;display:flex;
+    flex-wrap:wrap;gap:6px 18px}
+  nav a{font-family:system-ui,sans-serif;font-size:13.5px;color:#4a3f30;
+    text-decoration:none;border-bottom:1px dotted #b3a894}
+  nav a:hover{color:var(--accent);border-bottom-color:var(--accent)}
+  .lead{background:#fff;border:1px solid var(--line);
+    border-left:4px solid var(--accent);border-radius:8px;
+    padding:14px 18px;margin:16px 0;font-size:16px;line-height:1.5}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:18px 0}
+  .card{background:#fff;border:1px solid var(--line);border-radius:8px;
+    padding:16px 18px}
+  .tag.main{background:#efe4d6;color:#6b4a22;border-color:#d9c3a3}
+  .card h3{margin-top:8px}
+  .card p{margin:6px 0 0;font-size:14.5px}
+  @media(max-width:720px){.grid{grid-template-columns:1fr}}
+  .btnrow{display:flex;flex-wrap:wrap;gap:6px;margin:0}
+  .btn{display:inline-block;font-family:system-ui,sans-serif;font-size:13px;
+    line-height:1.25;text-decoration:none;color:#1a4f7a;background:#f3f6f9;
+    border:1px solid #b9cddd;border-radius:6px;padding:4px 9px;white-space:nowrap}
+  .btn:hover{background:#e4edf5;border-color:#7fa6c4}
+  .btn .vremya{opacity:.75;font-size:12px;margin-left:5px;color:var(--muted)}
+  .kids{background:#f2f6f2;border:1px solid #bcd3c4;border-radius:8px;
+    padding:14px 18px;margin:16px 0;font-family:system-ui,sans-serif;
+    font-size:14.5px;line-height:1.6}
+  .small{font-size:13.5px;color:var(--muted);font-family:system-ui,sans-serif}
+  tr.chapter td{background:#efeae1;font-weight:600;text-align:center}
+  .net{color:#8a7a63;font-size:13px}
+  .pills{display:flex;flex-wrap:wrap;gap:5px;margin:14px 0}
+  .pill{display:inline-block;font-family:system-ui,sans-serif;font-size:12.5px;
+    text-decoration:none;color:#1a4f7a;background:#fff;
+    border:1px solid var(--line);border-radius:5px;padding:3px 7px}
+  .pill:hover{background:#eef2f6;border-color:#b9cddd}
+  @media print{
+    nav{display:none}
+    .btn,.pill{color:#000;border:none;background:none;text-decoration:underline}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="inner">
+    <h1>Геометрия. 8 класс — видеоуроки по учебнику Атанасяна</h1>
+    <p>Учебник Атанасяна, Бутузова, Кадомцева, Позняка, Юдиной · весь курс 8 класса · МБОУ СШ №56, Иваново</p>
+  </div>
+</header>
+
+<nav><div class="inner">
+  <a href="#chto">1. Что это</a>
+  <a href="#kurs">2. Видеокурс</a>
+  <a href="#gdz">3. Разбор домашних заданий</a>
+  <a href="#tetrad">· рабочая тетрадь</a>
+  <a href="#chastyami">4. Курс по пунктам</a>
+  <a href="#povtor">5. Повторение</a>
+  <a href="#kak">6. Как заниматься</a>
+</div></nav>
+
+<div class="wrap">
+
+<h2 id="chto">1. Что это и как пользоваться</h2>
+
+<div class="lead">
+<strong>Коротко.</strong> Ниже — видеокурс геометрии 8 класса
+по вашему учебнику: четыре темы года подряд, от «Четырёхугольников»
+до «Окружности». На каждую тему — видео со ссылкой и длительностью:
+видно, сколько времени займёт просмотр.
+</div>
+
+<div class="grid">
+  <div class="card">
+    <span class="tag main">Учебник</span>
+    <h3 style="margin-top:8px">Атанасян, Бутузов, Кадомцев, Позняк, Юдина</h3>
+    <p><strong>«Геометрия. 7—9 классы»</strong>, «Просвещение»<br>
+    4 темы года: Четырёхугольники · Площадь · Подобные треугольники ·
+    Окружность · <strong>68 часов</strong> за год
+    (2 часа в неделю при 34 учебных неделях)</p>
+  </div>
+  <div class="card">
+    <span class="tag">Три источника видео</span>
+    <h3 style="margin-top:8px">Урок, разбор и короткое повторение</h3>
+    <p>Основные уроки — «Твоя Математика» (7 видео по 11—31 минуте)
+    и «Видеоуроки математики» (10 уроков).<br>
+    Там, где нужен быстрый разбор одной формулы или свойства,
+    подключены короткие видео канала «Геометрия 8 класс»
+    (от 1 до 16 минут).</p>
+  </div>
+</div>
+
+<div class="note">
+<strong>Про нумерацию глав.</strong> Порядок тем одинаков во всех изданиях,
+а вот номера глав и пунктов — нет: в учебнике 2023 года это главы VI—IX
+(пункты 46—83), в изданиях постарше — главы V—VIII. Поэтому в таблице
+ниже указаны только названия тем: ориентируйтесь на них, а не на номер.
+</div>
+
+<h2 id="kurs">2. Видеокурс по темам</h2>
+
+<p>Таблица ниже — это и есть план года: 30 тем, 46 видео.
+Идёте по порядку сверху вниз: каждая следующая тема опирается
+на предыдущую. Кнопка <strong>«Видеоурок»</strong> — основной урок,
+остальные кнопки в той же строке — дополнительные разборы.</p>
+
+<table>
+<thead><tr><th style="width:52px">§</th><th>Тема</th>
+<th style="width:46%">Видео</th></tr></thead>
+<tbody>
+<tr class="chapter"><td colspan="3">Четырёхугольники</td></tr>
+<tr><td class="ch">§ 1</td><td>Многоугольник. Выпуклый многоугольник</td><td><div class="btnrow"><a class="btn" href="https://rutube.ru/video/bb8f5a24812a0b5a105833531e7cbaf9/">Видеоурок <span class="vremya">21 мин</span></a></div></td></tr>
+<tr><td class="ch">§ 1</td><td>Четырёхугольник: вершины, стороны, диагонали</td><td><div class="btnrow"><a class="btn" href="https://rutube.ru/video/55bd986c1d71c395391f0ef1cac358e7/">Видеоурок <span class="vremya">9 мин</span></a></div></td></tr>
+<tr><td class="ch">§ 2</td><td>Параллелограмм: свойства и признаки</td><td><div class="btnrow"><a class="btn" href="https://rutube.ru/video/1e4206b70e22466fb0f146c2cee007b7/">Видеоурок <span class="vremya">22 мин</span></a><a class="btn" href="https://rutube.ru/video/55bd986c1d71c395391f0ef1cac358e7/">Свойства параллелограмма <span class="vremya">9 мин</span></a><a class="btn" href="https://rutube.ru/video/380831b7dcc7678985b853c214e7169d/">Задачи <span class="vremya">8 мин</span></a></div></td></tr>
+<tr><td class="ch">§ 2</td><td>Трапеция. Средняя линия трапеции</td><td><div class="btnrow"><a class="btn" href="https://rutube.ru/video/38fe460b08807fc3196ec74e1cab047a/">Видеоурок <span class="vremya">15 мин</span></a><a class="btn" href="https://rutube.ru/video/bbbe78f25e37934e8f2354da471c8e99/">Средняя линия <span class="vremya">4 мин</span></a></div></td></tr>
+<tr><td class="ch">§ 3</td><td>Прямоугольник</td><td><div class="btnrow"><a class="btn" href="https://rutube.ru/video/2494eecbd855a81776e6dc9d39e11758/">Видеоурок <span class="vremya">31 мин</span></a></div></td></tr>
+<tr><td class="ch">§ 3</td><td>Ромб и квадрат</td><td><div class="btnrow"><a class="btn" href="https://rutube.ru/video/2494eecbd855a81776e6dc9d39e11758/">Видеоурок <span class="vremya">31 мин</span></a><a class="btn" href="https://rutube.ru/video/ed8ce04f0ebca619a03a78850cf4b1f5/">Свойства и признаки <span class="vremya">12 мин</span></a></div></td></tr>
+<tr><td class="ch">§ 3</td><td>Центральная симметрия</td><td><div class="btnrow"><a class="btn" href="https://rutube.ru/video/d92e8bc779af6e2905ec751270289e57/">Видеоурок <span class="vremya">17 мин</span></a></div></td></tr>
+<tr class="chapter"><td colspan="3">Площадь</td></tr>
+<tr><td class="ch">§ 1</td><td>Понятие площади многоугольника</td><td><div class="btnrow"><a class="btn" href="https://rutube.ru/video/cbccc712d802c8160bd41157330fcd24/">Видеоурок <span class="vremya">22 мин</span></a></div></td></tr>
+<tr><td class="ch">§ 1</td><td>Площадь прямоугольника и квадрата</td><td><div class="btnrow"><a class="btn" href="https://rutube.ru/video/a8da20999619a731d8efaa4452542b81/">Видеоурок <span class="vremya">17 мин</span></a></div></td></tr>
+<tr><td class="ch">§ 2</td><td>Площадь параллелограмма</td><td><div class="btnrow"><a class="btn" href="https://rutube.ru/video/1714c38fc18b0bbed1375f493bb0e4dc/">Видеоурок <span class="vremya">3 мин</span></a><a class="btn" href="https://rutube.ru/video/a8da20999619a731d8efaa4452542b81/">Ещё разбор <span class="vremya">17 мин</span></a></div></td></tr>
+<tr><td class="ch">§ 2</td><td>Площадь треугольника</td><td><div class="btnrow"><a class="btn" href="https://rutube.ru/video/97ca45d6cd1d3ceead906164201326d0/">Видеоурок <span class="vremya">4 мин</span></a><a class="btn" href="https://rutube.ru/video/cfa0392a39e11295d3ed4282bb292364/">Через медиану <span class="vremya">3 мин</span></a></div></td></tr>
+<tr><td class="ch">§ 2</td><td>Площадь трапеции</td><td><div class="btnrow"><a class="btn" href="https://rutube.ru/video/4e0c1ca94098789b88f35700e61e7ea5/">Видеоурок <span class="vremya">1 мин</span></a><a class="btn" href="https://rutube.ru/video/a8da20999619a731d8efaa4452542b81/">Ещё разбор <span class="vremya">17 мин</span></a></div></td></tr>
+<tr><td class="ch">§ 3</td><td>Теорема Пифагора</td><td><div class="btnrow"><a class="btn" href="https://rutube.ru/video/892de76e98b761307644dfe89e390ba2/">Видеоурок <span class="vremya">8 мин</span></a><a class="btn" href="https://rutube.ru/video/cf9384de8adf724813d2be058a177a16/">Коротко <span class="vremya">0 мин</span></a></div></td></tr>
+<tr><td class="ch">§ 3</td><td>Перпендикуляр и наклонная. Теорема, обратная теореме Пифагора</td><td><div class="btnrow"><a class="btn" href="https://rutube.ru/video/892de76e98b761307644dfe89e390ba2/">Видеоурок <span class="vremya">8 мин</span></a></div></td></tr>
+<tr><td class="ch">§ 3</td><td>Формула Герона</td><td><div class="btnrow"><a class="btn" href="https://rutube.ru/video/c620c045d120ef29ed3bb38c6e3345a7/">Видеоурок <span class="vremya">4 мин</span></a></div></td></tr>
+<tr class="chapter"><td colspan="3">Подобные треугольники</td></tr>
+<tr><td class="ch">§ 1</td><td>Пропорциональные отрезки. Теорема Фалеса</td><td><div class="btnrow"><a class="btn" href="https://rutube.ru/video/038e570d5e77b490880a272d4a702224/">Видеоурок <span class="vremya">13 мин</span></a></div></td></tr>
+<tr><td class="ch">§ 1</td><td>Определение подобных треугольников</td><td><div class="btnrow"><a class="btn" href="https://rutube.ru/video/15d3014dc9269942b5742fd5671bfbed/">Видеоурок <span class="vremya">14 мин</span></a><a class="btn" href="https://rutube.ru/video/ad1679efc3ee722bbd4597aa012ec55d/">Коротко <span class="vremya">1 мин</span></a></div></td></tr>
+<tr><td class="ch">§ 1</td><td>Отношение площадей подобных треугольников</td><td><span class="net">в видеокурсе нет — тему проходим по учебнику</span></td></tr>
+<tr><td class="ch">§ 2</td><td>Первый и второй признаки подобия</td><td><div class="btnrow"><a class="btn" href="https://rutube.ru/video/253a3f92ed15ce81c67541f640f26c05/">Видеоурок <span class="vremya">11 мин</span></a><a class="btn" href="https://rutube.ru/video/c74a41c60c9e7226b13643dfcd5f8484/">Ещё разбор <span class="vremya">18 мин</span></a></div></td></tr>
+<tr><td class="ch">§ 2</td><td>Третий признак подобия</td><td><div class="btnrow"><a class="btn" href="https://rutube.ru/video/c74a41c60c9e7226b13643dfcd5f8484/">Видеоурок <span class="vremya">18 мин</span></a></div></td></tr>
+<tr><td class="ch">§ 3</td><td>Средняя линия треугольника</td><td><div class="btnrow"><a class="btn" href="https://rutube.ru/video/1b2d26f3d9523c79bf8b8a5855777c08/">Видеоурок <span class="vremya">7 мин</span></a></div></td></tr>
+<tr><td class="ch">§ 3</td><td>Пропорциональные отрезки в прямоугольном треугольнике (метрические соотношения)</td><td><div class="btnrow"><a class="btn" href="https://rutube.ru/video/c6446225129f26856522f76907e604fb/">Видеоурок <span class="vremya">7 мин</span></a></div></td></tr>
+<tr><td class="ch">§ 3</td><td>Метод подобия в задачах на построение</td><td><span class="net">в видеокурсе нет — тему проходим по учебнику</span></td></tr>
+<tr><td class="ch">§ 4</td><td>Синус, косинус и тангенс острого угла</td><td><div class="btnrow"><a class="btn" href="https://rutube.ru/video/f61299b2b20f28cb009abe398d29fb19/">Видеоурок <span class="vremya">33 мин</span></a><a class="btn" href="https://rutube.ru/video/dff3303c0c8d8c7637f48883df07eda6/">Что такое тангенс <span class="vremya">1 мин</span></a><a class="btn" href="https://rutube.ru/video/3ae172801a5c84f612a598919d11c143/">Что такое косинус <span class="vremya">0 мин</span></a></div></td></tr>
+<tr><td class="ch">§ 4</td><td>Значения синуса, косинуса и тангенса для углов 30°, 45°, 60°</td><td><div class="btnrow"><a class="btn" href="https://rutube.ru/video/f61299b2b20f28cb009abe398d29fb19/">Видеоурок <span class="vremya">33 мин</span></a></div></td></tr>
+<tr class="chapter"><td colspan="3">Окружность</td></tr>
+<tr><td class="ch">§ 1</td><td>Касательная к окружности и её свойства</td><td><div class="btnrow"><a class="btn" href="https://rutube.ru/video/06bc656d602729c95c5e960f7e705ff1/">Видеоурок <span class="vremya">10 мин</span></a><a class="btn" href="https://rutube.ru/video/b201486a80f22984a7798d3f12ae1e92/">Продолжение <span class="vremya">9 мин</span></a><a class="btn" href="https://rutube.ru/video/594932e1b67dff85334986e65940f39f/">Коротко <span class="vremya">1 мин</span></a></div></td></tr>
+<tr><td class="ch">§ 1</td><td>Отрезки касательных. Угол между касательной и хордой</td><td><div class="btnrow"><a class="btn" href="https://rutube.ru/video/209302f32d6b6c9592b9adcd657158af/">Видеоурок <span class="vremya">1 мин</span></a></div></td></tr>
+<tr><td class="ch">§ 1</td><td>Взаимное расположение двух окружностей</td><td><span class="net">в видеокурсе нет — тему проходим по учебнику</span></td></tr>
+<tr><td class="ch">§ 2</td><td>Градусная мера дуги. Центральный угол</td><td><div class="btnrow"><a class="btn" href="https://rutube.ru/video/132fa17a54331b7df73480f73fba7b67/">Видеоурок <span class="vremya">9 мин</span></a><a class="btn" href="https://rutube.ru/video/960cdd2d62cd7f08a6fc8554cb67390b/">Продолжение <span class="vremya">8 мин</span></a></div></td></tr>
+<tr><td class="ch">§ 2</td><td>Теорема о вписанном угле</td><td><div class="btnrow"><a class="btn" href="https://rutube.ru/video/35013a94892069fabc893db569e0db6f/">Видеоурок <span class="vremya">9 мин</span></a></div></td></tr>
+<tr><td class="ch">§ 2</td><td>Углы, образованные хордами, касательными и секущими</td><td><div class="btnrow"><a class="btn" href="https://rutube.ru/video/311c6f4e177ffe1571575d5e1dcfb174/">Видеоурок <span class="vremya">7 мин</span></a><a class="btn" href="https://rutube.ru/video/69cd0c3c0d0dceb62f3efc6b718d5014/">Пересекающиеся хорды <span class="vremya">7 мин</span></a></div></td></tr>
+<tr><td class="ch">§ 3</td><td>Вписанная и описанная окружность четырёхугольника</td><td><div class="btnrow"><a class="btn" href="https://rutube.ru/video/fadec237ad672c3d419c3b1618160aa4/">Видеоурок <span class="vremya">9 мин</span></a></div></td></tr>
+<tr><td class="ch">§ 3</td><td>Окружность и треугольник. Четыре замечательные точки треугольника</td><td><div class="btnrow"><a class="btn" href="https://rutube.ru/video/50eca7e0a445a267a33a531c8fdbc353/">Видеоурок <span class="vremya">2 мин</span></a></div></td></tr>
+</tbody>
+</table>
+
+<p class="src">На три темы видео в открытых курсах не нашлось
+(отношение площадей подобных треугольников, метод подобия в задачах
+на построение, взаимное расположение двух окружностей) — это короткие
+темы, их проще разобрать по учебнику. В таблице они помечены прямо.</p>
+
+<h2 id="gdz">3. Разбор домашних заданий</h2>
+
+<h3 id="uchebnik">Задачи из учебника</h3>
+
+<p>Разборы конкретных номеров из учебника 2024 года издания
+и три коротких объяснения: теорема Пифагора, тангенс и косинус угла.
+Канал «ШКОЛЬНАЯ МАТЕМАТИКА».</p>
+
+<ul>
+<li>Номер 644 Геометрия 8 класс Атанасян 2024 — 10 мин · <a href="https://rutube.ru/video/fca7bbe8aced04b972e4e9d63f8b82f2/">Смотреть</a></li><li>Номер 618 Геометрия 8 класс Атанасян 2024 — 18 мин · <a href="https://rutube.ru/video/acc303c14f1369b5a742a5fc432fae60/">Смотреть</a></li><li>Номер 607 Геометрия 8 класс Атанасян 2024 — 11 мин · <a href="https://rutube.ru/video/b79f3b4c8b70ce916ebecc1da67bb6b0/">Смотреть</a></li><li>Теорема Пифагора — 0 мин · <a href="https://rutube.ru/video/cf9384de8adf724813d2be058a177a16/">Смотреть</a></li><li>Что такое тангенс угла? — 1 мин · <a href="https://rutube.ru/video/dff3303c0c8d8c7637f48883df07eda6/">Смотреть</a></li><li>Что такое косинус угла? — 0 мин · <a href="https://rutube.ru/video/3ae172801a5c84f612a598919d11c143/">Смотреть</a></li><li>Номер 697а Геометрия 8 класс Атанасян 2024 — 12 мин · <a href="https://rutube.ru/video/b983fe97ec4779650541797dba867453/">Смотреть</a></li>
+</ul>
+
+<h3 id="tetrad">Задания рабочей тетради (все, по номерам)</h3>
+
+<p>Если не получается задача из рабочей тетради — здесь разобраны
+все задания подряд: 112 видео, каждое по 1—4 минуты
+(всего 3 ч 48 мин).
+Отдельно — <a href="https://rutube.ru/video/3dc901ed4cee3b5815b7d8f12751549e/">вступление к тетради</a>
+(2 мин). Нашли нужный номер,
+посмотрели разбор, закрыли. Канал «Лёгкие решения ГДЗ».</p>
+
+<div class="note">
+<strong>Как пользоваться.</strong> Сначала решите задание сами,
+хотя бы попробуйте: геометрия без собственной попытки не запоминается.
+Потом открывайте разбор и сравнивайте ход решения. Номера —
+по рабочей тетради к учебнику Атанасяна; если в вашем комплекте
+нумерация чуть другая, откройте
+<a href="https://rutube.ru/plst/560467/">страницу плейлиста</a>
+и найдите задание по формулировке.
+</div>
+
+<div class="pills">
+<a class="pill" href="https://rutube.ru/video/aedb70fba942c4a0e6fe8e991e63c248/" title="№ 1 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 1 · 1 мин</a>
+<a class="pill" href="https://rutube.ru/video/e2df6c860cba40e866a5aeebb24a0b42/" title="№ 2 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 2 · 1 мин</a>
+<a class="pill" href="https://rutube.ru/video/8d1d7aa7eb5dd94b45002d07bdf4de4a/" title="№ 3 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 3 · 2 мин</a>
+<a class="pill" href="https://rutube.ru/video/482c9dcafcd8bff6f88feae98c8a6d5b/" title="№ 4 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 4 · 1 мин</a>
+<a class="pill" href="https://rutube.ru/video/0e97ea273cda7125254e02b6f641fc48/" title="№ 6 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 6 · 1 мин</a>
+<a class="pill" href="https://rutube.ru/video/50867b08ddcdae6ed2c154b4859aeec1/" title="№ 7 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 7 · 1 мин</a>
+<a class="pill" href="https://rutube.ru/video/402d6fb0e3bd911f5261230d0b8f852f/" title="№ 8 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 8 · 2 мин</a>
+<a class="pill" href="https://rutube.ru/video/3703840ae67ed7321ed5ce9fe6d2f49f/" title="№ 10 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 10 · 2 мин</a>
+<a class="pill" href="https://rutube.ru/video/b1e1734385fcedf5c0e1afb573e57728/" title="№ 11 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 11 · 1 мин</a>
+<a class="pill" href="https://rutube.ru/video/01230dfb6634d571f6499bd8bd0e608c/" title="№ 12 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 12 · 1 мин</a>
+<a class="pill" href="https://rutube.ru/video/37fdd01a98a31de48297cb9ecac424c1/" title="№ 13 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 13 · 1 мин</a>
+<a class="pill" href="https://rutube.ru/video/aeba32f6a9dea0c14f4462a2ba4852b5/" title="№ 15 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 15 · 1 мин</a>
+<a class="pill" href="https://rutube.ru/video/20544d7921dd790c6defaa53b08522dd/" title="№ 16 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 16 · 1 мин</a>
+<a class="pill" href="https://rutube.ru/video/f0affb86c5ceafa32c5559ed7f48f587/" title="№ 17 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 17 · 1 мин</a>
+<a class="pill" href="https://rutube.ru/video/386ee5e6ca60711abfa69e868d7c61d6/" title="№ 18 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 18 · 2 мин</a>
+<a class="pill" href="https://rutube.ru/video/56806fab82096a63af7741238df0140b/" title="№ 19 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 19 · 3 мин</a>
+<a class="pill" href="https://rutube.ru/video/8457cfbbd89b2020c337737d4cb0241b/" title="№ 20 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 20 · 2 мин</a>
+<a class="pill" href="https://rutube.ru/video/4f314f134f764eda431a11bb9ec73122/" title="№ 21 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 21 · 1 мин</a>
+<a class="pill" href="https://rutube.ru/video/f76bc4c86bde1c372f63999068a91738/" title="№ 22 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 22 · 1 мин</a>
+<a class="pill" href="https://rutube.ru/video/5a76d97e5d70a6ffc77e2e13ad6e9e98/" title="№ 23 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 23 · 1 мин</a>
+<a class="pill" href="https://rutube.ru/video/5cfb0c225a0a0411d916cbd0a227c03b/" title="№ 24 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 24 · 1 мин</a>
+<a class="pill" href="https://rutube.ru/video/5a308edc58feffc80c9dcf7d6598b1c9/" title="№ 25 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 25 · 2 мин</a>
+<a class="pill" href="https://rutube.ru/video/60734e405cb4eff981aa1c8429cbe734/" title="№ 26 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 26 · 1 мин</a>
+<a class="pill" href="https://rutube.ru/video/36e6739ad42c0c8c2dc4124221121d10/" title="№ 27 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 27 · 1 мин</a>
+<a class="pill" href="https://rutube.ru/video/cffdef58c1c53be4cf638af003e79b53/" title="№ 28 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 28 · 0 мин</a>
+<a class="pill" href="https://rutube.ru/video/298f74b1020834c18d78f572479a297d/" title="№ 29 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 29 · 0 мин</a>
+<a class="pill" href="https://rutube.ru/video/b510aeaf78b27484ff46902c403cc96a/" title="№ 30 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 30 · 0 мин</a>
+<a class="pill" href="https://rutube.ru/video/ec86f0a3d0b650b6207c3422ddac8e30/" title="№ 31 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 31 · 0 мин</a>
+<a class="pill" href="https://rutube.ru/video/b1387cf945de138b8a6ae2947b85059f/" title="№ 32 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 32 · 2 мин</a>
+<a class="pill" href="https://rutube.ru/video/1f52162dd963e8597f8bcb12b7d4f0f4/" title="№ 38 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 38 · 1 мин</a>
+<a class="pill" href="https://rutube.ru/video/9c3163878e5b70d39288596615ad8521/" title="№ 39 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 39 · 1 мин</a>
+<a class="pill" href="https://rutube.ru/video/51349ce721d4032728f33f4d83b5fdfe/" title="№ 40 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 40 · 1 мин</a>
+<a class="pill" href="https://rutube.ru/video/9da0e4fb3ea3e475aa515a11fe6435bc/" title="№ 41 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 41 · 1 мин</a>
+<a class="pill" href="https://rutube.ru/video/4f7edf0dedf19dd458df5038970492ca/" title="№ 42 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 42 · 1 мин</a>
+<a class="pill" href="https://rutube.ru/video/fe8215c142bf21b3df9c0118c507c5fc/" title="№ 43 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 43 · 2 мин</a>
+<a class="pill" href="https://rutube.ru/video/6eb0190b518dad7a129fc776e9899c51/" title="№ 44 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 44 · 2 мин</a>
+<a class="pill" href="https://rutube.ru/video/89b7145317e78a21e4b79fb873bf3527/" title="№ 45 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 45 · 1 мин</a>
+<a class="pill" href="https://rutube.ru/video/bace543ada4232c3b12761073c20a0fa/" title="№ 46 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 46 · 1 мин</a>
+<a class="pill" href="https://rutube.ru/video/53338a73c825550e67b2af68b15ef017/" title="№ 51 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 51 · 2 мин</a>
+<a class="pill" href="https://rutube.ru/video/75b7145f81ebf43b8e1a9ffc3c020c2e/" title="№ 52 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 52 · 2 мин</a>
+<a class="pill" href="https://rutube.ru/video/3ad193eb51d99b07f1c1374664fbc2b1/" title="№ 53 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 53 · 1 мин</a>
+<a class="pill" href="https://rutube.ru/video/575c27725de6d2e5b746121f9df9d83d/" title="№ 54 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 54 · 1 мин</a>
+<a class="pill" href="https://rutube.ru/video/d88d01ba80901128b766cb1779772774/" title="№ 55 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 55 · 1 мин</a>
+<a class="pill" href="https://rutube.ru/video/9780a33904bb773296f4971016fa225c/" title="№ 56 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 56 · 1 мин</a>
+<a class="pill" href="https://rutube.ru/video/4ed3c5cb66cd8846860105e26d6476f2/" title="№ 57 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 57 · 1 мин</a>
+<a class="pill" href="https://rutube.ru/video/c2b93dc5359f42ae582c00263f962c4a/" title="№ 58 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 58 · 2 мин</a>
+<a class="pill" href="https://rutube.ru/video/ced1463bfe3a05eebbb1744e35aae927/" title="№ 59 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 59 · 1 мин</a>
+<a class="pill" href="https://rutube.ru/video/fd206fe935f43577e3c9e9e967d40efa/" title="№ 60 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 60 · 2 мин</a>
+<a class="pill" href="https://rutube.ru/video/5c9add44060ffcdcfbf14d1af6c01d59/" title="№ 61 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 61 · 1 мин</a>
+<a class="pill" href="https://rutube.ru/video/04a84842dc77583da2d46363af6f27d3/" title="№ 62 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 62 · 2 мин</a>
+<a class="pill" href="https://rutube.ru/video/44baa7f1f65688bf4bde166330020496/" title="№ 63 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 63 · 3 мин</a>
+<a class="pill" href="https://rutube.ru/video/9d06c356430052b4a8edce2e07e9a6f1/" title="№ 64 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 64 · 2 мин</a>
+<a class="pill" href="https://rutube.ru/video/ba3d3aa997abeedc795a3fe41d5f6694/" title="№ 70 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 70 · 4 мин</a>
+<a class="pill" href="https://rutube.ru/video/ecb6ff0a55b066f481e8d9e254cb5177/" title="№ 71 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 71 · 3 мин</a>
+<a class="pill" href="https://rutube.ru/video/4027542525bc2b4b894a2a138dfea7bd/" title="№ 72 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 72 · 2 мин</a>
+<a class="pill" href="https://rutube.ru/video/5105a24efe0e4552abcf51e4cf793d78/" title="№ 73 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 73 · 2 мин</a>
+<a class="pill" href="https://rutube.ru/video/f10ecaf7ccda711d962212ea19959f49/" title="№ 74 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 74 · 1 мин</a>
+<a class="pill" href="https://rutube.ru/video/a79882de5ba244723d03629b10d95ec0/" title="№ 75 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 75 · 2 мин</a>
+<a class="pill" href="https://rutube.ru/video/365e22acc70e844ff8c8d2827c9871ba/" title="№ 76 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 76 · 1 мин</a>
+<a class="pill" href="https://rutube.ru/video/6dc22b67546d96583919c892a2c49d6f/" title="№ 77 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 77 · 1 мин</a>
+<a class="pill" href="https://rutube.ru/video/bc0597dc1d8b9ac5d57205f88eaaad08/" title="№ 78 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 78 · 1 мин</a>
+<a class="pill" href="https://rutube.ru/video/d1d81497927ce84e96ec482b107fd0c3/" title="№ 79 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 79 · 2 мин</a>
+<a class="pill" href="https://rutube.ru/video/0ed5a2cc700e1885004f4320e18a9a70/" title="№ 80 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 80 · 3 мин</a>
+<a class="pill" href="https://rutube.ru/video/288272a5cb66d76681d80d93b2ce1e05/" title="№ 81 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 81 · 1 мин</a>
+<a class="pill" href="https://rutube.ru/video/6e9f860597374b52d42076b971b43c05/" title="№ 82 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 82 · 1 мин</a>
+<a class="pill" href="https://rutube.ru/video/2a145a6377ba1eb049a3f6bb83131c36/" title="№ 83 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 83 · 1 мин</a>
+<a class="pill" href="https://rutube.ru/video/c86a075dd84b47c24465bc1998f3d29a/" title="№ 84 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 84 · 1 мин</a>
+<a class="pill" href="https://rutube.ru/video/672dc7aa483c761f8027660203b5db8f/" title="№ 85 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 85 · 1 мин</a>
+<a class="pill" href="https://rutube.ru/video/a7cec84d1754156f1335855d8fd1e068/" title="№ 86 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 86 · 2 мин</a>
+<a class="pill" href="https://rutube.ru/video/1285901dbbc39ab852b69eb017a08273/" title="№ 87 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 87 · 2 мин</a>
+<a class="pill" href="https://rutube.ru/video/103546b5ef4d1b31997ecffd74467ba2/" title="№ 92 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 92 · 1 мин</a>
+<a class="pill" href="https://rutube.ru/video/69b55c434b6b7c9262932b8cfc3ede01/" title="№ 93 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 93 · 1 мин</a>
+<a class="pill" href="https://rutube.ru/video/d130fd864cfe5dba3dfca35a61769d7a/" title="№ 94 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 94 · 1 мин</a>
+<a class="pill" href="https://rutube.ru/video/f339b04fdb4a5ede888050621a1e3a91/" title="№ 95 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 95 · 2 мин</a>
+<a class="pill" href="https://rutube.ru/video/f24837db8a1231dd76184ebf63f3add7/" title="№ 96 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 96 · 2 мин</a>
+<a class="pill" href="https://rutube.ru/video/b0ef22e3ca2d4016f1b53f82c03bac6a/" title="№ 97 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 97 · 1 мин</a>
+<a class="pill" href="https://rutube.ru/video/ae1de946441cdc57b8b898f79b9fd44c/" title="№ 98 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 98 · 1 мин</a>
+<a class="pill" href="https://rutube.ru/video/fe7e125f9a9ffca65e1a07e6bcc4bef5/" title="№ 99 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 99 · 4 мин</a>
+<a class="pill" href="https://rutube.ru/video/4184f1fe62da128b1c7d2c507c26c5fc/" title="№ 100 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 100 · 1 мин</a>
+<a class="pill" href="https://rutube.ru/video/8d63fc58a6df264900b898cf8a9b2ba7/" title="№ 101 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 101 · 1 мин</a>
+<a class="pill" href="https://rutube.ru/video/ba425cb2543d62a3d329898479e216bd/" title="№ 102 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 102 · 2 мин</a>
+<a class="pill" href="https://rutube.ru/video/9939da17750c58beb30592abc099436c/" title="№ 103 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 103 · 1 мин</a>
+<a class="pill" href="https://rutube.ru/video/014a54c82507d4d29f4d77ed5efd233d/" title="№ 104 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 104 · 1 мин</a>
+<a class="pill" href="https://rutube.ru/video/ee30d3b65b4d9bfc7454717376c2110a/" title="№ 105 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 105 · 1 мин</a>
+<a class="pill" href="https://rutube.ru/video/f9e3013895eb24217db2f1477952dbe7/" title="№ 106 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 106 · 1 мин</a>
+<a class="pill" href="https://rutube.ru/video/cd17a018440f659cf593146642c2ad29/" title="№ 107 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 107 · 1 мин</a>
+<a class="pill" href="https://rutube.ru/video/e2c9b1860bb4876b9e97d59f1a117fbc/" title="№ 108 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 108 · 3 мин</a>
+<a class="pill" href="https://rutube.ru/video/65d824048aa00cbcdd99d0bec116cb07/" title="№ 109 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 109 · 1 мин</a>
+<a class="pill" href="https://rutube.ru/video/c6b1f9ccb8180d6bb0969aeb41577053/" title="№ 110 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 110 · 1 мин</a>
+<a class="pill" href="https://rutube.ru/video/1371fb8b0f24532999c8ef9c48466ee3/" title="№ 111 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 111 · 1 мин</a>
+<a class="pill" href="https://rutube.ru/video/5dabacfa36e545f4211f09ad2791bfde/" title="№ 112 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 112 · 4 мин</a>
+<a class="pill" href="https://rutube.ru/video/ec75f0ed56033657fccf158e0bcf40b3/" title="№ 113 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 113 · 2 мин</a>
+<a class="pill" href="https://rutube.ru/video/990fd3568599e109f4ec835b3552a2f8/" title="№ 114 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 114 · 1 мин</a>
+<a class="pill" href="https://rutube.ru/video/2dbbbd40512ea361d15c26e66f90c167/" title="№ 115 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 115 · 1 мин</a>
+<a class="pill" href="https://rutube.ru/video/bd7e5a586eca78ecabed6a272594b490/" title="№ 116 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 116 · 2 мин</a>
+<a class="pill" href="https://rutube.ru/video/843869363a2f69f11f442587b35e38fc/" title="№ 117 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 117 · 4 мин</a>
+<a class="pill" href="https://rutube.ru/video/9106fcd236bd2f71ec716bbdcc59f814/" title="№ 118 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 118 · 4 мин</a>
+<a class="pill" href="https://rutube.ru/video/0f91f17904ccd88ad16ae67bee3c31f3/" title="№ 119 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 119 · 2 мин</a>
+<a class="pill" href="https://rutube.ru/video/860af535c2f2b78c70970ee9e2bda501/" title="№ 120 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 120 · 1 мин</a>
+<a class="pill" href="https://rutube.ru/video/fb8a9052281ade93ac7a4414dce2540d/" title="№ 121 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 121 · 1 мин</a>
+<a class="pill" href="https://rutube.ru/video/6bcda8453790eec0d126027b385233c1/" title="№ 122 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 122 · 2 мин</a>
+<a class="pill" href="https://rutube.ru/video/fedfb298752e31c4474163d38fba9941/" title="№ 123 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 123 · 1 мин</a>
+<a class="pill" href="https://rutube.ru/video/159530bffa22a3d0e84ff6a4c7cf23ee/" title="№ 124 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 124 · 1 мин</a>
+<a class="pill" href="https://rutube.ru/video/8bdecb240c1edb94fa83ffe440e44ce7/" title="№ 125 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 125 · 1 мин</a>
+<a class="pill" href="https://rutube.ru/video/fb6aa3aeca38665d5b961481f706da6a/" title="№ 126 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 126 · 0 мин</a>
+<a class="pill" href="https://rutube.ru/video/210bb90c6271ef403f525cb962222f65/" title="№ 127 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 127 · 1 мин</a>
+<a class="pill" href="https://rutube.ru/video/4fa1d6f5677b8c1b1d20ac9b91cb37bf/" title="№ 128 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 128 · 2 мин</a>
+<a class="pill" href="https://rutube.ru/video/2c3ea3f358672da8be507236c3a7a563/" title="№ 129 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 129 · 2 мин</a>
+<a class="pill" href="https://rutube.ru/video/5d76735bef31be3da3c68852744a706c/" title="№ 130 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 130 · 3 мин</a>
+<a class="pill" href="https://rutube.ru/video/0408ab399aed2204599cc16a72835c1a/" title="№ 131 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 131 · 2 мин</a>
+<a class="pill" href="https://rutube.ru/video/6497f0e7a7f6da2ac051d1be30b8673b/" title="№ 132 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 132 · 1 мин</a>
+<a class="pill" href="https://rutube.ru/video/f0e00f62781d8ca896c82f27857af9e9/" title="№ 133 - Геометрия 8 класс Атанасян Рабочая тетрадь">№ 133 · 2 мин</a>
+</div>
+
+<h2 id="chastyami">4. Курс по пунктам</h2>
+
+<p>Весь год девятью видео: в каждом — сразу по 2—6 пунктов учебника
+(номера пунктов — по изданию постарше, поэтому с вашим учебником
+они могут не совпасть; темы идут в том же порядке).
+Канал «Математика доступным языком».</p>
+
+<ul>
+<li>Часть 1 — 13 мин · <a href="https://rutube.ru/video/f04b785ba397d4dc39df26eaf229951e/">Смотреть</a></li><li>Часть 2 — 12 мин · <a href="https://rutube.ru/video/84fb3d73cf4de98c3462d98c2c948abe/">Смотреть</a></li><li>Часть 3 — 13 мин · <a href="https://rutube.ru/video/fd4fd14a3362961f2283c1fa916ce68d/">Смотреть</a></li><li>Часть 4 — 7 мин · <a href="https://rutube.ru/video/b561c04d936d607ab2d00517976ff029/">Смотреть</a></li><li>Часть 5 — 13 мин · <a href="https://rutube.ru/video/cb878a1ffa5b07bec57bc706c751f7b3/">Смотреть</a></li><li>Часть 6 — 8 мин · <a href="https://rutube.ru/video/d0cc080d7dc1cad62bb10ee0fdc0c70e/">Смотреть</a></li><li>Часть 7 — 13 мин · <a href="https://rutube.ru/video/5dc462e29caa9069ca4ab7fb43839b6e/">Смотреть</a></li><li>Часть 8 — 10 мин · <a href="https://rutube.ru/video/2d8418b42168fe7f0077760b9ea53140/">Смотреть</a></li><li>Часть 9 — 10 мин · <a href="https://rutube.ru/video/874fa55559279c53f9268042715fef94/">Смотреть</a></li>
+</ul>
+
+<h2 id="povtor">5. Повторение перед контрольной и за год</h2>
+
+<p>Семь видео, которыми удобно пройтись перед контрольной: весь курс
+8 класса короткими блоками. Канал «Математика доступным языком».</p>
+
+<ul>
+<li>Часть 1 — 13 мин · <a href="https://rutube.ru/video/c12418a98e21cd23ff9994ea6e69404e/">Смотреть</a></li><li>Часть 2 — 14 мин · <a href="https://rutube.ru/video/15619644c46ab191424f8c8adca8d6c3/">Смотреть</a></li><li>Часть 3 — 13 мин · <a href="https://rutube.ru/video/b93f662d6107e4e932578cf6991bdfef/">Смотреть</a></li><li>Часть 4 — 14 мин · <a href="https://rutube.ru/video/95a8f129648be71f1c9df651fe3df822/">Смотреть</a></li><li>Часть 5 — 14 мин · <a href="https://rutube.ru/video/ede9cd988251073afd399a16fb0ed02e/">Смотреть</a></li><li>Часть 6 — 14 мин · <a href="https://rutube.ru/video/64186dfe7b6cd047b7e2c8b3f3971232/">Смотреть</a></li><li>Часть 7 — 14 мин · <a href="https://rutube.ru/video/170dad40c93de998b40ae4a317d35b88/">Смотреть</a></li>
+</ul>
+
+<p>И одно длинное видео на 162 мин — весь курс 8 класса
+от начала до конца, если нужно освежить всё сразу:
+<a href="https://rutube.ru/video/fd007285343b8b911f70de59d279fe72/">«Вся геометрия 8 класса в одном уроке»</a>.</p>
+
+<h2 id="kak">6. Как заниматься</h2>
+
+<div class="kids">
+<strong>Обычный урок — 25—30 минут.</strong><br>
+1. Откройте тему в таблице выше, посмотрите видеоурок.<br>
+2. Геометрия не терпит «посмотреть» — решите 3—4 задачи
+из учебника по этой теме, обязательно с чертежом.<br>
+3. Застряли — вернитесь к видео или разберите готовый разбор
+(раздел 3).<br>
+4. Перед контрольной — пройдите тест по теме (страница «Тренажёры»).
+</div>
+
+<p class="small">Все видео — на Rutube. На телевизоре их удобнее
+смотреть через приложение Rutube (оно есть в Google Play для Android TV),
+а не в браузере: так не тормозит.</p>
+
+<footer>
+  <p>Подобрано под программу МБОУ «Средняя школа №56» г. Иваново
+  (ул. Лётчика Лазарева, 1/2). Учебник: Атанасян Л. С., Бутузов В. Ф., Кадомцев С. Б., Позняк Э. Г., Юдина И. И. «Геометрия. 7—9 классы», «Просвещение» — назван вами,
+  в школьной программе учебник геометрии не указан.</p>
+  <p class="src">Материал подготовлен 6 октября 2026 г.. Все ссылки проверены
+  в день сборки: битых нет.</p>
+</footer>
+</div>
+</body>
+</html>

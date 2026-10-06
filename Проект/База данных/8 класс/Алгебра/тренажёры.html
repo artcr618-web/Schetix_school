@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1280, initial-scale=1">
+<title>Алгебра, 8 класс: тренажёры</title>
+<style>
+:root{
+  --fon:#0e1116; --kart:#1b212b; --ramka:#ffd23f;
+  --tekst:#f3f5f9; --tuskly:#98a2b3; --knopka:#2b3543; --knopka-focus:#3d4c5f;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  /* --panel-shirina — сколько места освобождается справа, когда меню
+     выехало. Страница при этом не перекрывается: она перестраивается
+     по оставшейся ширине, как в Arena. */
+  --panel-shirina:420px;
+  margin:0; background:#0e1116; color:#f3f5f9;
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+  font-size:30px; line-height:1.35; padding:0 0 120px;
+  transition:padding-right .32s ease;
+}
+body.menu-otkryto{padding-right:var(--panel-shirina)}
+.wrap{max-width:1500px; margin:0 auto; padding:22px 44px}
+
+/* ---- шапка, одинаковая на всех страницах ---- */
+nav.verh{
+  display:flex; align-items:center; gap:14px; flex-wrap:wrap;
+  background:#16202b; border-radius:18px; padding:12px 18px; margin-bottom:26px;
+}
+a.tumbler{
+  display:inline-block; background:#2b3543; color:#f3f5f9; text-decoration:none;
+  border:4px solid transparent; border-radius:14px; padding:12px 22px;
+  font-size:25px; white-space:nowrap;
+}
+a.tumbler:focus, a.tumbler:hover, a.tumbler:active{
+  outline:none; border-color:#ffd23f; background:#3d4c5f;
+}
+/* Закреплённая страница: скрепка горит акцентным цветом. Никаких
+   надписей про домашнюю страницу — по ней это видно сразу. */
+a.tumbler.zakrep{background:#4a3d16; border-color:#ffd23f; color:#ffd23f}
+a.tumbler.net{background:#22262c; color:#7d8695}
+/* ---- путь: тусклая строка под шапкой, без подложки ----
+   Внутри шапки путь спорил с кнопками и перетягивал внимание на себя.
+   Здесь он отдельной строкой и приглушён: это подпись «где мы», а не
+   навигация. Жёлтой строка становится только в фокусе — иначе по ней
+   не пройтись пультом и не видно, на чём мы стоим. */
+.put-stroka{
+  display:flex; align-items:center; flex-wrap:wrap; gap:12px;
+  margin:0 0 4px; padding:2px 4px;
+  font-size:23px; color:#7b8494;
+}
+.put-stroka a{
+  color:#8d97a8; text-decoration:none;
+  border-bottom:1px dotted #3a4351;
+}
+.put-stroka a:focus{
+  outline:3px solid #ffd23f; outline-offset:3px;
+  color:#f3f5f9; border-bottom-color:transparent;
+}
+.put-stroka .zdes{color:#b9c1d0}
+.put-stroka .razd{color:#4d5666}
+
+/* ---- главный экран: имя и цель ----
+   Ни заголовка, ни подзаголовка, ни черты под строкой: это две строки
+   для ввода, а надписи «Введи своё имя» и «чего ты хочешь достичь…» —
+   подсказки внутри самих строк. Что человек написал, видно крупно и
+   ярко, как прежде выглядел заголовок; подсказка же стоит приглушённой
+   и, как только в строке появляется текст, пропадает сама.
+
+   Слово «Цель:» — не подсказка, а часть строки: оно стоит приглушённым,
+   как название учебника и путь на других страницах, и не стирается.
+   Строки идут одна под другой вплотную, как один элемент интерфейса:
+   между ними всего 10 px. */
+.privet{width:100%; margin:36px 0 0}
+.privet input[type="text"]{
+  display:block; width:100%; box-sizing:border-box;
+  margin:0; padding:6px 4px; text-align:center;
+  background:transparent; border:0; border-radius:0;
+  font-family:inherit; font-weight:600; line-height:1.15;
+  font-size:clamp(30px, 3.6vw, 48px); color:#f3f5f9;
+  caret-color:#ffd23f;
+}
+.privet input[type="text"]::placeholder{color:#6b7688; opacity:1}
+.privet input[type="text"]:focus{outline:none}
+.privet-tsel{
+  display:flex; justify-content:center; align-items:baseline;
+  gap:14px; margin-top:10px;
+}
+.privet-tsel .privet-slovo{
+  flex:0 0 auto; color:#8b95a5; font-weight:400;
+  font-size:clamp(23px, 2.3vw, 31px); line-height:1.15;
+  hyphens:manual; white-space:nowrap;
+}
+/* Строка цели шириной по своему тексту: тогда «Цель:» и написанное
+   стоят по центру вместе, как подзаголовок. Ширину считает скрипт по
+   невидимой мерке — она набрана тем же шрифтом, что и поле. */
+.privet-merka{
+  position:absolute; left:-9999px; top:0; white-space:pre;
+  visibility:hidden; font:inherit; font-weight:400;
+  font-size:clamp(23px, 2.3vw, 31px);
+}
+.privet input#tsel{
+  flex:0 0 auto; width:20px; padding:4px 2px; text-align:left;
+  font-weight:400; font-size:clamp(23px, 2.3vw, 31px); color:#dbe3ee;
+}
+.privet + .setka{margin-top:46px}
+
+/* ---- учебник: мелкая строка под путём, прямо на фоне ----
+   Не плашка и не список: одна подпись, по какому учебнику собраны
+   материалы. Подробности (авторы, издательство, год) — на плитках
+   выбора предмета. */
+.kniga-stroka{
+  margin:0 0 18px; padding:0 4px;
+  font-size:24px; color:#8b95a5;
+  hyphens:manual; overflow-wrap:break-word;
+}
+/* Название учебника и стрелка — в одну строку, ничего перед названием.
+   Разметку строки браузер сам превращает в раскрывающийся список и
+   рисует свой треугольник; list-style снимает его, а flex ставит
+   стрелку рядом с названием, а не под ним. */
+.kniga-stroka > summary{
+  display:flex; align-items:center; gap:16px; cursor:pointer;
+  padding:2px 0; list-style:none;
+  font-size:24px; color:#8b95a5;
+  hyphens:manual; overflow-wrap:break-word;
+}
+.kniga-stroka > summary::-webkit-details-marker{display:none}
+.kniga-stroka > summary::marker{content:''}
+.kniga-stroka .kn-nazv{flex:1 1 auto; min-width:0}
+.kniga-stroka .strela{flex:0 0 auto; display:flex; color:inherit}
+.kniga-stroka .strela svg{width:26px; height:26px; display:block}
+details.kniga-stroka[open] .strela{transform:rotate(180deg)}
+/* Раскрытая часть — карточка учебника: маленькая обложка и подписи
+   рядом с ней, а не картинка во весь экран: размер обложки задан
+   здесь, потому что сама она приходит в натуральную величину. */
+.kn-podrobno{padding:12px 0 4px}
+.kn-kartochka{display:flex; align-items:flex-start; gap:26px}
+.kn-kartochka img{
+  flex:0 0 auto; width:180px; height:auto; display:block;
+  border-radius:10px;
+}
+.kn-kartotekst{
+  display:flex; flex-direction:column; gap:10px; min-width:0;
+  padding-top:4px;
+}
+.kn-knazv{
+  font-size:27px; font-weight:600; color:#f3f5f9; line-height:1.2;
+  hyphens:manual; overflow-wrap:break-word;
+}
+.kn-kavt{font-size:23px; color:#98a2b3; line-height:1.3}
+
+/* ---- обложка учебника — фон всей плашки ----
+   Обложка ложится на плашку целиком (cover), а не полосой сбоку:
+   плашка и есть книга. Поверх неё — затемнение по диагонали: сверху
+   картинка видна, к нижнему левому углу уходит в тень, где стоит
+   название. Надписи с самой обложки мы не читаем — она нужна как
+   картинка, поэтому текст наш, поверх затемнения. */
+a.plitka.s-kartinkoy{
+  /* Рисунок сам тёмный, сюжет вверху справа, поэтому затемнение
+     слабое: свет гасим только там, где стоит текст — внизу слева. */
+  --sloi:
+    linear-gradient(200deg,
+      rgba(10,13,18,.10) 0%, rgba(10,13,18,.42) 46%,
+      rgba(10,13,18,.88) 80%, rgba(10,13,18,.95) 100%),
+    var(--kartinka),
+    var(--fon-kart);
+  background-size:var(--polosa) 100%, 100% 100%, cover, 100% 100%;
+  background-position:left center, left center, center 32%, left center;
+  background-repeat:no-repeat, no-repeat, no-repeat, no-repeat;
+}
+
+/* ---- плеер на страницах видеоуроков ----
+   Порядок такой: путь, учебник, воздух, что за урок, кадр, плейлист.
+   Название урока стоит над кадром: под ним оно прижималось к плейлисту,
+   а сверху у него своё место, и до кадра остаётся пустая полоса, чтобы
+   текст не липнул к видео. */
+.pleyer-wrap{margin-top:46px}
+.pleyer-shapka{
+  display:flex; align-items:center; gap:26px; margin-bottom:28px;
+  min-height:56px;
+}
+.pleyer-zag{
+  flex:1 1 auto; min-width:0; font-size:40px; font-weight:600;
+  line-height:1.2; color:#f3f5f9;
+  hyphens:manual; overflow-wrap:break-word;
+}
+.pleyer{
+  position:relative; width:100%; aspect-ratio:16 / 9;
+  background:linear-gradient(165deg,#171f2a 0%,#0f141b 100%);
+  border-radius:18px; overflow:hidden;
+}
+.pleyer-ramka{border:0}
+/* Растягиваем на весь блок только кадр большого плеера. Баннерный кадр
+   носит тот же класс — по нему его находит восстановление позиции, —
+   но живёт в обычном потоке: абсолютный кадр в баннере не имел
+   позиционированного предка и накрывал собой всю страницу: сверху
+   чернел экран, а нажатия по списку лекций доставались кадру. */
+.pleyer .pleyer-ramka{position:absolute; inset:0; width:100%; height:100%}
+/* Кнопки вариантов плейлиста — под плеером. Появляются, только когда
+   вариантов больше одного: уроки по параграфам, короткие пересказы,
+   разборы домашних заданий, повторение. */
+/* ---- плейлисты под кадром ----
+   Названия всех собранных плейлистов стоят под видео, каждое
+   раскрывается: внутри те же пункты, что и в панели справа, и нажатие
+   включает урок точно так же. Плейлист, открытый сейчас в панели,
+   подсвечен. Открыт всегда один — иначе страница уезжает на несколько
+   экранов. */
+.pl-vse{margin-top:26px}
+.pl-blok{margin-bottom:6px}
+.pl-vse{padding-left:14px}
+/* Название плейлиста — простая строка, как название учебника: ни
+   подложки, ни жёлтой полосы, ни обводки. Открытый плейлист отличается
+   только цветом текста, он ярче остальных. */
+summary.pl-imya{
+  display:flex; align-items:center; gap:14px; cursor:pointer;
+  padding:12px 4px; margin:0; background:none; border:0;
+  border-radius:0; color:#8b95a5;
+  font-size:27px; list-style:none;
+  hyphens:manual; overflow-wrap:break-word;
+}
+summary.pl-imya::-webkit-details-marker{display:none}
+summary.pl-imya::marker{content:''}
+summary.pl-imya .pl-nazv{flex:1 1 auto; min-width:0}
+/* Рамки на фокусе нет: открытый плейлист и без неё видно (название
+   ярче остальных), а жёсткая белая рамка превращала строку в кнопку. */
+summary.pl-imya:focus, summary.pl-imya:focus-visible{outline:none}
+summary.pl-imya:hover{color:#f3f5f9}
+summary.pl-imya .strela svg{width:30px; height:30px}
+details.pl-blok[open] > summary.pl-imya .strela{transform:rotate(180deg)}
+.pl-blok.aktiven > summary.pl-imya{color:#f3f5f9}
+/* Все строки плейлиста — и заголовки глав, и пункты — стоят с отступом
+   слева: список вложен в название плейлиста, и по отступу это видно. */
+.pl-telo{padding:12px 0 6px 18px}
+.panel-telo .pleylist{margin-left:14px}
+
+/* Плейлист — такая же выезжающая панель, как меню, и в тех же
+   границах: та же ширина, тот же выезд, тот же крестик. Открывается
+   сразу при входе на страницу видеоуроков. Вдвоём они не открываются:
+   открыли меню — плейлист закрылся, и наоборот. */
+body.pleylist-otkryto{padding-right:var(--panel-shirina)}
+#pleylist-panel{transform:translateX(100%); visibility:hidden;
+  transition:transform .32s ease, visibility 0s linear .32s}
+body.pleylist-otkryto #pleylist-panel{transform:none; visibility:visible;
+  transition:transform .32s ease, visibility 0s linear 0s}
+.pleylist{margin:0; padding:0}
+.panel-zag{flex:1 1 auto; font-size:30px; color:#f3f5f9; font-weight:600}
+
+/* Пока урок не выбран, в кадре пусто — но не чёрное: тёмная подложка,
+   вопрос стоит в шапке над кадром. Когда урок уже смотрели, в кадре
+   стоит он сам на паузе, а поверх нижней части ложится карточка:
+   что это за урок и что делать дальше. Видео за карточкой не играет. */
+/* Кнопка плейлиста — на самом кадре, в правом верхнем углу: панель
+   закрывают крестиком, а вернуть её можно только отсюда. Значок свой,
+   плееру Rutube он не мешает: у него свои кнопки внизу. */
+a.pleyer-knopka{
+  position:absolute; top:16px; right:16px; z-index:6;
+  display:inline-flex; padding:10px; border-radius:12px; line-height:0;
+  background:rgba(10,13,18,.72); color:#f3f5f9;
+  border:3px solid transparent;
+}
+a.pleyer-knopka svg{width:34px; height:34px; display:block}
+a.pleyer-knopka:hover, a.pleyer-knopka:focus{
+  border-color:#ffd23f; background:rgba(10,13,18,.92);
+}
+/* Карточка возврата лежит ПОВЕРХ кадра. Без этого кадр — он вставлен
+   абсолютно — рисовался выше неё, и уведомление «Вы остановились на
+   параграфе…» было не видно вовсе: в разметке есть, на экране нет. */
+.pleyer-vybor{
+  position:absolute; inset:0; z-index:5;
+  display:flex; align-items:center; justify-content:center;
+  padding:26px 30px; border-radius:18px;
+  background:linear-gradient(180deg, rgba(10,13,18,.5), rgba(10,13,18,.86));
+}
+.pleyer-vybor .vybor-karta{width:100%; max-width:920px}
+.vybor-karta{
+  display:flex; flex-direction:column; gap:18px;
+  background:linear-gradient(180deg, rgba(10,13,18,.82), rgba(10,13,18,.96));
+  border-radius:16px; padding:22px 26px;
+}
+.vybor-tekst{
+  font-size:32px; font-weight:600; color:#f3f5f9; line-height:1.2;
+  hyphens:manual; overflow-wrap:break-word;
+}
+.vybor-knopki{display:flex; gap:16px; flex-wrap:wrap}
+a.vybor-knopka{
+  display:inline-block; text-decoration:none; border-radius:14px;
+  padding:16px 28px; font-size:30px; font-weight:700;
+  background:#ffd23f; color:#12161c; border:4px solid transparent;
+}
+a.vybor-knopka.vtoraya{
+  background:#2b3543; color:#f3f5f9; font-weight:600;
+}
+/* «Закрыть» — третья кнопка уведомления: убирает саму карточку, кадр
+   остаётся на паузе. Тише двух первых: это не выбор урока. */
+a.vybor-knopka.tretiya{
+  background:none; border-color:transparent; color:#8b95a5;
+  font-weight:600; padding-left:12px; padding-right:12px;
+}
+a.vybor-knopka.tretiya:hover, a.vybor-knopka.tretiya:focus{color:#f3f5f9}
+a.vybor-knopka:focus, a.vybor-knopka:hover{
+  outline:none; border-color:#f3f5f9;
+  box-shadow:0 0 0 6px rgba(255,210,63,.28);
+}
+/* Пункт плейлиста — просто текст, как и название плейлиста над ним.
+   Ни подложки, ни жёлтой полосы слева, ни рамки в фокусе: это строка
+   списка, а не кнопка. Реакция одна — при наведении или фокусе строка
+   становится чуть ярче. Синим не делаем никогда: цвет наш, серый.
+   Так выглядит и список под кадром, и список в панели, и меню:
+   стандарт один. */
+a.trek{
+  display:flex; align-items:baseline; gap:18px; text-decoration:none;
+  color:#c9d2df; background:none; border:0; border-radius:0;
+  padding:11px 4px;
+  hyphens:manual; overflow-wrap:break-word;
+}
+a.trek:hover, a.trek:focus, a.trek:focus-visible{
+  background:none; outline:none; color:#f3f5f9;
+}
+.trek-nomer{
+  flex:0 0 auto; min-width:96px; font-size:28px; color:#8b95a5;
+}
+.trek-tema{flex:1 1 auto; min-width:0; font-size:28px; line-height:1.25}
+/* Играющий пункт ярче остальных — и только цветом: никаких рамок. */
+a.trek.aktiven{color:#f3f5f9}
+/* Заголовок группы («Глава I. Первобытное общество») — подпись к идущим
+   за ним пунктам. Он серый, как название учебника: его видно, но он не
+   спорит с пунктами и не сбивает с ориентировки. От текста до верхней
+   плашки 24 px, до нижней — 20 px. */
+.trek-gruppa{
+  font-size:24px; color:#8b95a5; margin:24px 0 20px; padding-left:4px;
+  hyphens:manual; overflow-wrap:break-word;
+}
+.trek-gruppa:first-child{margin-top:0}
+
+/* ---- кнопки-иконки: эталон — Tilda Icons ---- */
+.pravo{margin-left:auto; display:flex; align-items:center; gap:14px}
+a.tumbler.ikonka{padding:9px 13px; line-height:0}
+a.tumbler.ikonka svg{width:36px; height:36px; display:block}
+
+/* ---- боковое меню ----
+   Выезжает справа и сдвигает страницу, а не накрывает её затемнением:
+   ничего не пропадает из виду, плеер и плитки остаются на месте.
+   Работает и без javascript: ссылка ведёт на #panel, а :target его
+   показывает. С javascript открытием управляет shkPanel, поэтому
+   лишних записей в истории браузера не появляется. */
+.panel{
+  position:fixed; top:0; right:0; bottom:0; z-index:50;
+  width:var(--panel-shirina); padding:0; overflow:hidden;
+  display:flex; flex-direction:column;
+  background:#141a22; border-left:2px solid #2a3340;
+  transform:translateX(100%); visibility:hidden;
+  transition:transform .32s ease, visibility 0s linear .32s;
+}
+body.menu-otkryto .panel{transform:none; visibility:visible;
+  transition:transform .32s ease, visibility 0s linear 0s}
+#panel:target{transform:none; visibility:visible;
+  transition:transform .32s ease, visibility 0s linear 0s}
+/* Шапка панели — отдельная полоса, а не часть прокрутки: под ней
+   лежит своя область со списком, и она прокручивается одна. Название
+   класса (или открытого плейлиста) и крестик стоят на месте всегда:
+   раньше список уезжал вместе с шапкой, и чтобы закрыть панель,
+   приходилось крутить его обратно вверх. */
+.panel-verh{
+  flex:0 0 auto; display:flex; align-items:flex-start; gap:12px;
+  padding:22px 22px 16px; background:#141a22;
+  border-bottom:2px solid #2a3340;
+}
+/* Область списка: прокручивается только она. Отступ сверху — воздух
+   между разделительной линией и первым пунктом: без него верхняя
+   плашка липла к линии вплотную. */
+.panel-telo{
+  flex:1 1 auto; overflow-y:auto; overscroll-behavior:contain;
+  padding:20px 22px 26px;
+}
+/* Ручка ширины — у левой кромки панели, поверх страницы. Тянем влево —
+   панель шире, вправо — уже. С пульта то же самое стрелками. Видна
+   только у открытой панели: иначе перехватывала бы щелчки. */
+.panel-tyanulka{
+  display:none; position:fixed; top:0; bottom:0; z-index:60;
+  right:var(--panel-shirina); width:20px; margin-right:-10px;
+  cursor:col-resize; touch-action:none;
+}
+.panel-tyanulka::before{
+  content:''; position:absolute; left:8px; top:50%; width:4px; height:96px;
+  margin-top:-48px; border-radius:2px; background:#2a3340;
+  transition:background .15s;
+}
+.panel-tyanulka:hover::before, .panel-tyanulka.tyanem::before{background:#7b8494}
+.panel-tyanulka:focus{outline:3px solid #f3f5f9; outline-offset:-3px}
+body.menu-otkryto .panel-tyanulka.menyu,
+body.pleylist-otkryto .panel-tyanulka.pleylista{display:block}
+a.panel-zakryt{
+  flex:0 0 auto; display:inline-flex; padding:8px; border-radius:10px;
+  border:3px solid transparent; color:#f3f5f9;
+}
+a.panel-zakryt svg{width:32px; height:32px; display:block}
+a.panel-zakryt:focus, a.panel-zakryt:hover{border-color:#ffd23f; background:#202836}
+/* Пункты меню — тот же стандарт, что и пункты плейлиста: просто текст,
+   при наведении чуть ярче, текущий страница ярче остальных. Никаких
+   плашек с фоном и жёлтых полос слева. */
+a.panel-plitka{
+  display:block; background:none; border:0; border-radius:0;
+  padding:10px 2px; margin-bottom:2px;
+  color:#c9d2df; text-decoration:none; font-size:30px;
+  overflow-wrap:break-word;
+}
+a.panel-plitka:focus, a.panel-plitka:hover, a.panel-plitka:focus-visible{
+  background:none; outline:none; color:#f3f5f9;
+}
+a.panel-plitka.tuskly{font-size:25px; color:#98a2b3}
+a.panel-plitka.tekushchiy{background:none; border:0; color:#f3f5f9}
+
+/* ---- выбор класса: раскрывающийся список в меню ----
+   Обычный details/summary: работает и без javascript, на пульте
+   открывается по OK. Выглядит как обычный текст: ни подложки, ни
+   жёлтой полосы, ни реакции на наведение — это не кнопка-переход,
+   а заголовок списка. Что список раскрывается, видно по стрелке. */
+.vybor-klassa{flex:1 1 auto; min-width:0}
+summary.klass-knopka{
+  display:flex; align-items:center; gap:14px; cursor:pointer;
+  padding:4px 2px; background:none; border:0; color:#f3f5f9;
+  font-size:30px; font-weight:600;
+  list-style:none; hyphens:manual; overflow-wrap:break-word;
+}
+summary.klass-knopka::-webkit-details-marker{display:none}
+summary.klass-knopka > span:first-child{flex:1 1 auto; min-width:0}
+/* Рамки на фокусе нет: при открытии меню фокус встаёт на название
+   класса, и браузер рисовал вокруг него свой прямоугольник — строка
+   выглядела плашкой с обводкой. При наведении название чуть ярче. */
+summary.klass-knopka:focus, summary.klass-knopka:focus-visible{outline:none}
+summary.klass-knopka:hover{color:#f3f5f9}
+.strela{flex:0 0 auto; display:flex; color:inherit; transition:transform .15s}
+.strela svg{width:34px; height:34px; display:block}
+details.vybor-klassa[open] .strela{transform:rotate(180deg)}
+.klass-spisok{padding:12px 0 0 16px}
+/* Пункты списка классов — тоже просто текст: ни подложки, ни жёлтой
+   полосы слева, ни рамки. Отличаются только цветом: текущий класс
+   такой же яркий, как название сверху, остальные — приглушённые. */
+.klass-spisok a.panel-plitka{
+  padding:7px 2px; margin-bottom:2px; font-size:30px; color:#98a2b3;
+}
+.klass-spisok a.panel-plitka:hover,
+.klass-spisok a.panel-plitka:focus,
+.klass-spisok a.panel-plitka:focus-visible{background:none; outline:none;
+                                           color:#f3f5f9}
+.klass-spisok a.panel-plitka.tekushchiy{color:#f3f5f9}
+
+
+/* ---- баннер лекций: полоса во всю ширину страницы предмета ----
+   Один автор, один курс, две подборки. Стоит выше всех плиток и
+   отделён от них воздухом больше, чем плитки друг от друга (24 px):
+   баннер — не ещё одна плитка, а вход в лекции. Ничего своего в нём
+   нет: тот же фон, что у плиток, то же скругление, тот же жёлтый. */
+.banner{
+  margin:30px 0 0; padding:26px 30px 28px;
+  border:2px solid #2a3340; border-radius:26px;
+  background:linear-gradient(120deg,#232c39 0%,#171d26 62%);
+}
+.banner-nazv{
+  display:block; font-size:36px; font-weight:600; color:#f3f5f9;
+  line-height:1.15;
+}
+.banner-podpis{display:block; margin-top:8px; font-size:24px; color:#8b95a5}
+.banner-knopki{
+  display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+  margin-top:22px;
+}
+a.banner-knopka, a.banner-igrat{
+  display:inline-block; text-decoration:none; font-size:24px;
+  white-space:nowrap; padding:10px 22px; border-radius:999px;
+  border:2px solid #2a3340; background:#1b222c; color:#c9d2df;
+}
+a.banner-knopka.aktiven{
+  background:#ffd23f; border-color:#ffd23f; color:#171d26; font-weight:600;
+}
+a.banner-knopka:focus, a.banner-knopka:hover,
+a.banner-igrat:focus, a.banner-igrat:hover{
+  outline:none; border-color:#ffd23f; color:#f3f5f9;
+}
+a.banner-knopka.aktiven:focus, a.banner-knopka.aktiven:hover{color:#171d26}
+a.banner-igrat{margin-left:auto; color:#ffd23f; border-color:#ffd23f}
+/* Кадр живёт здесь. Пока лекцию не выбрали, места он не занимает:
+   страница ничего не тянет из сети и не показывает чёрный экран. */
+.banner-mesto:not(:empty){margin-top:22px}
+.banner-mesto iframe{
+  display:block; width:100%; aspect-ratio:16 / 9; border:0; background:#000;
+  border-radius:16px;
+}
+.banner-spiski{margin-top:22px}
+.banner-nabor{
+  display:grid; grid-template-columns:1fr 1fr; gap:2px 34px;
+  margin:0; padding:0; list-style:none;
+}
+.banner-nabor[hidden]{display:none}
+a.banner-trek{
+  display:flex; align-items:baseline; gap:16px; padding:11px 4px;
+  text-decoration:none; color:#c9d2df; font-size:25px; line-height:1.2;
+}
+a.banner-trek .bt-vremya{
+  /* Время не переносится: «1 ч 21 мин» должно стоять в одну строку,
+     иначе пункт скачет по высоте и колонки разъезжаются. */
+  flex:0 0 auto; min-width:136px; color:#8b95a5; font-size:21px;
+  white-space:nowrap;
+}
+a.banner-trek .bt-tema{flex:1 1 auto; hyphens:manual}
+a.banner-trek:focus, a.banner-trek:hover{outline:none; color:#f3f5f9}
+a.banner-trek.aktiven{color:#f3f5f9}
+/* Активная лекция отличается только цветом строки — как и в списках
+   под кадром. Жёлтое время было единственной подсветкой в баннере и
+   спорило с их стандартом, поэтому его убрали. */
+/* Плитки под баннером: воздух больше, чем между самими плитками. */
+.setka.posle-bannera{margin-top:64px}
+
+/* ---- кто учится и зачем ----
+   Маленькая строка под путём, выше учебника: имя и цель с главного
+   экрана. Она не заголовок страницы — тот большой, — а напоминание:
+   видно на каждой странице, в том числе когда смотришь видео. Ничего
+   не выдумываем: имя и цель человек написал сам, пусто — строки нет. */
+.imya-stroka{
+  margin:2px 0 0; padding:0 4px;
+  font-size:24px; color:#8b95a5;
+  hyphens:manual; overflow-wrap:break-word;
+}
+.imya-stroka b{font-weight:600; color:#c9d2df}
+
+h1{font-size:50px; margin:0 0 8px; letter-spacing:-.01em}
+.pod{color:#98a2b3; font-size:26px; margin:0 0 10px}
+.podskazka{
+  background:#16202b; border-left:8px solid #ffd23f; color:#dbe3ee;
+  font-size:25px; padding:16px 24px; border-radius:0 14px 14px 0; margin:14px 0 30px;
+}
+h2{
+  font-size:31px; color:#ffd23f; margin:40px 0 16px; padding-bottom:10px;
+  border-bottom:2px solid #2a3340;
+}
+h3{
+  font-size:27px; color:#dbe3ee; margin:30px 0 12px;
+}
+
+/* ---- плитки: горизонтальные, как на телевизоре ----
+   Сетка, а не столбик: при сужении окна лишние плитки сами
+   перескакивают на следующую строку. */
+.setka{
+  display:grid;
+  grid-template-columns:repeat(auto-fit, minmax(320px, 520px));
+  justify-content:start;
+  gap:24px; margin-top:26px;
+  --polosa:18px; --radius:22px;
+}
+a.plitka{
+  /* --fon-kart — нижний слой фона; подсветка меняет только его, поэтому
+     обложка учебника и жёлтая полоса остаются на месте. */
+  --fon-kart:linear-gradient(165deg,#1f2733 0%,#171d26 100%);
+  position:relative; aspect-ratio:16 / 9; min-height:150px;
+  border:4px solid transparent; border-radius:var(--radius);
+  padding:24px 26px 24px calc(var(--polosa) + 28px);
+  text-decoration:none; color:#f3f5f9;
+  display:flex; flex-direction:column; justify-content:flex-end;
+  /* Жёлтая полоса — часть фона, а не рамка и не отдельный слой.
+     Фон обрезается скруглением самого блока, поэтому полоса идёт
+     до конца дуги угла. Рамка только с одной стороны на скруглении
+     обрывается, слой-псевдоэлемент — срезается по своей дуге. */
+  background-image:
+    linear-gradient(#ffd23f, #ffd23f),
+    var(--sloi, var(--fon-kart));
+  background-repeat:no-repeat, no-repeat;
+  background-position:left center, left center;
+  background-size:var(--polosa) 100%, 100% 100%;
+  /* origin:border-box — полоса начинается от самой кромки плитки, а не
+     из-под рамки, и в обычном виде, и в подсветке выглядит одинаково:
+     скругление срезает её ровно по дуге угла. */
+  background-origin:border-box, border-box;
+  background-clip:border-box, border-box;
+}
+/* aspect-ratio понимают все современные браузеры; для остальных
+   остаётся min-height, плитка будет просто чуть ниже. */
+@supports (aspect-ratio: 16 / 9){ a.plitka{min-height:0} }
+a.plitka:focus, a.plitka:hover, a.plitka:active{
+  outline:none; border-color:#ffd23f;
+  --fon-kart:linear-gradient(165deg,#2c3745 0%,#252d38 100%);
+  box-shadow:0 0 0 6px rgba(255,210,63,.28);
+}
+/* Перенос: сначала по словам, перенос по слогам — крайний случай.
+   Автоматический hyphens:auto режет слово по слогам, даже когда оно
+   целиком влезло бы на следующей строке («кино и документалистика»),
+   поэтому он отключён: мягкие дефисы расставляет myagkie() при сборке,
+   и браузер пользуется ими только если слово не влезло целиком.
+   Переменные --polosa задаёт .setka. */
+a.plitka .nazv, a.plitka .poyas, a.plitka .skolko,
+a.plitka .zamena{
+  hyphens:manual; -webkit-hyphens:manual;
+  overflow-wrap:break-word; word-break:normal;
+  min-width:0; max-width:100%;
+}
+a.plitka .nazv{font-size:36px; font-weight:600; line-height:1.1}
+a.plitka .poyas{font-size:20px; color:#98a2b3; margin-top:8px; line-height:1.3}
+a.plitka .skolko{font-size:20px; color:#ffd23f; margin-top:8px}
+a.plitka .zamena{font-size:19px; color:#8b95a5; margin-top:8px; line-height:1.25}
+
+/* Цифра в названии класса — главная: набрана крупнее слова, само слово
+   идёт с заглавной буквы. Размер один на всех плашках, поэтому «5 Класс»
+   и «География» читаются одинаково. */
+a.plitka .nazv .chislo{font-size:1.3em; line-height:.9; margin-right:.2em}
+
+/* ---- плашка класса ----
+   Класс узнают по цифре, слово «Класс» и так понятно. Поэтому цифра
+   большая и жёлтая — во всю высоту плашки, — а слово стоит рядом
+   приглушённой подписью по общей строке. */
+a.plitka.klass{justify-content:center}
+a.plitka.klass .nazv{display:flex; align-items:baseline; gap:.13em}
+/* Зазор до слова считается от контура цифры, а не от знакоместа.
+   Знакоместо у всех цифр одинаковое, а контур — нет: у «7» справа
+   пусто 0,113 знакоместа (диагональ не доходит до края), у «8» — 0,087,
+   поэтому «8 класс» выглядел приклеенным, а «7 класс» — нормально.
+   Цифра ставится в жёсткую рамку .72em и центрируется в ней: пустота
+   слева и справа от контура становится одинаковой, и зазор до слова
+   перестаёт зависеть от того, какая это цифра. Отрицательный
+   letter-spacing убран — он тоже отнимал воздух. */
+a.plitka.klass .nazv .chislo{
+  display:inline-block; width:.72em; text-align:center;
+  font-size:clamp(110px, 12vw, 186px); font-weight:800; color:#ffd23f;
+  line-height:.78; letter-spacing:0; margin:0;
+}
+a.plitka.klass .nazv .slovo{
+  font-size:34px; font-weight:600; color:#98a2b3; letter-spacing:.02em;
+}
+.setka.klassy{grid-template-columns:repeat(auto-fit, minmax(380px, 1fr))}
+
+/* ---- строки со ссылками на самих страницах материалов ---- */
+.stroka{
+  display:flex; align-items:center; gap:22px;
+  background:#1b212b; border:4px solid transparent; border-radius:18px;
+  padding:20px 26px; margin-bottom:14px;
+}
+.nomer{flex:0 0 auto; min-width:110px; text-align:center; font-size:32px; font-weight:700; color:#ffd23f; line-height:1.1}
+.tema{flex:1 1 auto; min-width:0}
+.tema .chto{display:block; font-size:29px}
+.tema .primech{display:block; font-size:22px; color:#98a2b3; font-style:italic; margin-top:4px}
+.knopki{flex:0 0 auto; display:flex; gap:12px; flex-wrap:wrap; justify-content:flex-end}
+a.knopka{
+  display:inline-block; background:#2b3543; color:#f3f5f9; text-decoration:none;
+  border:4px solid transparent; border-radius:16px; padding:16px 22px;
+  font-size:27px; white-space:nowrap;
+}
+a.knopka .vremya{color:#ffd23f; font-weight:600}
+a.knopka:focus, a.knopka:hover, a.knopka:active{
+  outline:none; border-color:#ffd23f; background:#3d4c5f;
+}
+.stroka.net .tema .chto{color:#7d8695}
+
+.niz{margin-top:44px; color:#6f7887; font-size:22px; line-height:1.5}
+@media (max-width:1100px){
+  body{font-size:26px; --panel-shirina:min(400px, 64vw)}
+  h1{font-size:40px}
+  a.plitka .nazv{font-size:32px}
+  .setka{grid-template-columns:repeat(auto-fit, minmax(240px, 380px));
+         gap:18px; --polosa:13px; --radius:14px}
+  a.plitka{min-height:120px}
+  a.plitka .nazv{font-size:28px}
+  a.plitka .poyas{font-size:17px}
+  a.tumbler.ikonka svg{width:28px; height:28px}
+  .stroka{flex-wrap:wrap; gap:14px}
+  .nomer{flex:0 0 auto; min-width:88px; font-size:28px}
+  .tema{flex:1 1 100%}
+  .knopki{flex:1 1 100%; justify-content:flex-start}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+<nav class="verh">
+<a class="tumbler ikonka" id="dom" href="../../../Начать учиться.html#vybor" aria-label="Домой"
+   ><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 10.6 12 3.8l8.5 6.8"/><path d="M5.8 9.4V20h12.4V9.4"/><path d="M10 20v-5.2h4V20"/></svg></a>
+<a class="tumbler ikonka" href="#" aria-label="Назад"
+   onclick="history.back();return false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.5 5 8 12l6.5 7"/></svg></a>
+<a class="tumbler ikonka" href="#" aria-label="Вперёд"
+   onclick="history.forward();return false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.5 5 16 12l-6.5 7"/></svg></a>
+<span class="pravo"><a class="tumbler ikonka" id="pin" href="#" aria-label="Закрепить"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 17v5"/><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z"/></svg></a><a class="tumbler ikonka" href="#panel" aria-label="Меню" onclick="return shkMenu()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16"/><path d="M4 12h16"/><path d="M4 17h16"/></svg></a></span>
+</nav>
+<div class="put-stroka"><a href="../../8 класс.html">8 класс</a><span class="razd">›</span><a href="../Алгебра.html">Алгебра</a><span class="razd">›</span><span class="zdes">Тренажёры и тесты</span></div>
+<div class="imya-stroka" id="imya-stroka" hidden></div>
+<details class="kniga-stroka"><summary><span class="kn-nazv">Алгебра. 8 класс</span><span class="strela"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 9l7 7 7-7"/></svg></span></summary><div class="kn-podrobno"><div class="kn-kartochka"><img src="../../Обложки/Алгебра-8.jpg" alt="" loading="lazy"><div class="kn-kartotekst"><span class="kn-knazv">Алгебра. 8 класс</span><span class="kn-kavt">Макарычев Ю. Н., Миндюк Н. Г., Нешков К. И. · Про­све­ще­ние, 2026</span></div></div></div></details>
+<aside class="panel" id="panel"><div class="panel-verh"><details class="vybor-klassa"><summary class="klass-knopka"><span>8 класс</span><span class="strela"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 9l7 7 7-7"/></svg></span></summary><div class="klass-spisok"><a class="panel-plitka" href="../../5 класс.html">5 класс</a><a class="panel-plitka" href="../../7 класс.html">7 класс</a><a class="panel-plitka tekushchiy" href="../../8 класс.html">8 класс</a></div></details><a class="panel-zakryt" href="#" aria-label="Закрыть" onclick="return shkPanel(false)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6.5 6.5l11 11"/><path d="M17.5 6.5l-11 11"/></svg></a></div><div class="panel-telo"><a class="panel-plitka" href="../Алгебра.html">Алгебра</a><a class="panel-plitka" href="../Геометрия.html">Геометрия</a></div></aside><div class="panel-tyanulka menyu" tabindex="0" role="separator" aria-orientation="vertical" aria-label="Изменить ширину" onkeydown="return shkTyan(event)"></div>
+<h1>Алгебра, 8 класс: тренажёры</h1>
+<p class="pod">Тесты по темам, без регистрации</p>
+<p class="podskazka">Стрелками на пульте выберите нужный пункт и нажмите <strong>OK</strong>. Кнопка <strong>«Назад»</strong> вернёт к этому списку.</p>
+<h2>1. Тесты по темам</h2>
+<div class="stroka"><div class="nomer">§ 1—3</div><div class="tema"><span class="chto">Ал­ге­бра­и­че­ская дробь. Ал­ге­бра­и­че­ские выражения</span></div><div class="knopki"><a class="knopka" href="https://videouroki.net/tests/alghiebraichieskiie-vyrazhieniia-alghiebraichieskaia-drob-variant-1.html">Пройти тест</a></div></div>
+<div class="stroka"><div class="nomer">§ 1—2</div><div class="tema"><span class="chto">Про­ве­роч­ная работа: пре­об­ра­зо­ва­ние ра­ци­о­наль­ных выражений</span></div><div class="knopki"><a class="knopka" href="https://videouroki.net/tests/provierochnaia-rabota-po-tiemie-prieobrazovaniie-ratsional-nykh-vyrazhienii.html">Пройти тест</a></div></div>
+<div class="stroka"><div class="nomer">§ 3</div><div class="tema"><span class="chto">Неполные квад­рат­ные уравнения</span></div><div class="knopki"><a class="knopka" href="https://videouroki.net/tests/niepolnyie-kvadratnyie-uravnieniia-4.html">Пройти тест</a></div></div>
+<div class="stroka"><div class="nomer">§ 5—7</div><div class="tema"><span class="chto">Квад­рат­ные корни</span></div><div class="knopki"><a class="knopka" href="https://videouroki.net/tests/kvadratnyie-korni-16.html">Пройти тест</a></div></div>
+<div class="stroka"><div class="nomer">§ 5</div><div class="tema"><span class="chto">Ариф­ме­ти­че­ский квад­рат­ный корень. Вариант 1</span></div><div class="knopki"><a class="knopka" href="https://videouroki.net/tests/arifmietichieskii-kvadratnyi-korien-16.html">Пройти тест</a></div></div>
+<div class="stroka"><div class="nomer">§ 6</div><div class="tema"><span class="chto">Квад­рат­ный корень из про­из­ве­де­ния и дроби</span></div><div class="knopki"><a class="knopka" href="https://videouroki.net/tests/kvadratnyi-korien-iz-proizviedieniia-i-drobi-3.html">Пройти тест</a></div></div>
+<div class="stroka"><div class="nomer">§ 6</div><div class="tema"><span class="chto">Квад­рат­ный корень из про­из­ве­де­ния и дроби (ещё вариант)</span></div><div class="knopki"><a class="knopka" href="https://videouroki.net/tests/kvadratnyi-korien-iz-proizviedieniia-i-drobi-2.html">Пройти тест</a></div></div>
+<div class="stroka"><div class="nomer">§ 6</div><div class="tema"><span class="chto">Квад­рат­ный корень из про­из­ве­де­ния и дроби (ещё вариант)</span></div><div class="knopki"><a class="knopka" href="https://videouroki.net/tests/kvadratnyi-korien-iz-proizviedieniia-i-drobi-1.html">Пройти тест</a></div></div>
+<div class="stroka"><div class="nomer">§ 6</div><div class="tema"><span class="chto">Квад­рат­ный корень из степени</span></div><div class="knopki"><a class="knopka" href="https://videouroki.net/tests/kvadratnyi-korien-iz-stiepieni-4.html">Пройти тест</a></div></div>
+<div class="stroka"><div class="nomer">§ 7</div><div class="tema"><span class="chto">Вынесение множителя за знак корня, внесение под знак корня</span></div><div class="knopki"><a class="knopka" href="https://videouroki.net/tests/vyniesieniie-mnozhitielia-za-znak-kornia-vniesieniie-mnozhitielia-pod-znak-kor-5.html">Пройти тест</a></div></div>
+<div class="stroka"><div class="nomer">§ 8—9</div><div class="tema"><span class="chto">Квад­рат­ные уравнения</span></div><div class="knopki"><a class="knopka" href="https://videouroki.net/tests/kvadratnyie-uravnieniia-34.html">Пройти тест</a></div></div>
+<div class="stroka"><div class="nomer">§ 8</div><div class="tema"><span class="chto">Квад­рат­ные уравнения (для углу­блён­но­го уровня)</span></div><div class="knopki"><a class="knopka" href="https://videouroki.net/tests/kvadratnyie-uravnieniie-1.html">Пройти тест</a></div></div>
+<div class="stroka"><div class="nomer">§ 9</div><div class="tema"><span class="chto">Решение дробных ра­ци­о­наль­ных уравнений</span></div><div class="knopki"><a class="knopka" href="https://videouroki.net/tests/tiest-na-rieshieniie-drobnykh-ratsional-nykh-uravnienii.html">Пройти тест</a></div></div>
+<div class="stroka"><div class="nomer">§ 10—11</div><div class="tema"><span class="chto">Свойства числовых не­ра­венств</span></div><div class="knopki"><a class="knopka" href="https://videouroki.net/tests/tiest-po-tiemie-svoistva-chislovykh-nieravienstv.html">Пройти тест</a></div></div>
+<div class="stroka"><div class="nomer">§ 11</div><div class="tema"><span class="chto">Функции и их графики</span></div><div class="knopki"><a class="knopka" href="https://videouroki.net/tests/funktsii-i-ikh-ghrafiki-4.html">Пройти тест</a></div></div>
+<div class="stroka"><div class="nomer">§ 11</div><div class="tema"><span class="chto">Функции и их графики (для углу­блён­но­го уровня)</span></div><div class="knopki"><a class="knopka" href="https://videouroki.net/tests/funktsii-i-ikh-ghrafiki-3.html">Пройти тест</a></div></div>
+<div class="stroka"><div class="nomer">§ 12</div><div class="tema"><span class="chto">Степень с целым от­ри­ца­тель­ным по­ка­за­те­лем</span></div><div class="knopki"><a class="knopka" href="https://videouroki.net/tests/stiepien-s-tsielym-otritsatiel-nym-pokazatieliem-3.html">Пройти тест</a></div></div>
+<div class="stroka"><div class="nomer">§ 12</div><div class="tema"><span class="chto">Свойства степени с целым по­ка­за­те­лем</span></div><div class="knopki"><a class="knopka" href="https://videouroki.net/tests/tiest-po-tiemie-svoistva-stiepieni-s-tsielym-pokazatieliem-3.html">Пройти тест</a></div></div>
+<div class="stroka"><div class="nomer">§ 13</div><div class="tema"><span class="chto">Ве­ро­ят­ность и ста­ти­сти­ка (под­го­тов­ка к ВПР)</span></div><div class="knopki"><a class="knopka" href="https://videouroki.net/tests/podghotovka-k-vpr-za-8-klass-razdiel-vieroiatnost-i-statistika.html">Пройти тест</a></div></div>
+<div class="stroka"><div class="nomer">ВПР</div><div class="tema"><span class="chto">Числа на ко­ор­ди­нат­ной прямой (задание ВПР 8 класс)</span></div><div class="knopki"><a class="knopka" href="https://videouroki.net/tests/chisla-na-koordinatnoi-priamoi-vpr-8-klass-4.html">Пройти тест</a></div></div>
+<div class="stroka"><div class="nomer">ВПР</div><div class="tema"><span class="chto">Под­го­тов­ка к ВПР по ма­те­ма­ти­ке</span></div><div class="knopki"><a class="knopka" href="https://videouroki.net/tests/podghotovka-k-vpr-po-matiematikie-1.html">Пройти тест</a></div></div>
+<div class="stroka"><div class="tema"><span class="chto">Всего в списке: 21 тест. Полные подборки по вашему учебнику — на сайте:</span></div><div class="knopki"><a class="knopka" href="https://videouroki.net/tests/algebra/8-class/">videouroki.net/tests/algebra/8-class</a></div></div>
+<h2>2. Онлайн-тренажёры</h2>
+<div class="stroka"><div class="nomer">Учи.ру</div><div class="tema"><span class="chto">Задания по алгебре в игровой форме. Есть бес­плат­ная часть, дальше — по подписке</span></div><div class="knopki"><a class="knopka" href="https://uchi.ru/subjects/algebra">Открыть</a></div></div>
+<div class="stroka"><div class="nomer">ЯКласс</div><div class="tema"><span class="chto">Клас­си­че­ский тренажёр: тема → задания → проверка. Бесплатно, нужна ре­ги­стра­ция</span></div><div class="knopki"><a class="knopka" href="https://www.yaklass.ru/">Открыть</a></div></div>
+<div class="stroka"><div class="tema"><span class="chto">Online Test Pad — тесты по алгебре, 8 класс</span><span class="primech">Подборка готовых тестов на все темы 8 класса. Без регистрации, сразу видно результат</span></div><div class="knopki"><a class="knopka" href="https://onlinetestpad.com/ru/tests/algebra/8class">Открыть</a></div></div>
+<div class="stroka"><div class="nomer">LearningApps</div><div class="tema"><span class="chto">Ин­тер­ак­тив­ные задания-игры. Удобно искать по теме, есть русский</span></div><div class="knopki"><a class="knopka" href="https://learningapps.org/">Открыть</a></div></div>
+<div class="stroka"><div class="nomer">WordWall</div><div class="tema"><span class="chto">Готовые игры и викторины со­об­ще­ства по алгебре 8 класса</span></div><div class="knopki"><a class="knopka" href="https://wordwall.net/ru/community/algebra-8">Открыть</a></div></div>
+<div class="stroka"><div class="tema"><span class="chto">РешуОГЭ (ма­те­ма­ти­ка)</span><span class="primech">Тренажёр по заданиям ОГЭ. В 8 классе пригодится с весны: квадратные уравнения, неравенства, графики уже пройдены</span></div><div class="knopki"><a class="knopka" href="https://math-ege.sdamgia.ru/">Открыть</a></div></div>
+<div class="stroka"><div class="tema"><span class="chto">Итоговый тест за курс 8 класса (Макарычев) — 20 вопросов по всему году</span></div><div class="knopki"><a class="knopka" href="https://контрользнаний.рф/algebra-8-itogovyy-test-makarychev/">пройти</a></div></div>
+<div class="stroka"><div class="tema"><span class="chto">Тест за 1-ю четверть — Ра­ци­о­наль­ные дроби — первая тема года</span></div><div class="knopki"><a class="knopka" href="https://контрользнаний.рф/algebra-8-klass-test-za-1-yu-chetvert/">пройти</a></div></div>
+<div class="stroka"><div class="tema"><span class="chto">Итоговый тест за IV четверть — Не­ра­вен­ства, степени, ста­ти­сти­ка</span></div><div class="knopki"><a class="knopka" href="https://контрользнаний.рф/algebra-8-itogovyy-test-za-iv/">пройти</a></div></div>
+<h2>3. На бумаге: распечатать и решать</h2>
+<div class="stroka"><div class="tema"><span class="chto">Тренажёр «Квад­рат­ные уравнения», 4 варианта — docx, на каждый вариант — свой набор уравнений. Рас­пе­ча­тать и решать на бумаге</span></div><div class="knopki"><a class="knopka" href="https://nsportal.ru/shkola/algebra/library/2019/01/05/trenazher-kvadratnye-uravneniya">скачать</a></div></div>
+<div class="stroka"><div class="tema"><span class="chto">Практикум «Квад­рат­ные уравнения. 8 класс» — Разбор по вариантам: неполные уравнения, дис­кри­ми­нант, теорема Виета. docx</span></div><div class="knopki"><a class="knopka" href="https://nsportal.ru/shkola/algebra/library/2022/03/13/kvadratnye-uravneniya-8-klass/">скачать</a></div></div>
+<div class="stroka"><div class="tema"><span class="chto">156 неполных квад­рат­ных уравнений — Много од­но­тип­ных примеров, чтобы набить руку. docx</span></div><div class="knopki"><a class="knopka" href="https://nsportal.ru/shkola/algebra/library/2021/11/20/156-nepolnyh-kvadratnyh-uravneniy">скачать</a></div></div>
+<div class="stroka"><div class="tema"><span class="chto">Са­мо­сто­я­тель­ная работа «Квад­рат­ные корни» с ответами — Три варианта: значение корня, сравнение чисел, свойства. docx</span></div><div class="knopki"><a class="knopka" href="https://nsportal.ru/shkola/algebra/library/2018/02/26/samostoyatelnaya-rabota-po-temekvadratnye-korni">скачать</a></div></div>
+<h2>4. Как встроить это в занятия</h2>
+
+</div>
+<script>
+(function(){
+  var K='shkola.home';
+  var HOME="База данных/8 класс/Алгебра/тренажёры.html";
+  /* Плеер запоминает, на каком уроке остановились, по этому же имени:
+     оно не зависит от буквы диска, с которого открыта флешка. */
+  window.SHK_HOME=HOME;
+  var ROOT="../../../";
+  var VHOD="Начать учиться.html";
+  var YA_VHOD=false;
+  function dostupno(){
+    try{ localStorage.setItem('__t','1'); localStorage.removeItem('__t'); return true; }
+    catch(e){ return false; }
+  }
+  function rd(){ try{ return localStorage.getItem(K); }catch(e){ return null; } }
+  function wr(v){
+    try{ if(v===null){ localStorage.removeItem(K); } else { localStorage.setItem(K,v); }
+         return true; }
+    catch(e){ return false; }
+  }
+  var dom=document.getElementById('dom'), pin=document.getElementById('pin');
+
+  /* ---- две выезжающие панели: меню и плейлист ----
+     Границы у них одни и те же, и вдвоём они не открываются: открыли
+     меню — плейлист закрылся, открыли плейлист — закрылось меню.
+     Плейлист есть только на страницах видеоуроков. */
+  window.shkPanel=function(otkryt){
+    var b=document.body;
+    if(otkryt){
+      b.classList.add('menu-otkryto');
+      b.classList.remove('pleylist-otkryto');
+      /* Фокус встаёт на первую строку списка — и в меню, и в плейлисте
+         одинаково. Крестик закрытия при открытии не подсвечивается
+         нигде: раньше в меню фокус шёл на название класса, а в панели
+         плейлиста на первый пункт, и крестики выглядели по-разному. */
+      var p=document.getElementById('panel');
+      var perv=p && p.querySelector('.panel-telo a');
+      if(perv) perv.focus();
+    } else {
+      b.classList.remove('menu-otkryto');
+    }
+    return false;
+  };
+  window.shkPleylist=function(otkryt){
+    var b=document.body;
+    if(otkryt){
+      b.classList.add('pleylist-otkryto');
+      b.classList.remove('menu-otkryto');
+      var p=document.getElementById('pleylist-panel');
+      var perv=p && p.querySelector('.panel-telo a');
+      if(perv) perv.focus();
+    } else {
+      b.classList.remove('pleylist-otkryto');
+    }
+    return false;
+  };
+  /* Значок меню открывает и закрывает меню. Плейлист вызывается своей
+     кнопкой на кадре: так панель возвращается всегда, чем бы её ни
+     закрыли. */
+  window.shkMenu=function(){
+    if(document.body.classList.contains('menu-otkryto')){
+      return window.shkPanel(false);
+    }
+    return window.shkPanel(true);
+  };
+  /* Кнопка плейлиста на кадре: открыта панель — закрыть, закрыта —
+     открыть. */
+  window.shkPleylistTog=function(){
+    return window.shkPleylist(
+      !document.body.classList.contains('pleylist-otkryto'));
+  };
+  document.addEventListener('keydown', function(e){
+    if(e.key==='Escape'){
+      window.shkPanel(false); window.shkPleylist(false);
+    }
+  });
+
+  /* Домашняя страница ровно одна: в браузере лежит одна запись, поэтому
+     закрепили новую — прежняя открепилась сама. Никаких надписей об этом
+     нет: скрепка просто горит на той странице, которая закреплена. */
+  function obnovit(){
+    var h=rd();
+    if(pin){ pin.className = (h===HOME) ? 'tumbler ikonka zakrep'
+                                        : 'tumbler ikonka'; }
+  }
+  if(pin){
+    pin.onclick=function(){ wr(rd()===HOME?null:HOME); obnovit(); return false; };
+  }
+  if(dom){
+    dom.onclick=function(){
+      var z=rd();
+      if(z){ location.href=ROOT+encodeURI(z); return false; }
+      return true;
+    };
+  }
+
+  /* ---- ширина правой панели ----
+     Одна и та же у меню и у плейлиста: потянули за кромку — панель
+     шире или уже, с пульта то же самое стрелками. Ширина запоминается
+     в браузере, как и урок. */
+  function panel_min(){ return 300; }
+  function panel_max(){
+    return Math.max(panel_min() + 40,
+                    Math.min(900, window.innerWidth - 320));
+  }
+  function panel_postavit(w){
+    w = Math.max(panel_min(), Math.min(w, panel_max()));
+    document.body.style.setProperty('--panel-shirina', Math.round(w) + 'px');
+    try{ localStorage.setItem('shkola.panel', String(Math.round(w))); }
+    catch(e){}
+  }
+  function panel_tekushchaya(){
+    var w = parseFloat(getComputedStyle(document.body)
+                       .getPropertyValue('--panel-shirina'));
+    return (w > 0) ? w : 420;
+  }
+  try{
+    var sh = parseFloat(localStorage.getItem('shkola.panel'));
+    if(sh > 0){ panel_postavit(sh); }
+  }catch(e){}
+
+  window.shkTyan=function(e){
+    var shag = e.shiftKey ? 80 : 30;
+    var tek = panel_tekushchaya();
+    if(e.key==='ArrowLeft'){ panel_postavit(tek + shag); return false; }
+    if(e.key==='ArrowRight'){ panel_postavit(tek - shag); return false; }
+    return true;
+  };
+  (function(){
+    var ruki = document.querySelectorAll('.panel-tyanulka');
+    for(var i=0;i<ruki.length;i++){
+      (function(ruka){
+        ruka.addEventListener('pointerdown', function(e){
+          e.preventDefault();
+          ruka.className = ruka.className + ' tyanem';
+          if(ruka.setPointerCapture){ ruka.setPointerCapture(e.pointerId); }
+          function dvizh(ev){ panel_postavit(window.innerWidth - ev.clientX); }
+          function konets(ev){
+            dvizh(ev);
+            ruka.className = ruka.className.replace(' tyanem', '');
+            ruka.removeEventListener('pointermove', dvizh);
+            ruka.removeEventListener('pointerup', konets);
+            ruka.removeEventListener('pointercancel', konets);
+          }
+          ruka.addEventListener('pointermove', dvizh);
+          ruka.addEventListener('pointerup', konets);
+          ruka.addEventListener('pointercancel', konets);
+        });
+      })(ruki[i]);
+    }
+  })();
+
+  /* Имя и цель с главного экрана: живут в памяти браузера, ничего
+     никуда не отправляется. Пустая строка — обычная подстановка,
+     поэтому стёр написанное, и подсказка вернулась сама. */
+  /* Ширина строки цели — по её тексту: тогда «Цель:» и написанное
+     стоят по центру вместе. Мерка невидима и набрана тем же шрифтом. */
+  var poleCeli=document.getElementById('tsel');
+  var merkaCeli=document.getElementById('tsel-merka');
+  function shirinaCeli(){
+    if(!poleCeli || !merkaCeli){ return; }
+    merkaCeli.textContent = poleCeli.value || poleCeli.placeholder || '';
+    var w = merkaCeli.getBoundingClientRect().width;
+    poleCeli.style.width = Math.ceil(w + 8) + 'px';
+  }
+  if(poleCeli){
+    shirinaCeli();
+    poleCeli.addEventListener('input', shirinaCeli);
+    window.addEventListener('resize', shirinaCeli);
+  }
+
+  /* ---- кто учится и зачем ----
+     Строка под путём на каждой странице. Имя и цель человек написал сам
+     на главном экране, здесь мы их только читаем из памяти браузера:
+     ничего не выдумываем и ничего не дописываем. Ни того, ни другого
+     нет — строки на странице тоже нет. */
+  function imya_stroka(){
+    var stroka=document.getElementById('imya-stroka');
+    if(!stroka){ return; }
+    /* На главном экране эти же имя и цель стоят полями — там строка
+       была бы повторением. */
+    if(document.getElementById('imya')){ stroka.hidden=true; return; }
+    var imya='', cel='';
+    try{
+      imya=(localStorage.getItem('shkola.imya')||'').trim();
+      cel=(localStorage.getItem('shkola.tsel')||'').trim();
+    }catch(e){}
+    if(!imya && !cel){ stroka.hidden=true; return; }
+    /* Цель читается как «Хочу …»: если так уже написано — не повторяем. */
+    if(cel && !/^хочу/i.test(cel)){ cel='Хочу '+cel; }
+    var kuski=[];
+    if(imya){ kuski.push('<b>'+imya+'</b>'); }
+    if(cel){ kuski.push(cel); }
+    stroka.innerHTML=kuski.join(' · ');
+    stroka.hidden=false;
+  }
+  imya_stroka();
+
+  var polya=[['imya', 'shkola.imya'], ['tsel', 'shkola.tsel']];
+  for(var p=0; p<polya.length; p++){
+    var po=document.getElementById(polya[p][0]);
+    if(!po || !dostupno()){ continue; }
+    try{
+      var bylo=localStorage.getItem(polya[p][1]);
+      if(bylo){ po.value=bylo; }
+      if(typeof shirinaCeli==='function'){ shirinaCeli(); }
+    }catch(e){}
+    (function(pole, klyuch){
+      pole.addEventListener('input', function(){
+        try{ localStorage.setItem(klyuch, pole.value); }catch(e){}
+      });
+    })(po, polya[p][1]);
+  }
+
+  if(!dostupno()){
+    // Запоминать негде: скрепку прячем, «Домой» ведёт на выбор класса.
+    if(pin) pin.style.display='none';
+  } else {
+    obnovit();
+    if(YA_VHOD){
+      var z=rd();
+      if(z && z!==VHOD && location.hash!=='#vybor'){
+        location.replace(ROOT+encodeURI(z));
+      }
+    }
+  }
+})();
+</script>
+</body>
+</html>
