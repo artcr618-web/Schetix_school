@@ -11,7 +11,7 @@ import sys
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(
     os.path.abspath(__file__))), 'Инструменты'))
-from _пути import PROEKT, VSE_STRANICY  # noqa: E402
+from _пути import PROEKT, SLUZHEBNYE, VSE_STRANICY  # noqa: E402
 
 oshel = 0
 for polny in sorted(VSE_STRANICY):
@@ -42,11 +42,17 @@ for polny in sorted(VSE_STRANICY):
         print(f'  НЕТ КЛЮЧА ЗАПОМИНАНИЯ: {otn}')
         oshel += 1
 
-# в корне пакета ровно один файл
+# в корне пакета — главная страница и служебный список «Что не нашлось»,
+# больше ничего (см. §4 правил)
 koren = [f for f in sorted(os.listdir(PROEKT))
          if os.path.isfile(os.path.join(PROEKT, f))]
-if koren != ['Начать учиться.html']:
-    print(f'  В КОРНЕ НЕ ОДИН ФАЙЛ: {koren}')
+domashnyaya = 'Начать учиться.html'
+lisnie = [f for f in koren if f != domashnyaya and f not in SLUZHEBNYE]
+if domashnyaya not in koren:
+    print(f'  В КОРНЕ НЕТ ДОМАШНЕЙ СТРАНИЦЫ: {koren}')
+    oshel += 1
+if lisnie:
+    print(f'  В КОРНЕ ЛИШНИЕ ФАЙЛЫ: {lisnie}')
     oshel += 1
 
 print(f'\nКорень пакета: {koren}')

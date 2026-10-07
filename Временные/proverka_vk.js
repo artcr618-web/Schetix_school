@@ -4,7 +4,7 @@
 // <video> внутри кадра. Открываем двумя способами: с диска (file://) и
 // по сети (http://) — у нас страница лежит на флешке, но браузеры
 // обращаются с file:// к сети строже.
-const { chromium } = require('playwright');
+const { chromium } = require('./плейрайт.js');
 const fs = require('fs');
 const path = require('path');
 const http = require('http');

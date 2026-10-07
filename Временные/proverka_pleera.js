@@ -220,6 +220,15 @@ console.log('плейлистов в разметке: ' + spiski.length +
             ' (' + spiski.map(s => s.treks.length).join(', ') + ')' +
             ' | кнопок вариантов: ' + knopki_uzly.length);
 
+if (!spiski.length) {
+  // Страница предмета с баннером: списки лекций там свои (a.banner-trek),
+  // их проверяет proverka_bannera.js. Молча «0 ошибок» не пишем, чтобы
+  // пропавшие списки на видеостранице нельзя было принять за успех.
+  console.log('на странице нет списков под кадром — верный стенд: ' +
+              'proverka_bannera.js');
+  process.exit(3);
+}
+
 console.log('=== 1. пустая память: страница ничего не запускает');
 proverka('кадра нет', !elId.ramka);
 
@@ -412,10 +421,77 @@ proverka('значок меню зовёт shkMenu()',
          /aria-label="Меню"[^>]*onclick="return shkMenu\(\)"/.test(html));
 proverka('на кадре есть кнопка плейлиста',
          /class="pleyer-knopka"[^>]*onclick="return shkPleylistTog\(\)"/.test(html));
-proverka('у пунктов списка классов нет подложки',
-         /\.klass-spisok a\.panel-plitka\{[^}]*background:none/.test(html));
-proverka('у названия класса нет жёлтой обводки на фокусе',
-         !/klass-knopka:focus\{outline/.test(html));
+console.log('=== 14. стандарт списков: текст, а играющий пункт — плашкой');
+// Строка списка — простой текст: подложки нет, рамок нет. Но место под
+// жёлтую чёрточку оставлено у каждой строки (прозрачная полоса 6 px),
+// иначе играющий пункт сдвигал бы соседей. Играющий пункт — подложка,
+// жёлтая чёрточка слева и жёлтый номер параграфа. У панели плейлиста
+// вид свой, прежний: плашка, полоса, жёлтый номер у всех строк.
+const blok = (ot) => {
+  const i = html.indexOf(ot);
+  return i < 0 ? '' : html.slice(i, html.indexOf('}', i) + 1);
+};
+const plytka = blok('a.panel-plitka{');
+const trek = blok('a.trek{');
+const panel = blok('#pleylist-panel a.trek{');
+const nomer = blok('#pleylist-panel .trek-nomer{');
+proverka('у пункта меню в покое нет подложки',
+         !!plytka && !/\n\s*background:#/.test(plytka.split(':hover')[0]),
+         plytka);
+proverka('у пункта меню место под чёрточку 6 px, полоса прозрачная',
+         !!plytka && /border-left:6px solid transparent/.test(plytka), plytka);
+proverka('у пункта под кадром в покое нет подложки',
+         !!trek && !/\n\s*background:#/.test(trek.split(':hover')[0]), trek);
+proverka('у пункта под кадром место под чёрточку 6 px, полоса прозрачная',
+         !!trek && /border-left:6px solid transparent/.test(trek), trek);
+const akt = blok('a.trek.aktiven{');
+proverka('играющий пункт — серая подложка и жёлтая чёрточка',
+         !!akt && /background:#232c38/.test(akt) &&
+         /border-left-color:#ffd23f/.test(akt), akt);
+proverka('чёрточка со скруглением, как у строки в панели',
+         !!trek && /border-radius:12px/.test(trek), trek);
+proverka('у играющего пункта жёлтый номер параграфа',
+         /a\.trek\.aktiven \.trek-nomer\{color:#ffd23f\}/.test(html));
+const akt_menu = blok('a.panel-plitka.tekushchiy{');
+proverka('текущий пункт меню — та же отметка: подложка и чёрточка',
+         !!akt_menu && /background:#232c38/.test(akt_menu) &&
+         /border-left-color:#ffd23f/.test(akt_menu), akt_menu);
+proverka('в панели у пункта плашка, как и было',
+         !!panel && /background:#1b212b/.test(panel), panel);
+proverka('в панели у пункта жёлтая полоса слева, как и было',
+         !!panel && /border-left:6px solid #ffd23f/.test(panel), panel);
+proverka('в панели номер параграфа жёлтый, как и было',
+         !!nomer && /#ffd23f/.test(nomer), nomer);
+proverka('синим ничего не подсвечиваем',
+         !/#[0-9a-f]*[0-9a-f]*(a0c|07c|1a4f7a|3b82f6)/i.test(html));
+proverka('название плейлиста не обводится рамкой в фокусе',
+         /summary\.pl-imya:focus[^}]*outline:none/.test(html));
+proverka('у названий плейлистов и глав нет жёлтого',
+         /summary\.pl-imya\{[\s\S]{0,320}color:#8b95a5/.test(html) &&
+         /\.trek-gruppa\{[\s\S]{0,220}color:#8b95a5/.test(html));
+proverka('в боковом меню не осталось задвоенного разделителя',
+         !/class="panel-razd"/.test(html));
+// На пульте указателя нет: где стоит пульт, видно по жёлтой обводке
+// на фокусе — как у плашек. Мышью обводки не видно (focus-visible).
+proverka('в покое у пунктов меню обводки нет',
+         /a\.panel-plitka:focus, a\.panel-plitka:hover,[^{]*\{[^}]*outline:none/
+           .test(html));
+proverka('на фокусе у пунктов меню жёлтая обводка',
+         /a\.panel-plitka:focus-visible\{outline:3px solid #ffd23f/.test(html));
+proverka('в покое у пунктов под кадром обводки нет',
+         /a\.trek:hover, a\.trek:focus, a\.trek:focus-visible\{[^}]*outline:none/
+           .test(html));
+proverka('на фокусе у пунктов под кадром жёлтая обводка',
+         /a\.trek:focus-visible\{outline:3px solid #ffd23f/.test(html));
+proverka('на уведомлении крестик закрытия, а не слово «Закрыть»',
+         /id="vybor-zakryt"[^>]*aria-label="Закрыть"/.test(html) &&
+         !/vybor-tretiya/.test(html) &&
+         !/>Закрыть</.test(html));
+proverka('строка с именем и целью есть на странице',
+         /id="imya-stroka"/.test(html));
+proverka('крестик подсвечивается одинаково в обеих панелях',
+         /a\.panel-zakryt:focus, a\.panel-zakryt:hover/.test(html) &&
+         !/\.panel-verh[^{]*\.panel-zakryt\{[^}]*border-color:#ffd23f/.test(html));
 // Панель — столбик: шапка отдельной полосой, список прокручивается в
 // своей области. Иначе при прокрутке список уносил шапку с собой.
 proverka('панель собрана столбиком',

@@ -62,9 +62,14 @@ VSE_STRANICY = [
 # из-за этого ломаться. Обход рекурсивный.
 PROEKT = os.path.join(ROOT, 'Проект')
 
+# Служебные файлы пакета: это не страницы сайта — у них нет шапки,
+# меню и скриптов запоминания, им нечего делать в списке страниц.
+# Сейчас такой файл один: список «Что не нашлось» (см. §4 правил).
+SLUZHEBNYE = {'Что не нашлось.html'}
+
 for _put, _papki, _fayly in os.walk(PROEKT):
     for _f in _fayly:
-        if _f.endswith('.html'):
+        if _f.endswith('.html') and _f not in SLUZHEBNYE:
             VSE_STRANICY.append(os.path.join(_put, _f))
 VSE_STRANICY = sorted(set(VSE_STRANICY))
 

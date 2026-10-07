@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=1280, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>8 класс</title>
 <style>
 :root{
@@ -10,6 +10,9 @@
   --tekst:#f3f5f9; --tuskly:#98a2b3; --knopka:#2b3543; --knopka-focus:#3d4c5f;
 }
 *{box-sizing:border-box}
+/* Ниже 320 px страница не ужимается: это нижний артборд Тильды.
+   Окно уже — появится боковая прокрутка, но вёрстка не поедет. */
+html{min-width:320px}
 html{-webkit-text-size-adjust:100%}
 body{
   /* --panel-shirina — сколько места освобождается справа, когда меню
@@ -22,7 +25,11 @@ body{
   transition:padding-right .32s ease;
 }
 body.menu-otkryto{padding-right:var(--panel-shirina)}
-.wrap{max-width:1500px; margin:0 auto; padding:22px 44px}
+.wrap{max-width:1500px; margin:0 auto;
+  /* Поля по краям: на широком экране 44 px, на телефоне 20 px
+     (см. POLYA в Инструменты/разметка.py). Плашка занимает всю
+     строку, и на телефоне широкие поля съедали бы четверть кадра. */
+  padding:22px clamp(20px, 4vw, 44px)}
 
 /* ---- шапка, одинаковая на всех страницах ---- */
 nav.verh{
@@ -86,7 +93,7 @@ a.tumbler.net{background:#22262c; color:#7d8695}
 .privet input[type="text"]:focus{outline:none}
 .privet-tsel{
   display:flex; justify-content:center; align-items:baseline;
-  gap:14px; margin-top:10px;
+  gap:14px; margin-top:10px; max-width:100%;
 }
 .privet-tsel .privet-slovo{
   flex:0 0 auto; color:#8b95a5; font-weight:400;
@@ -102,7 +109,11 @@ a.tumbler.net{background:#22262c; color:#7d8695}
   font-size:clamp(23px, 2.3vw, 31px);
 }
 .privet input#tsel{
-  flex:0 0 auto; width:20px; padding:4px 2px; text-align:left;
+  /* Ширину считает скрипт по тексту, поэтому поле СЖИМАЕМОЕ: на узком
+     экране строка цели не влезает целиком, и поле уступает первым —
+     иначе оно вылезало за кадр и страница уезжала вбок. Раскрытое
+     до конца поле по-прежнему показывает всю надпись. */
+  flex:0 1 auto; min-width:0; width:20px; padding:4px 2px; text-align:left;
   font-weight:400; font-size:clamp(23px, 2.3vw, 31px); color:#dbe3ee;
 }
 .privet + .setka{margin-top:46px}
@@ -149,6 +160,12 @@ details.kniga-stroka[open] .strela{transform:rotate(180deg)}
   font-size:27px; font-weight:600; color:#f3f5f9; line-height:1.2;
   hyphens:manual; overflow-wrap:break-word;
 }
+/* На узком экране обложка встаёт над описанием: рядом они не помещаются,
+   и обложка выдавливала текст в столбик шириной в пару букв. */
+@media (max-width:959px){
+  .kn-kartochka{flex-direction:column; gap:14px}
+  .kn-kartochka img{width:150px}
+}
 .kn-kavt{font-size:23px; color:#98a2b3; line-height:1.3}
 
 /* ---- обложка учебника — фон всей плашки ----
@@ -191,7 +208,13 @@ a.plitka.s-kartinkoy{
   background:linear-gradient(165deg,#171f2a 0%,#0f141b 100%);
   border-radius:18px; overflow:hidden;
 }
-.pleyer-ramka{position:absolute; inset:0; width:100%; height:100%; border:0}
+.pleyer-ramka{border:0}
+/* Растягиваем на весь блок только кадр большого плеера. Баннерный кадр
+   носит тот же класс — по нему его находит восстановление позиции, —
+   но живёт в обычном потоке: абсолютный кадр в баннере не имел
+   позиционированного предка и накрывал собой всю страницу: сверху
+   чернел экран, а нажатия по списку лекций доставались кадру. */
+.pleyer .pleyer-ramka{position:absolute; inset:0; width:100%; height:100%}
 /* Кнопки вариантов плейлиста — под плеером. Появляются, только когда
    вариантов больше одного: уроки по параграфам, короткие пересказы,
    разборы домашних заданий, повторение. */
@@ -217,7 +240,10 @@ summary.pl-imya{
 summary.pl-imya::-webkit-details-marker{display:none}
 summary.pl-imya::marker{content:''}
 summary.pl-imya .pl-nazv{flex:1 1 auto; min-width:0}
-summary.pl-imya:focus{outline:3px solid #f3f5f9; outline-offset:2px}
+/* Рамки на фокусе нет: открытый плейлист и без неё видно (название
+   ярче остальных), а жёсткая белая рамка превращала строку в кнопку. */
+summary.pl-imya:focus, summary.pl-imya:focus-visible{outline:none}
+summary.pl-imya:hover{color:#f3f5f9}
 summary.pl-imya .strela svg{width:30px; height:30px}
 details.pl-blok[open] > summary.pl-imya .strela{transform:rotate(180deg)}
 .pl-blok.aktiven > summary.pl-imya{color:#f3f5f9}
@@ -230,7 +256,20 @@ details.pl-blok[open] > summary.pl-imya .strela{transform:rotate(180deg)}
    границах: та же ширина, тот же выезд, тот же крестик. Открывается
    сразу при входе на страницу видеоуроков. Вдвоём они не открываются:
    открыли меню — плейлист закрылся, и наоборот. */
-body.pleylist-otkryto{padding-right:var(--panel-shirina)}
+/* Полоса под ручку ширины: сама ручка стоит слева от панели и без
+   этого запаса накрывала бы содержимое страницы — на узком окне она
+   перекрывала даже кнопки уведомления над кадром. */
+body.pleylist-otkryto{padding-right:calc(var(--panel-shirina) + 10px)}
+
+/* На телефонах места на две колонки нет: панель занимает почти весь
+   кадр, а страница под ней не сжимается. Иначе на 320 px от страницы
+   осталась бы полоска в 40 px. Это единственная ширина, где прежнее
+   правило «панель не накрывает экран» невыполнимо: справа остаётся
+   полоска 40 px, за которую панель можно закрыть. */
+@media (max-width:639px){
+  body{--panel-shirina:min(420px, calc(100vw - 40px))}
+  body.menu-otkryto, body.pleylist-otkryto{padding-right:0}
+}
 #pleylist-panel{transform:translateX(100%); visibility:hidden;
   transition:transform .32s ease, visibility 0s linear .32s}
 body.pleylist-otkryto #pleylist-panel{transform:none; visibility:visible;
@@ -255,50 +294,168 @@ a.pleyer-knopka svg{width:34px; height:34px; display:block}
 a.pleyer-knopka:hover, a.pleyer-knopka:focus{
   border-color:#ffd23f; background:rgba(10,13,18,.92);
 }
-.pleyer-vybor{position:absolute; inset:auto 0 0 0; padding:0 22px 22px}
+/* ---- уведомление над кадром ----
+   Пока кадр достаточно широкий, карточка лежит ПОВЕРХ него: кадр
+   вставлен абсолютно и без этого рисовался выше неё — уведомление
+   «Вы остановились на параграфе…» было в разметке, а на экране нет.
+   Когда места мало (узкое окно или открытая панель), карточка уходит
+   ПОД кадр: над кадром шириной в ладонь она всё равно не читается.
+   Размеры считаем от ширины кадра, а не окна: страницу сдвигает
+   панель плейлиста, и окно о ней ничего не знает. */
+.pleyer-mesto{position:relative; container-type:inline-size}
+.pleyer-vybor{display:flex; justify-content:center; margin-top:16px}
+.pleyer-vybor .vybor-karta{width:100%; max-width:920px}
 .vybor-karta{
-  display:flex; flex-direction:column; gap:18px;
+  position:relative; min-width:0;
+  display:flex; flex-direction:column; gap:clamp(12px, 1.4vw, 18px);
   background:linear-gradient(180deg, rgba(10,13,18,.82), rgba(10,13,18,.96));
-  border-radius:16px; padding:22px 26px;
+  border-radius:16px;
+  padding:clamp(14px, 1.7vw, 22px) clamp(16px, 2vw, 26px);
+}
+@supports (width: 1cqw){
+  /* Там, где браузер знает ширину кадра, всё считается от неё. */
+  .vybor-karta{gap:clamp(12px, 1.4cqw, 18px);
+    padding:clamp(14px, 1.7cqw, 22px) clamp(16px, 2cqw, 26px)}
+  .vybor-tekst{font-size:clamp(18px, 2.3cqw, 32px)}
+  .vybor-knopki{gap:clamp(10px, 1.2cqw, 16px)}
+  a.vybor-knopka{font-size:clamp(17px, 2.15cqw, 30px);
+    padding:clamp(9px, 1.2cqw, 16px) clamp(15px, 2cqw, 28px);
+    border-radius:clamp(10px, 1cqw, 14px)}
+  a.vybor-zakryt{width:clamp(36px, 4cqw, 52px); height:clamp(36px, 4cqw, 52px)}
+  a.vybor-zakryt svg{width:clamp(18px, 2cqw, 26px); height:clamp(18px, 2cqw, 26px)}
+}
+@container (min-width: 560px){
+  .pleyer-vybor{
+    /* Карточка возврата ложится на кадр и должна быть поверх всего,
+       что на кадре есть, — в том числе поверх кнопки плейлиста
+       (z-index 6). Иначе на узком кадре её кнопки оказывались под
+       ней и нажать их было нельзя. */
+    position:absolute; inset:0; z-index:7; margin-top:0;
+    align-items:center; overflow:auto;
+    padding:clamp(14px, 2cqw, 26px) clamp(16px, 2.2cqw, 30px);
+    border-radius:18px;
+    background:linear-gradient(180deg, rgba(10,13,18,.5), rgba(10,13,18,.86));
+  }
 }
 .vybor-tekst{
-  font-size:32px; font-weight:600; color:#f3f5f9; line-height:1.2;
+  font-size:clamp(18px, 2.2vw, 32px);
+  font-weight:600; color:#f3f5f9; line-height:1.2;
   hyphens:manual; overflow-wrap:break-word;
+  padding-right:clamp(40px, 4.4vw, 60px); /* место под крестик */
 }
-.vybor-knopki{display:flex; gap:16px; flex-wrap:wrap}
+.vybor-knopki{display:flex; gap:clamp(10px, 1.2vw, 16px); flex-wrap:wrap}
 a.vybor-knopka{
-  display:inline-block; text-decoration:none; border-radius:14px;
-  padding:16px 28px; font-size:30px; font-weight:700;
+  display:inline-block; text-decoration:none; border-radius:clamp(10px, 1vw, 14px);
+  padding:clamp(9px, 1.2vw, 16px) clamp(15px, 2vw, 28px);
+  font-size:clamp(17px, 2.15vw, 30px); font-weight:700;
   background:#ffd23f; color:#12161c; border:4px solid transparent;
+  /* Кнопка не шире своей карточки: на узком окне кадр сжимается до
+     полоски, и кнопка, выставленная по ширине текста, вылезала за
+     карточку — её накрывала ручка открытой панели плейлиста.
+     Текст в этом случае переносится, кнопка остаётся кликабельной. */
+  min-width:0; max-width:100%; white-space:normal; overflow-wrap:break-word;
+  text-align:center;
 }
 a.vybor-knopka.vtoraya{
   background:#2b3543; color:#f3f5f9; font-weight:600;
+}
+/* Крестик уведомления — в правом верхнем углу карточки, иконкой:
+   слова «Закрыть» там не пишем, как и у панелей. Убирает карточку,
+   кадр остаётся на паузе. В покое спокойный, жёлтый — на наведении. */
+a.vybor-zakryt{
+  position:absolute; top:clamp(8px, .9vw, 12px); right:clamp(8px, .9vw, 12px);
+  display:flex; align-items:center; justify-content:center;
+  width:clamp(36px, 4vw, 52px); height:clamp(36px, 4vw, 52px);
+  border-radius:clamp(10px, 1vw, 14px); color:#c9d2df;
+  border:3px solid transparent; text-decoration:none;
+}
+a.vybor-zakryt svg{width:clamp(18px, 2vw, 26px); height:clamp(18px, 2vw, 26px)}
+a.vybor-zakryt:hover, a.vybor-zakryt:focus, a.vybor-zakryt:focus-visible{
+  outline:none; border-color:#ffd23f; background:#202836; color:#f3f5f9;
 }
 a.vybor-knopka:focus, a.vybor-knopka:hover{
   outline:none; border-color:#f3f5f9;
   box-shadow:0 0 0 6px rgba(255,210,63,.28);
 }
-/* Список плейлиста живёт внутри области прокрутки панели. */
+/* Пункт плейлиста — просто текст, как и название плейлиста над ним.
+   Ни подложки, ни жёлтой полосы слева, ни рамки: это строка списка,
+   а не кнопка. Синим не делаем никогда: цвет наш, серый.
+   Место под жёлтую чёрточку оставлено у КАЖДОЙ строки (прозрачная
+   полоса слева), поэтому играющий пункт встаёт на своё место и список
+   от него не сдвигается ни на пиксель. */
 a.trek{
   display:flex; align-items:baseline; gap:18px; text-decoration:none;
-  color:#f3f5f9; background:#1b212b; border-radius:14px;
-  border-left:6px solid #ffd23f; padding:16px 22px; margin-bottom:10px;
+  color:#c9d2df; background:none;
+  border:0; border-left:6px solid transparent; border-radius:12px;
+  padding:11px 16px;
   hyphens:manual; overflow-wrap:break-word;
 }
-a.trek:hover, a.trek:focus{background:#2c3745; outline:3px solid #ffd23f}
-.trek-nomer{flex:0 0 auto; min-width:96px; font-size:30px; font-weight:700;
-            color:#ffd23f}
+/* Наведение и фокус — серая подложка, как в прежнем проекте: строка
+   заметно отзывается, но слабее играющей. */
+a.trek:hover, a.trek:focus, a.trek:focus-visible{
+  background:#1b212b; outline:none; color:#f3f5f9;
+}
+/* На пульте указателя нет: там «где я» показывает фокус. У него жёлтая
+   обводка — как у плашек и кнопок. Мышью обводки не видно.
+   Играющий пункт от фокуса отличается: у него жёлтая чёрточка. */
+a.trek:focus-visible{outline:3px solid #ffd23f; outline-offset:0}
+.trek-nomer{
+  flex:0 0 auto; min-width:96px; font-size:28px; color:#8b95a5;
+  line-height:1.25;
+}
 .trek-tema{flex:1 1 auto; min-width:0; font-size:28px; line-height:1.25}
-a.trek.aktiven{background:#3d4c5f; border-color:#ffd23f}
+/* ИГРАЮЩИЙ пункт — единственная строка, которая выглядит плашкой:
+   серая подложка, жёлтый номер параграфа и жёлтая чёрточка слева
+   (полоса 6 px, скругление 12 px — как у строки в панели плейлиста).
+   Остальные строки остаются простым текстом. */
+a.trek.aktiven{
+  background:#232c38; border-left-color:#ffd23f; color:#f3f5f9;
+}
+a.trek.aktiven .trek-nomer{color:#ffd23f}
 /* Заголовок группы («Глава I. Первобытное общество») — подпись к идущим
    за ним пунктам. Он серый, как название учебника: его видно, но он не
    спорит с пунктами и не сбивает с ориентировки. От текста до верхней
    плашки 24 px, до нижней — 20 px. */
 .trek-gruppa{
-  font-size:24px; color:#8b95a5; margin:24px 0 20px; padding-left:4px;
+  /* Отступ тот же, что у текста строк: 6 px прозрачной полосы + 16 px
+     внутреннего поля. Заголовок главы стоит ровно над темами. */
+  font-size:24px; color:#8b95a5; margin:24px 0 20px; padding-left:22px;
   hyphens:manual; overflow-wrap:break-word;
 }
 .trek-gruppa:first-child{margin-top:0}
+
+/* ---- Строка списка В ПАНЕЛИ ПЛЕЙЛИСТА — прежнее оформление ----
+   У панели справа свой вид, и он остаётся: у каждого пункта плашка,
+   жёлтый номер параграфа и жёлтая полоса слева. Простой текст — это
+   список ПОД КАДРОМ и боковое меню (правило выше), панели оно не
+   касается: так и было решено. */
+#pleylist-panel a.trek{
+  gap:20px;
+  background:#1b212b;
+  border-left:6px solid #ffd23f;
+  border-radius:12px;
+  padding:13px 18px;
+  margin:0 0 11px;
+  color:#f3f5f9;
+}
+/* Наведение и фокус — плашка чуть светлее, текст белее. Синим не
+   подсвечиваем и здесь. */
+#pleylist-panel a.trek:hover, #pleylist-panel a.trek:focus,
+#pleylist-panel a.trek:focus-visible{
+  background:#232c38; outline:none; color:#ffffff;
+}
+#pleylist-panel a.trek:focus-visible{outline:3px solid #ffd23f}
+/* Играющий пункт — плашка светлее остальных. */
+#pleylist-panel a.trek.aktiven{background:#232c38}
+/* Колонка номера — 100 px, как было: после неё тема начинается на
+   одном и том же месте во всех строках, длинный номер колонку
+   растягивает («45 мин» шире сотни). */
+#pleylist-panel .trek-nomer{
+  min-width:100px; font-size:30px; font-weight:700; line-height:1.3;
+  color:#ffd23f;
+}
+#pleylist-panel .trek-tema{font-size:28px; line-height:1.3}
+#pleylist-panel .trek-gruppa{padding-left:23px}
 
 /* ---- кнопки-иконки: эталон — Tilda Icons ---- */
 .pravo{margin-left:auto; display:flex; align-items:center; gap:14px}
@@ -363,19 +520,25 @@ a.panel-zakryt{
 }
 a.panel-zakryt svg{width:32px; height:32px; display:block}
 a.panel-zakryt:focus, a.panel-zakryt:hover{border-color:#ffd23f; background:#202836}
+/* Пункты меню — тот же стандарт, что и пункты плейлиста: строка это
+   простой текст, при наведении серая подложка, а страница, на которой
+   мы сейчас, отмечена подложкой и жёлтой чёрточкой слева. Место под
+   чёрточку оставлено у всех строк, поэтому отметка ничего не сдвигает. */
 a.panel-plitka{
-  display:block; background:#1b212b; border-radius:14px;
-  border-left:6px solid #ffd23f; padding:18px 22px; margin-bottom:12px;
-  color:#f3f5f9; text-decoration:none; font-size:29px;
+  display:block; background:none;
+  border:0; border-left:6px solid transparent; border-radius:12px;
+  padding:10px 16px; margin-bottom:2px;
+  color:#c9d2df; text-decoration:none; font-size:30px;
   overflow-wrap:break-word;
 }
-a.panel-plitka:focus, a.panel-plitka:hover{
-  background:#2c3745; outline:3px solid #ffd23f; outline-offset:0;
+a.panel-plitka:focus, a.panel-plitka:hover, a.panel-plitka:focus-visible{
+  background:#1b212b; outline:none; color:#f3f5f9;
 }
+a.panel-plitka:focus-visible{outline:3px solid #ffd23f; outline-offset:0}
 a.panel-plitka.tuskly{font-size:25px; color:#98a2b3}
-a.panel-plitka.tekushchiy{background:#2c3745; border-left-color:#f3f5f9;
-                          color:#ffd23f}
-.panel-razd{height:2px; background:#2a3340; margin:22px 4px}
+a.panel-plitka.tekushchiy{
+  background:#232c38; border-left-color:#ffd23f; color:#f3f5f9;
+}
 
 /* ---- выбор класса: раскрывающийся список в меню ----
    Обычный details/summary: работает и без javascript, на пульте
@@ -392,7 +555,10 @@ summary.klass-knopka{
 summary.klass-knopka::-webkit-details-marker{display:none}
 summary.klass-knopka > span:first-child{flex:1 1 auto; min-width:0}
 /* Рамки на фокусе нет: при открытии меню фокус встаёт на название
-   класса, и жёлтая обводка превращала простой текст в кнопку. */
+   класса, и браузер рисовал вокруг него свой прямоугольник — строка
+   выглядела плашкой с обводкой. При наведении название чуть ярче. */
+summary.klass-knopka:focus, summary.klass-knopka:focus-visible{outline:none}
+summary.klass-knopka:hover{color:#f3f5f9}
 .strela{flex:0 0 auto; display:flex; color:inherit; transition:transform .15s}
 .strela svg{width:34px; height:34px; display:block}
 details.vybor-klassa[open] .strela{transform:rotate(180deg)}
@@ -401,13 +567,12 @@ details.vybor-klassa[open] .strela{transform:rotate(180deg)}
    полосы слева, ни рамки. Отличаются только цветом: текущий класс
    такой же яркий, как название сверху, остальные — приглушённые. */
 .klass-spisok a.panel-plitka{
-  background:none; border:0; border-radius:0; padding:6px 2px;
-  margin-bottom:6px; font-size:30px; color:#98a2b3;
+  padding:7px 2px; margin-bottom:2px; font-size:30px; color:#98a2b3;
 }
 .klass-spisok a.panel-plitka:hover,
-.klass-spisok a.panel-plitka:focus{background:none; outline:none;
-                                   color:#f3f5f9}
-.klass-spisok a.panel-plitka.tekushchiy{background:none; color:#f3f5f9}
+.klass-spisok a.panel-plitka:focus,
+.klass-spisok a.panel-plitka:focus-visible{background:#1b212b; outline:none;
+                                           color:#f3f5f9}
 
 
 /* ---- баннер лекций: полоса во всю ширину страницы предмета ----
@@ -452,8 +617,11 @@ a.banner-igrat{margin-left:auto; color:#ffd23f; border-color:#ffd23f}
 }
 .banner-spiski{margin-top:22px}
 .banner-nabor{
-  display:grid; grid-template-columns:1fr 1fr; gap:2px 34px;
-  margin:0; padding:0; list-style:none;
+  /* minmax(0, 1fr), а не 1fr: у колонки с длинной строкой своя
+     наименьшая ширина, и «1fr» её не отменяет — на узком экране
+     сетка вылезала за кадр. */
+  display:grid; grid-template-columns:repeat(2, minmax(0, 1fr));
+  gap:2px 34px; margin:0; padding:0; list-style:none;
 }
 .banner-nabor[hidden]{display:none}
 a.banner-trek{
@@ -466,14 +634,46 @@ a.banner-trek .bt-vremya{
   flex:0 0 auto; min-width:136px; color:#8b95a5; font-size:21px;
   white-space:nowrap;
 }
-a.banner-trek .bt-tema{flex:1 1 auto; hyphens:manual}
+a.banner-trek .bt-tema{flex:1 1 auto; min-width:0; hyphens:manual; overflow-wrap:break-word}
 a.banner-trek:focus, a.banner-trek:hover{outline:none; color:#f3f5f9}
 a.banner-trek.aktiven{color:#f3f5f9}
-a.banner-trek.aktiven .bt-vremya{color:#ffd23f}
+/* Активная лекция отличается только цветом строки — как и в списках
+   под кадром. Жёлтое время было единственной подсветкой в баннере и
+   спорило с их стандартом, поэтому его убрали. */
+
+/* Узкий экран: подборки встают в один столбик — как и плашки, которые
+   с горизонтального планшета идут по одной в ряд. Иначе строки лекций
+   не влезают и тянут страницу вбок. */
+@media (max-width:959px){
+  .banner{padding:20px 22px 22px; border-radius:20px}
+  .banner-nazv{font-size:30px}
+  .banner-podpis{font-size:21px}
+  .banner-nabor{grid-template-columns:minmax(0, 1fr)}
+  a.banner-trek{font-size:22px; gap:12px}
+  a.banner-trek .bt-vremya{min-width:0; font-size:19px}
+  /* Кнопка подборки уступает кадру так же, как кнопки в строках:
+     длинное название переносится, а не вылезает за край. */
+  a.banner-knopka, a.banner-igrat{font-size:21px;
+                                  white-space:normal; max-width:100%}
+  .banner-knopki{min-width:0}
+}
 /* Плитки под баннером: воздух больше, чем между самими плитками. */
 .setka.posle-bannera{margin-top:64px}
 
-h1{font-size:50px; margin:0 0 8px; letter-spacing:-.01em}
+/* ---- кто учится и зачем ----
+   Маленькая строка под путём, выше учебника: имя и цель с главного
+   экрана. Она не заголовок страницы — тот большой, — а напоминание:
+   видно на каждой странице, в том числе когда смотришь видео. Ничего
+   не выдумываем: имя и цель человек написал сам, пусто — строки нет. */
+.imya-stroka{
+  margin:2px 0 0; padding:0 4px;
+  font-size:24px; color:#8b95a5;
+  hyphens:manual; overflow-wrap:break-word;
+}
+.imya-stroka b{font-weight:600; color:#c9d2df}
+
+h1{font-size:50px; margin:0 0 8px; letter-spacing:-.01em;
+   hyphens:manual; overflow-wrap:break-word}
 .pod{color:#98a2b3; font-size:26px; margin:0 0 10px}
 .podskazka{
   background:#16202b; border-left:8px solid #ffd23f; color:#dbe3ee;
@@ -488,15 +688,9 @@ h3{
 }
 
 /* ---- плитки: горизонтальные, как на телевизоре ----
-   Сетка, а не столбик: при сужении окна лишние плитки сами
-   перескакивают на следующую строку. */
-.setka{
-  display:grid;
-  grid-template-columns:repeat(auto-fit, minmax(320px, 520px));
-  justify-content:start;
-  gap:24px; margin-top:26px;
-  --polosa:18px; --radius:22px;
-}
+   Сколько плашек в ряд и какого они размера — записано в одном месте:
+   Инструменты/разметка.py; оттуда этот блок собирается при сборке
+   (см. ниже, `setka_css`). Модели экрана — в РАЗМЕТКА.md. */
 a.plitka{
   /* --fon-kart — нижний слой фона; подсветка меняет только его, поэтому
      обложка учебника и жёлтая полоса остаются на месте. */
@@ -574,7 +768,52 @@ a.plitka.klass .nazv .chislo{
 a.plitka.klass .nazv .slovo{
   font-size:34px; font-weight:600; color:#98a2b3; letter-spacing:.02em;
 }
-.setka.klassy{grid-template-columns:repeat(auto-fit, minmax(380px, 1fr))}
+/* Классные плашки — та же общая сетка: у плашек одного размера нет
+   причин задавать свой шаг. */
+
+/* РАСКЛАДКА ПЛАШЕК — собрана из Инструменты/разметка.py.
+   Здесь не править: при сборке блок перезаписывается.
+   Модели экрана — в РАЗМЕТКА.md. */
+.setka{display:grid; margin-top:26px; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:24px; --polosa:18px; --radius:22px}
+a.plitka{aspect-ratio:16 / 9; padding:24px 26px 24px calc(var(--polosa) + 28px)}
+a.plitka .nazv{font-size:36px}
+a.plitka .poyas{font-size:20px}
+a.plitka.klass .nazv .chislo{font-size:clamp(110px, 12vw, 186px)}
+@media (max-width:1199px){
+  /* планшет горизонтальный: 2 в ряд */
+  .setka{grid-template-columns:repeat(2, minmax(0, 1fr)); gap:20px; --polosa:16px; --radius:18px}
+  a.plitka{aspect-ratio:16 / 9; padding:22px 24px 22px calc(var(--polosa) + 26px)}
+  a.plitka .nazv{font-size:36px}
+  a.plitka .poyas{font-size:18px}
+  a.plitka.klass .nazv .chislo{font-size:clamp(110px, 12vw, 186px)}
+}
+@media (max-width:959px){
+  /* планшет вертикальный: 2 в ряд */
+  .setka{grid-template-columns:repeat(2, minmax(0, 1fr)); gap:18px; --polosa:13px; --radius:14px}
+  a.plitka{aspect-ratio:16 / 9; padding:20px 22px 20px calc(var(--polosa) + 24px)}
+  a.plitka .nazv{font-size:28px}
+  a.plitka .poyas{font-size:15px}
+  a.plitka.klass .nazv .chislo{font-size:clamp(70px, 11vw, 150px)}
+}
+@media (max-width:639px){
+  /* телефоны горизонтальные: 1 в ряд */
+  .setka{grid-template-columns:repeat(1, minmax(0, 1fr)); gap:16px; --polosa:13px; --radius:14px}
+  a.plitka{aspect-ratio:16 / 9; padding:22px 24px 22px calc(var(--polosa) + 26px)}
+  a.plitka .nazv{font-size:32px}
+  a.plitka .poyas{font-size:17px}
+  a.plitka.klass .nazv .chislo{font-size:clamp(80px, 30vw, 186px)}
+}
+@media (max-width:479px){
+  /* телефоны вертикальные: 1 в ряд */
+  .setka{grid-template-columns:repeat(1, minmax(0, 1fr)); gap:16px; --polosa:13px; --radius:14px}
+  a.plitka{aspect-ratio:4 / 3; padding:22px 24px 22px calc(var(--polosa) + 26px)}
+  a.plitka .nazv{font-size:32px}
+  a.plitka .poyas{font-size:17px}
+  a.plitka.klass .nazv .chislo{font-size:clamp(80px, 30vw, 186px)}
+}
+/* Собранный CSS стоит последним в разделе плашек: базовые правила
+   (a.plitka .nazv и прочие) идут выше, поэтому ступени размеров их
+   перебивают — иначе размер оставался бы десктопным на телефоне. */
 
 /* ---- строки со ссылками на самих страницах материалов ---- */
 .stroka{
@@ -597,17 +836,22 @@ a.knopka:focus, a.knopka:hover, a.knopka:active{
   outline:none; border-color:#ffd23f; background:#3d4c5f;
 }
 .stroka.net .tema .chto{color:#7d8695}
+/* На узком экране кнопка уступает кадру: длинная надпись переносится
+   по словам, а не вылезает за край и не тянет страницу вбок. */
+@media (max-width:959px){
+  /* overflow-wrap: длинное слово без пробелов (адрес сайта в кнопке)
+     иначе вылезает за кнопку и тянет страницу вбок. */
+  a.knopka{white-space:normal; max-width:100%; flex:0 1 auto; min-width:0;
+           overflow-wrap:break-word}
+  .knopki{min-width:0; max-width:100%}
+}
 
 .niz{margin-top:44px; color:#6f7887; font-size:22px; line-height:1.5}
-@media (max-width:1100px){
+/* Планшет вертикальный и уже: та же контрольная точка 960, что
+   у Тильды, — новых порогов не заводим (РАЗМЕТКА.md). */
+@media (max-width:959px){
   body{font-size:26px; --panel-shirina:min(400px, 64vw)}
   h1{font-size:40px}
-  a.plitka .nazv{font-size:32px}
-  .setka{grid-template-columns:repeat(auto-fit, minmax(240px, 380px));
-         gap:18px; --polosa:13px; --radius:14px}
-  a.plitka{min-height:120px}
-  a.plitka .nazv{font-size:28px}
-  a.plitka .poyas{font-size:17px}
   a.tumbler.ikonka svg{width:28px; height:28px}
   .stroka{flex-wrap:wrap; gap:14px}
   .nomer{flex:0 0 auto; min-width:88px; font-size:28px}
@@ -628,8 +872,9 @@ a.knopka:focus, a.knopka:hover, a.knopka:active{
 <span class="pravo"><a class="tumbler ikonka" id="pin" href="#" aria-label="Закрепить"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 17v5"/><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z"/></svg></a><a class="tumbler ikonka" href="#panel" aria-label="Меню" onclick="return shkMenu()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16"/><path d="M4 12h16"/><path d="M4 17h16"/></svg></a></span>
 </nav>
 <div class="put-stroka"><span class="zdes">8 класс</span></div>
+<div class="imya-stroka" id="imya-stroka" hidden></div>
 
-<aside class="panel" id="panel"><div class="panel-verh"><details class="vybor-klassa"><summary class="klass-knopka"><span>8 класс</span><span class="strela"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 9l7 7 7-7"/></svg></span></summary><div class="klass-spisok"><a class="panel-plitka" href="5 класс.html">5 класс</a><a class="panel-plitka" href="7 класс.html">7 класс</a><a class="panel-plitka tekushchiy" href="8 класс.html">8 класс</a></div></details><a class="panel-zakryt" href="#" aria-label="Закрыть" onclick="return shkPanel(false)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6.5 6.5l11 11"/><path d="M17.5 6.5l-11 11"/></svg></a></div><div class="panel-telo"><div class="panel-razd"></div><a class="panel-plitka" href="8 класс/Алгебра.html">Алгебра</a><a class="panel-plitka" href="8 класс/Геометрия.html">Геометрия</a></div></aside><div class="panel-tyanulka menyu" tabindex="0" role="separator" aria-orientation="vertical" aria-label="Изменить ширину" onkeydown="return shkTyan(event)"></div>
+<aside class="panel" id="panel"><div class="panel-verh"><details class="vybor-klassa"><summary class="klass-knopka"><span>8 класс</span><span class="strela"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 9l7 7 7-7"/></svg></span></summary><div class="klass-spisok"><a class="panel-plitka" href="5 класс.html">5 класс</a><a class="panel-plitka" href="7 класс.html">7 класс</a><a class="panel-plitka tekushchiy" href="8 класс.html">8 класс</a></div></details><a class="panel-zakryt" href="#" aria-label="Закрыть" onclick="return shkPanel(false)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6.5 6.5l11 11"/><path d="M17.5 6.5l-11 11"/></svg></a></div><div class="panel-telo"><a class="panel-plitka" href="8 класс/Алгебра.html">Алгебра</a><a class="panel-plitka" href="8 класс/Геометрия.html">Геометрия</a></div></aside><div class="panel-tyanulka menyu" tabindex="0" role="separator" aria-orientation="vertical" aria-label="Изменить ширину" onkeydown="return shkTyan(event)"></div>
 
 <div class="setka"><a class="plitka s-kartinkoy" href="8 класс/Алгебра.html" style="--kartinka:url('Фоны/Алгебра.jpg')"><span class="nazv">Алгебра</span><span class="zamena">Алгебра. 8 класс</span></a><a class="plitka s-kartinkoy" href="8 класс/Геометрия.html" style="--kartinka:url('Фоны/Геометрия.jpg')"><span class="nazv">Геометрия</span><span class="zamena">Геометрия. 7—9 классы</span></a></div>
 
@@ -665,8 +910,12 @@ a.knopka:focus, a.knopka:hover, a.knopka:active{
     if(otkryt){
       b.classList.add('menu-otkryto');
       b.classList.remove('pleylist-otkryto');
+      /* Фокус встаёт на первую строку списка — и в меню, и в плейлисте
+         одинаково. Крестик закрытия при открытии не подсвечивается
+         нигде: раньше в меню фокус шёл на название класса, а в панели
+         плейлиста на первый пункт, и крестики выглядели по-разному. */
       var p=document.getElementById('panel');
-      var perv=p && p.querySelector('summary, .panel-plitka');
+      var perv=p && p.querySelector('.panel-telo a');
       if(perv) perv.focus();
     } else {
       b.classList.remove('menu-otkryto');
@@ -679,7 +928,7 @@ a.knopka:focus, a.knopka:hover, a.knopka:active{
       b.classList.add('pleylist-otkryto');
       b.classList.remove('menu-otkryto');
       var p=document.getElementById('pleylist-panel');
-      var perv=p && p.querySelector('.trek, .panel-zakryt');
+      var perv=p && p.querySelector('.panel-telo a');
       if(perv) perv.focus();
     } else {
       b.classList.remove('pleylist-otkryto');
@@ -730,8 +979,13 @@ a.knopka:focus, a.knopka:hover, a.knopka:active{
      Одна и та же у меню и у плейлиста: потянули за кромку — панель
      шире или уже, с пульта то же самое стрелками. Ширина запоминается
      в браузере, как и урок. */
-  function panel_min(){ return 300; }
+  function panel_min(){ return (window.innerWidth < 640) ? 240 : 300; }
   function panel_max(){
+    /* На телефоне панель занимает почти весь кадр: полоска 40 px
+       остаётся, чтобы видеть, что закрывать. */
+    if(window.innerWidth < 640){
+      return Math.max(panel_min(), Math.min(420, window.innerWidth - 40));
+    }
     return Math.max(panel_min() + 40,
                     Math.min(900, window.innerWidth - 320));
   }
@@ -800,6 +1054,33 @@ a.knopka:focus, a.knopka:hover, a.knopka:active{
     poleCeli.addEventListener('input', shirinaCeli);
     window.addEventListener('resize', shirinaCeli);
   }
+
+  /* ---- кто учится и зачем ----
+     Строка под путём на каждой странице. Имя и цель человек написал сам
+     на главном экране, здесь мы их только читаем из памяти браузера:
+     ничего не выдумываем и ничего не дописываем. Ни того, ни другого
+     нет — строки на странице тоже нет. */
+  function imya_stroka(){
+    var stroka=document.getElementById('imya-stroka');
+    if(!stroka){ return; }
+    /* На главном экране эти же имя и цель стоят полями — там строка
+       была бы повторением. */
+    if(document.getElementById('imya')){ stroka.hidden=true; return; }
+    var imya='', cel='';
+    try{
+      imya=(localStorage.getItem('shkola.imya')||'').trim();
+      cel=(localStorage.getItem('shkola.tsel')||'').trim();
+    }catch(e){}
+    if(!imya && !cel){ stroka.hidden=true; return; }
+    /* Цель читается как «Хочу …»: если так уже написано — не повторяем. */
+    if(cel && !/^хочу/i.test(cel)){ cel='Хочу '+cel; }
+    var kuski=[];
+    if(imya){ kuski.push('<b>'+imya+'</b>'); }
+    if(cel){ kuski.push(cel); }
+    stroka.innerHTML=kuski.join(' · ');
+    stroka.hidden=false;
+  }
+  imya_stroka();
 
   var polya=[['imya', 'shkola.imya'], ['tsel', 'shkola.tsel']];
   for(var p=0; p<polya.length; p++){

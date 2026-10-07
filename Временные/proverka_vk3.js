@@ -1,6 +1,6 @@
 // Разбираемся с кадром VK Видео: что он показывает, появляется ли <video>
 // после нажатия «играть», идёт ли время. RuTube для сравнения.
-const { chromium } = require('playwright');
+const { chromium } = require('./плейрайт.js');
 const http = require('http');
 
 const kadry = [

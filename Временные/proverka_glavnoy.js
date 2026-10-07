@@ -1,5 +1,5 @@
 const path = require('path');
-const { chromium } = require('playwright');
+const { chromium } = require('./плейрайт.js');
 (async () => {
   const b = await chromium.launch();
   const p = await b.newPage({ viewport: { width: 1920, height: 1080 } });

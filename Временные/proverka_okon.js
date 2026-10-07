@@ -1,7 +1,7 @@
 // Ошибки в настоящем браузере: консоль и необработанные исключения.
 //   node Временные/proverka_okon.js
 const fs = require('fs'), path = require('path');
-const { chromium } = require('playwright');
+const { chromium } = require('./плейрайт.js');
 const stranicy = [];
 (function obhod(d) {
   for (const f of fs.readdirSync(d)) {

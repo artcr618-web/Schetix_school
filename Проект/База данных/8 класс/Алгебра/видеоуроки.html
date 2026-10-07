@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=1280, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Алгебра, 8 класс: видеоуроки</title>
 <style>
 :root{
@@ -10,6 +10,9 @@
   --tekst:#f3f5f9; --tuskly:#98a2b3; --knopka:#2b3543; --knopka-focus:#3d4c5f;
 }
 *{box-sizing:border-box}
+/* Ниже 320 px страница не ужимается: это нижний артборд Тильды.
+   Окно уже — появится боковая прокрутка, но вёрстка не поедет. */
+html{min-width:320px}
 html{-webkit-text-size-adjust:100%}
 body{
   /* --panel-shirina — сколько места освобождается справа, когда меню
@@ -22,7 +25,11 @@ body{
   transition:padding-right .32s ease;
 }
 body.menu-otkryto{padding-right:var(--panel-shirina)}
-.wrap{max-width:1500px; margin:0 auto; padding:22px 44px}
+.wrap{max-width:1500px; margin:0 auto;
+  /* Поля по краям: на широком экране 44 px, на телефоне 20 px
+     (см. POLYA в Инструменты/разметка.py). Плашка занимает всю
+     строку, и на телефоне широкие поля съедали бы четверть кадра. */
+  padding:22px clamp(20px, 4vw, 44px)}
 
 /* ---- шапка, одинаковая на всех страницах ---- */
 nav.verh{
@@ -86,7 +93,7 @@ a.tumbler.net{background:#22262c; color:#7d8695}
 .privet input[type="text"]:focus{outline:none}
 .privet-tsel{
   display:flex; justify-content:center; align-items:baseline;
-  gap:14px; margin-top:10px;
+  gap:14px; margin-top:10px; max-width:100%;
 }
 .privet-tsel .privet-slovo{
   flex:0 0 auto; color:#8b95a5; font-weight:400;
@@ -102,7 +109,11 @@ a.tumbler.net{background:#22262c; color:#7d8695}
   font-size:clamp(23px, 2.3vw, 31px);
 }
 .privet input#tsel{
-  flex:0 0 auto; width:20px; padding:4px 2px; text-align:left;
+  /* Ширину считает скрипт по тексту, поэтому поле СЖИМАЕМОЕ: на узком
+     экране строка цели не влезает целиком, и поле уступает первым —
+     иначе оно вылезало за кадр и страница уезжала вбок. Раскрытое
+     до конца поле по-прежнему показывает всю надпись. */
+  flex:0 1 auto; min-width:0; width:20px; padding:4px 2px; text-align:left;
   font-weight:400; font-size:clamp(23px, 2.3vw, 31px); color:#dbe3ee;
 }
 .privet + .setka{margin-top:46px}
@@ -149,6 +160,12 @@ details.kniga-stroka[open] .strela{transform:rotate(180deg)}
   font-size:27px; font-weight:600; color:#f3f5f9; line-height:1.2;
   hyphens:manual; overflow-wrap:break-word;
 }
+/* На узком экране обложка встаёт над описанием: рядом они не помещаются,
+   и обложка выдавливала текст в столбик шириной в пару букв. */
+@media (max-width:959px){
+  .kn-kartochka{flex-direction:column; gap:14px}
+  .kn-kartochka img{width:150px}
+}
 .kn-kavt{font-size:23px; color:#98a2b3; line-height:1.3}
 
 /* ---- обложка учебника — фон всей плашки ----
@@ -191,7 +208,13 @@ a.plitka.s-kartinkoy{
   background:linear-gradient(165deg,#171f2a 0%,#0f141b 100%);
   border-radius:18px; overflow:hidden;
 }
-.pleyer-ramka{position:absolute; inset:0; width:100%; height:100%; border:0}
+.pleyer-ramka{border:0}
+/* Растягиваем на весь блок только кадр большого плеера. Баннерный кадр
+   носит тот же класс — по нему его находит восстановление позиции, —
+   но живёт в обычном потоке: абсолютный кадр в баннере не имел
+   позиционированного предка и накрывал собой всю страницу: сверху
+   чернел экран, а нажатия по списку лекций доставались кадру. */
+.pleyer .pleyer-ramka{position:absolute; inset:0; width:100%; height:100%}
 /* Кнопки вариантов плейлиста — под плеером. Появляются, только когда
    вариантов больше одного: уроки по параграфам, короткие пересказы,
    разборы домашних заданий, повторение. */
@@ -217,7 +240,10 @@ summary.pl-imya{
 summary.pl-imya::-webkit-details-marker{display:none}
 summary.pl-imya::marker{content:''}
 summary.pl-imya .pl-nazv{flex:1 1 auto; min-width:0}
-summary.pl-imya:focus{outline:3px solid #f3f5f9; outline-offset:2px}
+/* Рамки на фокусе нет: открытый плейлист и без неё видно (название
+   ярче остальных), а жёсткая белая рамка превращала строку в кнопку. */
+summary.pl-imya:focus, summary.pl-imya:focus-visible{outline:none}
+summary.pl-imya:hover{color:#f3f5f9}
 summary.pl-imya .strela svg{width:30px; height:30px}
 details.pl-blok[open] > summary.pl-imya .strela{transform:rotate(180deg)}
 .pl-blok.aktiven > summary.pl-imya{color:#f3f5f9}
@@ -230,7 +256,20 @@ details.pl-blok[open] > summary.pl-imya .strela{transform:rotate(180deg)}
    границах: та же ширина, тот же выезд, тот же крестик. Открывается
    сразу при входе на страницу видеоуроков. Вдвоём они не открываются:
    открыли меню — плейлист закрылся, и наоборот. */
-body.pleylist-otkryto{padding-right:var(--panel-shirina)}
+/* Полоса под ручку ширины: сама ручка стоит слева от панели и без
+   этого запаса накрывала бы содержимое страницы — на узком окне она
+   перекрывала даже кнопки уведомления над кадром. */
+body.pleylist-otkryto{padding-right:calc(var(--panel-shirina) + 10px)}
+
+/* На телефонах места на две колонки нет: панель занимает почти весь
+   кадр, а страница под ней не сжимается. Иначе на 320 px от страницы
+   осталась бы полоска в 40 px. Это единственная ширина, где прежнее
+   правило «панель не накрывает экран» невыполнимо: справа остаётся
+   полоска 40 px, за которую панель можно закрыть. */
+@media (max-width:639px){
+  body{--panel-shirina:min(420px, calc(100vw - 40px))}
+  body.menu-otkryto, body.pleylist-otkryto{padding-right:0}
+}
 #pleylist-panel{transform:translateX(100%); visibility:hidden;
   transition:transform .32s ease, visibility 0s linear .32s}
 body.pleylist-otkryto #pleylist-panel{transform:none; visibility:visible;
@@ -255,50 +294,168 @@ a.pleyer-knopka svg{width:34px; height:34px; display:block}
 a.pleyer-knopka:hover, a.pleyer-knopka:focus{
   border-color:#ffd23f; background:rgba(10,13,18,.92);
 }
-.pleyer-vybor{position:absolute; inset:auto 0 0 0; padding:0 22px 22px}
+/* ---- уведомление над кадром ----
+   Пока кадр достаточно широкий, карточка лежит ПОВЕРХ него: кадр
+   вставлен абсолютно и без этого рисовался выше неё — уведомление
+   «Вы остановились на параграфе…» было в разметке, а на экране нет.
+   Когда места мало (узкое окно или открытая панель), карточка уходит
+   ПОД кадр: над кадром шириной в ладонь она всё равно не читается.
+   Размеры считаем от ширины кадра, а не окна: страницу сдвигает
+   панель плейлиста, и окно о ней ничего не знает. */
+.pleyer-mesto{position:relative; container-type:inline-size}
+.pleyer-vybor{display:flex; justify-content:center; margin-top:16px}
+.pleyer-vybor .vybor-karta{width:100%; max-width:920px}
 .vybor-karta{
-  display:flex; flex-direction:column; gap:18px;
+  position:relative; min-width:0;
+  display:flex; flex-direction:column; gap:clamp(12px, 1.4vw, 18px);
   background:linear-gradient(180deg, rgba(10,13,18,.82), rgba(10,13,18,.96));
-  border-radius:16px; padding:22px 26px;
+  border-radius:16px;
+  padding:clamp(14px, 1.7vw, 22px) clamp(16px, 2vw, 26px);
+}
+@supports (width: 1cqw){
+  /* Там, где браузер знает ширину кадра, всё считается от неё. */
+  .vybor-karta{gap:clamp(12px, 1.4cqw, 18px);
+    padding:clamp(14px, 1.7cqw, 22px) clamp(16px, 2cqw, 26px)}
+  .vybor-tekst{font-size:clamp(18px, 2.3cqw, 32px)}
+  .vybor-knopki{gap:clamp(10px, 1.2cqw, 16px)}
+  a.vybor-knopka{font-size:clamp(17px, 2.15cqw, 30px);
+    padding:clamp(9px, 1.2cqw, 16px) clamp(15px, 2cqw, 28px);
+    border-radius:clamp(10px, 1cqw, 14px)}
+  a.vybor-zakryt{width:clamp(36px, 4cqw, 52px); height:clamp(36px, 4cqw, 52px)}
+  a.vybor-zakryt svg{width:clamp(18px, 2cqw, 26px); height:clamp(18px, 2cqw, 26px)}
+}
+@container (min-width: 560px){
+  .pleyer-vybor{
+    /* Карточка возврата ложится на кадр и должна быть поверх всего,
+       что на кадре есть, — в том числе поверх кнопки плейлиста
+       (z-index 6). Иначе на узком кадре её кнопки оказывались под
+       ней и нажать их было нельзя. */
+    position:absolute; inset:0; z-index:7; margin-top:0;
+    align-items:center; overflow:auto;
+    padding:clamp(14px, 2cqw, 26px) clamp(16px, 2.2cqw, 30px);
+    border-radius:18px;
+    background:linear-gradient(180deg, rgba(10,13,18,.5), rgba(10,13,18,.86));
+  }
 }
 .vybor-tekst{
-  font-size:32px; font-weight:600; color:#f3f5f9; line-height:1.2;
+  font-size:clamp(18px, 2.2vw, 32px);
+  font-weight:600; color:#f3f5f9; line-height:1.2;
   hyphens:manual; overflow-wrap:break-word;
+  padding-right:clamp(40px, 4.4vw, 60px); /* место под крестик */
 }
-.vybor-knopki{display:flex; gap:16px; flex-wrap:wrap}
+.vybor-knopki{display:flex; gap:clamp(10px, 1.2vw, 16px); flex-wrap:wrap}
 a.vybor-knopka{
-  display:inline-block; text-decoration:none; border-radius:14px;
-  padding:16px 28px; font-size:30px; font-weight:700;
+  display:inline-block; text-decoration:none; border-radius:clamp(10px, 1vw, 14px);
+  padding:clamp(9px, 1.2vw, 16px) clamp(15px, 2vw, 28px);
+  font-size:clamp(17px, 2.15vw, 30px); font-weight:700;
   background:#ffd23f; color:#12161c; border:4px solid transparent;
+  /* Кнопка не шире своей карточки: на узком окне кадр сжимается до
+     полоски, и кнопка, выставленная по ширине текста, вылезала за
+     карточку — её накрывала ручка открытой панели плейлиста.
+     Текст в этом случае переносится, кнопка остаётся кликабельной. */
+  min-width:0; max-width:100%; white-space:normal; overflow-wrap:break-word;
+  text-align:center;
 }
 a.vybor-knopka.vtoraya{
   background:#2b3543; color:#f3f5f9; font-weight:600;
+}
+/* Крестик уведомления — в правом верхнем углу карточки, иконкой:
+   слова «Закрыть» там не пишем, как и у панелей. Убирает карточку,
+   кадр остаётся на паузе. В покое спокойный, жёлтый — на наведении. */
+a.vybor-zakryt{
+  position:absolute; top:clamp(8px, .9vw, 12px); right:clamp(8px, .9vw, 12px);
+  display:flex; align-items:center; justify-content:center;
+  width:clamp(36px, 4vw, 52px); height:clamp(36px, 4vw, 52px);
+  border-radius:clamp(10px, 1vw, 14px); color:#c9d2df;
+  border:3px solid transparent; text-decoration:none;
+}
+a.vybor-zakryt svg{width:clamp(18px, 2vw, 26px); height:clamp(18px, 2vw, 26px)}
+a.vybor-zakryt:hover, a.vybor-zakryt:focus, a.vybor-zakryt:focus-visible{
+  outline:none; border-color:#ffd23f; background:#202836; color:#f3f5f9;
 }
 a.vybor-knopka:focus, a.vybor-knopka:hover{
   outline:none; border-color:#f3f5f9;
   box-shadow:0 0 0 6px rgba(255,210,63,.28);
 }
-/* Список плейлиста живёт внутри области прокрутки панели. */
+/* Пункт плейлиста — просто текст, как и название плейлиста над ним.
+   Ни подложки, ни жёлтой полосы слева, ни рамки: это строка списка,
+   а не кнопка. Синим не делаем никогда: цвет наш, серый.
+   Место под жёлтую чёрточку оставлено у КАЖДОЙ строки (прозрачная
+   полоса слева), поэтому играющий пункт встаёт на своё место и список
+   от него не сдвигается ни на пиксель. */
 a.trek{
   display:flex; align-items:baseline; gap:18px; text-decoration:none;
-  color:#f3f5f9; background:#1b212b; border-radius:14px;
-  border-left:6px solid #ffd23f; padding:16px 22px; margin-bottom:10px;
+  color:#c9d2df; background:none;
+  border:0; border-left:6px solid transparent; border-radius:12px;
+  padding:11px 16px;
   hyphens:manual; overflow-wrap:break-word;
 }
-a.trek:hover, a.trek:focus{background:#2c3745; outline:3px solid #ffd23f}
-.trek-nomer{flex:0 0 auto; min-width:96px; font-size:30px; font-weight:700;
-            color:#ffd23f}
+/* Наведение и фокус — серая подложка, как в прежнем проекте: строка
+   заметно отзывается, но слабее играющей. */
+a.trek:hover, a.trek:focus, a.trek:focus-visible{
+  background:#1b212b; outline:none; color:#f3f5f9;
+}
+/* На пульте указателя нет: там «где я» показывает фокус. У него жёлтая
+   обводка — как у плашек и кнопок. Мышью обводки не видно.
+   Играющий пункт от фокуса отличается: у него жёлтая чёрточка. */
+a.trek:focus-visible{outline:3px solid #ffd23f; outline-offset:0}
+.trek-nomer{
+  flex:0 0 auto; min-width:96px; font-size:28px; color:#8b95a5;
+  line-height:1.25;
+}
 .trek-tema{flex:1 1 auto; min-width:0; font-size:28px; line-height:1.25}
-a.trek.aktiven{background:#3d4c5f; border-color:#ffd23f}
+/* ИГРАЮЩИЙ пункт — единственная строка, которая выглядит плашкой:
+   серая подложка, жёлтый номер параграфа и жёлтая чёрточка слева
+   (полоса 6 px, скругление 12 px — как у строки в панели плейлиста).
+   Остальные строки остаются простым текстом. */
+a.trek.aktiven{
+  background:#232c38; border-left-color:#ffd23f; color:#f3f5f9;
+}
+a.trek.aktiven .trek-nomer{color:#ffd23f}
 /* Заголовок группы («Глава I. Первобытное общество») — подпись к идущим
    за ним пунктам. Он серый, как название учебника: его видно, но он не
    спорит с пунктами и не сбивает с ориентировки. От текста до верхней
    плашки 24 px, до нижней — 20 px. */
 .trek-gruppa{
-  font-size:24px; color:#8b95a5; margin:24px 0 20px; padding-left:4px;
+  /* Отступ тот же, что у текста строк: 6 px прозрачной полосы + 16 px
+     внутреннего поля. Заголовок главы стоит ровно над темами. */
+  font-size:24px; color:#8b95a5; margin:24px 0 20px; padding-left:22px;
   hyphens:manual; overflow-wrap:break-word;
 }
 .trek-gruppa:first-child{margin-top:0}
+
+/* ---- Строка списка В ПАНЕЛИ ПЛЕЙЛИСТА — прежнее оформление ----
+   У панели справа свой вид, и он остаётся: у каждого пункта плашка,
+   жёлтый номер параграфа и жёлтая полоса слева. Простой текст — это
+   список ПОД КАДРОМ и боковое меню (правило выше), панели оно не
+   касается: так и было решено. */
+#pleylist-panel a.trek{
+  gap:20px;
+  background:#1b212b;
+  border-left:6px solid #ffd23f;
+  border-radius:12px;
+  padding:13px 18px;
+  margin:0 0 11px;
+  color:#f3f5f9;
+}
+/* Наведение и фокус — плашка чуть светлее, текст белее. Синим не
+   подсвечиваем и здесь. */
+#pleylist-panel a.trek:hover, #pleylist-panel a.trek:focus,
+#pleylist-panel a.trek:focus-visible{
+  background:#232c38; outline:none; color:#ffffff;
+}
+#pleylist-panel a.trek:focus-visible{outline:3px solid #ffd23f}
+/* Играющий пункт — плашка светлее остальных. */
+#pleylist-panel a.trek.aktiven{background:#232c38}
+/* Колонка номера — 100 px, как было: после неё тема начинается на
+   одном и том же месте во всех строках, длинный номер колонку
+   растягивает («45 мин» шире сотни). */
+#pleylist-panel .trek-nomer{
+  min-width:100px; font-size:30px; font-weight:700; line-height:1.3;
+  color:#ffd23f;
+}
+#pleylist-panel .trek-tema{font-size:28px; line-height:1.3}
+#pleylist-panel .trek-gruppa{padding-left:23px}
 
 /* ---- кнопки-иконки: эталон — Tilda Icons ---- */
 .pravo{margin-left:auto; display:flex; align-items:center; gap:14px}
@@ -363,19 +520,25 @@ a.panel-zakryt{
 }
 a.panel-zakryt svg{width:32px; height:32px; display:block}
 a.panel-zakryt:focus, a.panel-zakryt:hover{border-color:#ffd23f; background:#202836}
+/* Пункты меню — тот же стандарт, что и пункты плейлиста: строка это
+   простой текст, при наведении серая подложка, а страница, на которой
+   мы сейчас, отмечена подложкой и жёлтой чёрточкой слева. Место под
+   чёрточку оставлено у всех строк, поэтому отметка ничего не сдвигает. */
 a.panel-plitka{
-  display:block; background:#1b212b; border-radius:14px;
-  border-left:6px solid #ffd23f; padding:18px 22px; margin-bottom:12px;
-  color:#f3f5f9; text-decoration:none; font-size:29px;
+  display:block; background:none;
+  border:0; border-left:6px solid transparent; border-radius:12px;
+  padding:10px 16px; margin-bottom:2px;
+  color:#c9d2df; text-decoration:none; font-size:30px;
   overflow-wrap:break-word;
 }
-a.panel-plitka:focus, a.panel-plitka:hover{
-  background:#2c3745; outline:3px solid #ffd23f; outline-offset:0;
+a.panel-plitka:focus, a.panel-plitka:hover, a.panel-plitka:focus-visible{
+  background:#1b212b; outline:none; color:#f3f5f9;
 }
+a.panel-plitka:focus-visible{outline:3px solid #ffd23f; outline-offset:0}
 a.panel-plitka.tuskly{font-size:25px; color:#98a2b3}
-a.panel-plitka.tekushchiy{background:#2c3745; border-left-color:#f3f5f9;
-                          color:#ffd23f}
-.panel-razd{height:2px; background:#2a3340; margin:22px 4px}
+a.panel-plitka.tekushchiy{
+  background:#232c38; border-left-color:#ffd23f; color:#f3f5f9;
+}
 
 /* ---- выбор класса: раскрывающийся список в меню ----
    Обычный details/summary: работает и без javascript, на пульте
@@ -392,7 +555,10 @@ summary.klass-knopka{
 summary.klass-knopka::-webkit-details-marker{display:none}
 summary.klass-knopka > span:first-child{flex:1 1 auto; min-width:0}
 /* Рамки на фокусе нет: при открытии меню фокус встаёт на название
-   класса, и жёлтая обводка превращала простой текст в кнопку. */
+   класса, и браузер рисовал вокруг него свой прямоугольник — строка
+   выглядела плашкой с обводкой. При наведении название чуть ярче. */
+summary.klass-knopka:focus, summary.klass-knopka:focus-visible{outline:none}
+summary.klass-knopka:hover{color:#f3f5f9}
 .strela{flex:0 0 auto; display:flex; color:inherit; transition:transform .15s}
 .strela svg{width:34px; height:34px; display:block}
 details.vybor-klassa[open] .strela{transform:rotate(180deg)}
@@ -401,13 +567,12 @@ details.vybor-klassa[open] .strela{transform:rotate(180deg)}
    полосы слева, ни рамки. Отличаются только цветом: текущий класс
    такой же яркий, как название сверху, остальные — приглушённые. */
 .klass-spisok a.panel-plitka{
-  background:none; border:0; border-radius:0; padding:6px 2px;
-  margin-bottom:6px; font-size:30px; color:#98a2b3;
+  padding:7px 2px; margin-bottom:2px; font-size:30px; color:#98a2b3;
 }
 .klass-spisok a.panel-plitka:hover,
-.klass-spisok a.panel-plitka:focus{background:none; outline:none;
-                                   color:#f3f5f9}
-.klass-spisok a.panel-plitka.tekushchiy{background:none; color:#f3f5f9}
+.klass-spisok a.panel-plitka:focus,
+.klass-spisok a.panel-plitka:focus-visible{background:#1b212b; outline:none;
+                                           color:#f3f5f9}
 
 
 /* ---- баннер лекций: полоса во всю ширину страницы предмета ----
@@ -452,8 +617,11 @@ a.banner-igrat{margin-left:auto; color:#ffd23f; border-color:#ffd23f}
 }
 .banner-spiski{margin-top:22px}
 .banner-nabor{
-  display:grid; grid-template-columns:1fr 1fr; gap:2px 34px;
-  margin:0; padding:0; list-style:none;
+  /* minmax(0, 1fr), а не 1fr: у колонки с длинной строкой своя
+     наименьшая ширина, и «1fr» её не отменяет — на узком экране
+     сетка вылезала за кадр. */
+  display:grid; grid-template-columns:repeat(2, minmax(0, 1fr));
+  gap:2px 34px; margin:0; padding:0; list-style:none;
 }
 .banner-nabor[hidden]{display:none}
 a.banner-trek{
@@ -466,14 +634,46 @@ a.banner-trek .bt-vremya{
   flex:0 0 auto; min-width:136px; color:#8b95a5; font-size:21px;
   white-space:nowrap;
 }
-a.banner-trek .bt-tema{flex:1 1 auto; hyphens:manual}
+a.banner-trek .bt-tema{flex:1 1 auto; min-width:0; hyphens:manual; overflow-wrap:break-word}
 a.banner-trek:focus, a.banner-trek:hover{outline:none; color:#f3f5f9}
 a.banner-trek.aktiven{color:#f3f5f9}
-a.banner-trek.aktiven .bt-vremya{color:#ffd23f}
+/* Активная лекция отличается только цветом строки — как и в списках
+   под кадром. Жёлтое время было единственной подсветкой в баннере и
+   спорило с их стандартом, поэтому его убрали. */
+
+/* Узкий экран: подборки встают в один столбик — как и плашки, которые
+   с горизонтального планшета идут по одной в ряд. Иначе строки лекций
+   не влезают и тянут страницу вбок. */
+@media (max-width:959px){
+  .banner{padding:20px 22px 22px; border-radius:20px}
+  .banner-nazv{font-size:30px}
+  .banner-podpis{font-size:21px}
+  .banner-nabor{grid-template-columns:minmax(0, 1fr)}
+  a.banner-trek{font-size:22px; gap:12px}
+  a.banner-trek .bt-vremya{min-width:0; font-size:19px}
+  /* Кнопка подборки уступает кадру так же, как кнопки в строках:
+     длинное название переносится, а не вылезает за край. */
+  a.banner-knopka, a.banner-igrat{font-size:21px;
+                                  white-space:normal; max-width:100%}
+  .banner-knopki{min-width:0}
+}
 /* Плитки под баннером: воздух больше, чем между самими плитками. */
 .setka.posle-bannera{margin-top:64px}
 
-h1{font-size:50px; margin:0 0 8px; letter-spacing:-.01em}
+/* ---- кто учится и зачем ----
+   Маленькая строка под путём, выше учебника: имя и цель с главного
+   экрана. Она не заголовок страницы — тот большой, — а напоминание:
+   видно на каждой странице, в том числе когда смотришь видео. Ничего
+   не выдумываем: имя и цель человек написал сам, пусто — строки нет. */
+.imya-stroka{
+  margin:2px 0 0; padding:0 4px;
+  font-size:24px; color:#8b95a5;
+  hyphens:manual; overflow-wrap:break-word;
+}
+.imya-stroka b{font-weight:600; color:#c9d2df}
+
+h1{font-size:50px; margin:0 0 8px; letter-spacing:-.01em;
+   hyphens:manual; overflow-wrap:break-word}
 .pod{color:#98a2b3; font-size:26px; margin:0 0 10px}
 .podskazka{
   background:#16202b; border-left:8px solid #ffd23f; color:#dbe3ee;
@@ -488,15 +688,9 @@ h3{
 }
 
 /* ---- плитки: горизонтальные, как на телевизоре ----
-   Сетка, а не столбик: при сужении окна лишние плитки сами
-   перескакивают на следующую строку. */
-.setka{
-  display:grid;
-  grid-template-columns:repeat(auto-fit, minmax(320px, 520px));
-  justify-content:start;
-  gap:24px; margin-top:26px;
-  --polosa:18px; --radius:22px;
-}
+   Сколько плашек в ряд и какого они размера — записано в одном месте:
+   Инструменты/разметка.py; оттуда этот блок собирается при сборке
+   (см. ниже, `setka_css`). Модели экрана — в РАЗМЕТКА.md. */
 a.plitka{
   /* --fon-kart — нижний слой фона; подсветка меняет только его, поэтому
      обложка учебника и жёлтая полоса остаются на месте. */
@@ -574,7 +768,52 @@ a.plitka.klass .nazv .chislo{
 a.plitka.klass .nazv .slovo{
   font-size:34px; font-weight:600; color:#98a2b3; letter-spacing:.02em;
 }
-.setka.klassy{grid-template-columns:repeat(auto-fit, minmax(380px, 1fr))}
+/* Классные плашки — та же общая сетка: у плашек одного размера нет
+   причин задавать свой шаг. */
+
+/* РАСКЛАДКА ПЛАШЕК — собрана из Инструменты/разметка.py.
+   Здесь не править: при сборке блок перезаписывается.
+   Модели экрана — в РАЗМЕТКА.md. */
+.setka{display:grid; margin-top:26px; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:24px; --polosa:18px; --radius:22px}
+a.plitka{aspect-ratio:16 / 9; padding:24px 26px 24px calc(var(--polosa) + 28px)}
+a.plitka .nazv{font-size:36px}
+a.plitka .poyas{font-size:20px}
+a.plitka.klass .nazv .chislo{font-size:clamp(110px, 12vw, 186px)}
+@media (max-width:1199px){
+  /* планшет горизонтальный: 2 в ряд */
+  .setka{grid-template-columns:repeat(2, minmax(0, 1fr)); gap:20px; --polosa:16px; --radius:18px}
+  a.plitka{aspect-ratio:16 / 9; padding:22px 24px 22px calc(var(--polosa) + 26px)}
+  a.plitka .nazv{font-size:36px}
+  a.plitka .poyas{font-size:18px}
+  a.plitka.klass .nazv .chislo{font-size:clamp(110px, 12vw, 186px)}
+}
+@media (max-width:959px){
+  /* планшет вертикальный: 2 в ряд */
+  .setka{grid-template-columns:repeat(2, minmax(0, 1fr)); gap:18px; --polosa:13px; --radius:14px}
+  a.plitka{aspect-ratio:16 / 9; padding:20px 22px 20px calc(var(--polosa) + 24px)}
+  a.plitka .nazv{font-size:28px}
+  a.plitka .poyas{font-size:15px}
+  a.plitka.klass .nazv .chislo{font-size:clamp(70px, 11vw, 150px)}
+}
+@media (max-width:639px){
+  /* телефоны горизонтальные: 1 в ряд */
+  .setka{grid-template-columns:repeat(1, minmax(0, 1fr)); gap:16px; --polosa:13px; --radius:14px}
+  a.plitka{aspect-ratio:16 / 9; padding:22px 24px 22px calc(var(--polosa) + 26px)}
+  a.plitka .nazv{font-size:32px}
+  a.plitka .poyas{font-size:17px}
+  a.plitka.klass .nazv .chislo{font-size:clamp(80px, 30vw, 186px)}
+}
+@media (max-width:479px){
+  /* телефоны вертикальные: 1 в ряд */
+  .setka{grid-template-columns:repeat(1, minmax(0, 1fr)); gap:16px; --polosa:13px; --radius:14px}
+  a.plitka{aspect-ratio:4 / 3; padding:22px 24px 22px calc(var(--polosa) + 26px)}
+  a.plitka .nazv{font-size:32px}
+  a.plitka .poyas{font-size:17px}
+  a.plitka.klass .nazv .chislo{font-size:clamp(80px, 30vw, 186px)}
+}
+/* Собранный CSS стоит последним в разделе плашек: базовые правила
+   (a.plitka .nazv и прочие) идут выше, поэтому ступени размеров их
+   перебивают — иначе размер оставался бы десктопным на телефоне. */
 
 /* ---- строки со ссылками на самих страницах материалов ---- */
 .stroka{
@@ -597,17 +836,22 @@ a.knopka:focus, a.knopka:hover, a.knopka:active{
   outline:none; border-color:#ffd23f; background:#3d4c5f;
 }
 .stroka.net .tema .chto{color:#7d8695}
+/* На узком экране кнопка уступает кадру: длинная надпись переносится
+   по словам, а не вылезает за край и не тянет страницу вбок. */
+@media (max-width:959px){
+  /* overflow-wrap: длинное слово без пробелов (адрес сайта в кнопке)
+     иначе вылезает за кнопку и тянет страницу вбок. */
+  a.knopka{white-space:normal; max-width:100%; flex:0 1 auto; min-width:0;
+           overflow-wrap:break-word}
+  .knopki{min-width:0; max-width:100%}
+}
 
 .niz{margin-top:44px; color:#6f7887; font-size:22px; line-height:1.5}
-@media (max-width:1100px){
+/* Планшет вертикальный и уже: та же контрольная точка 960, что
+   у Тильды, — новых порогов не заводим (РАЗМЕТКА.md). */
+@media (max-width:959px){
   body{font-size:26px; --panel-shirina:min(400px, 64vw)}
   h1{font-size:40px}
-  a.plitka .nazv{font-size:32px}
-  .setka{grid-template-columns:repeat(auto-fit, minmax(240px, 380px));
-         gap:18px; --polosa:13px; --radius:14px}
-  a.plitka{min-height:120px}
-  a.plitka .nazv{font-size:28px}
-  a.plitka .poyas{font-size:17px}
   a.tumbler.ikonka svg{width:28px; height:28px}
   .stroka{flex-wrap:wrap; gap:14px}
   .nomer{flex:0 0 auto; min-width:88px; font-size:28px}
@@ -628,10 +872,11 @@ a.knopka:focus, a.knopka:hover, a.knopka:active{
 <span class="pravo"><a class="tumbler ikonka" id="pin" href="#" aria-label="Закрепить"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 17v5"/><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z"/></svg></a><a class="tumbler ikonka" href="#panel" aria-label="Меню" onclick="return shkMenu()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16"/><path d="M4 12h16"/><path d="M4 17h16"/></svg></a></span>
 </nav>
 <div class="put-stroka"><a href="../../8 класс.html">8 класс</a><span class="razd">›</span><a href="../Алгебра.html">Алгебра</a><span class="razd">›</span><span class="zdes">Видеоуроки</span></div>
+<div class="imya-stroka" id="imya-stroka" hidden></div>
 <details class="kniga-stroka"><summary><span class="kn-nazv">Алгебра. 8 класс</span><span class="strela"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 9l7 7 7-7"/></svg></span></summary><div class="kn-podrobno"><div class="kn-kartochka"><img src="../../Обложки/Алгебра-8.jpg" alt="" loading="lazy"><div class="kn-kartotekst"><span class="kn-knazv">Алгебра. 8 класс</span><span class="kn-kavt">Макарычев Ю. Н., Миндюк Н. Г., Нешков К. И. · Про­све­ще­ние, 2026</span></div></div></div></details>
-<aside class="panel" id="panel"><div class="panel-verh"><details class="vybor-klassa"><summary class="klass-knopka"><span>8 класс</span><span class="strela"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 9l7 7 7-7"/></svg></span></summary><div class="klass-spisok"><a class="panel-plitka" href="../../5 класс.html">5 класс</a><a class="panel-plitka" href="../../7 класс.html">7 класс</a><a class="panel-plitka tekushchiy" href="../../8 класс.html">8 класс</a></div></details><a class="panel-zakryt" href="#" aria-label="Закрыть" onclick="return shkPanel(false)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6.5 6.5l11 11"/><path d="M17.5 6.5l-11 11"/></svg></a></div><div class="panel-telo"><div class="panel-razd"></div><a class="panel-plitka" href="../Алгебра.html">Алгебра</a><a class="panel-plitka" href="../Геометрия.html">Геометрия</a></div></aside><div class="panel-tyanulka menyu" tabindex="0" role="separator" aria-orientation="vertical" aria-label="Изменить ширину" onkeydown="return shkTyan(event)"></div>
+<aside class="panel" id="panel"><div class="panel-verh"><details class="vybor-klassa"><summary class="klass-knopka"><span>8 класс</span><span class="strela"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 9l7 7 7-7"/></svg></span></summary><div class="klass-spisok"><a class="panel-plitka" href="../../5 класс.html">5 класс</a><a class="panel-plitka" href="../../7 класс.html">7 класс</a><a class="panel-plitka tekushchiy" href="../../8 класс.html">8 класс</a></div></details><a class="panel-zakryt" href="#" aria-label="Закрыть" onclick="return shkPanel(false)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6.5 6.5l11 11"/><path d="M17.5 6.5l-11 11"/></svg></a></div><div class="panel-telo"><a class="panel-plitka" href="../Алгебра.html">Алгебра</a><a class="panel-plitka" href="../Геометрия.html">Геометрия</a></div></aside><div class="panel-tyanulka menyu" tabindex="0" role="separator" aria-orientation="vertical" aria-label="Изменить ширину" onkeydown="return shkTyan(event)"></div>
 
-<div class="pleyer-wrap"><div class="pleyer-shapka"><span class="pleyer-zag" id="pleyer-zag">С какого параграфа начнём?</span></div><div class="pleyer" id="pleyer"><a class="pleyer-knopka" href="#" aria-label="Плейлист" onclick="return shkPleylistTog()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7.6v8.8l7.4-4.4z"/><path d="M14.6 8.4h5.4"/><path d="M14.6 12h5.4"/><path d="M14.6 15.6h5.4"/></svg></a><div class="pleyer-vybor" id="pleyer-vybor" style="display:none"><div class="vybor-karta" id="vybor-karta"><span class="vybor-tekst" id="vybor-tekst"></span><span class="vybor-knopki"><a class="vybor-knopka" id="vybor-glavnaya" href="#"></a><a class="vybor-knopka vtoraya" id="vybor-vtoraya" href="#"></a></span></div></div></div><div class="pl-vse"><details class="pl-blok aktiven" data-nabor="0"><summary class="pl-imya" onclick="return shkRaskryt(this)"><span class="pl-nazv">По па­ра­гра­фам</span><span class="strela"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 9l7 7 7-7"/></svg></span></summary><div class="pl-telo"><div class="trek-gruppa">Глава I. Ра­ци­о­наль­ные дроби</div><a class="trek" href="https://rutube.ru/video/938d570fe8fc3c5fe6d5ac45e538dc2f/" data-video="https://rutube.ru/play/embed/938d570fe8fc3c5fe6d5ac45e538dc2f/" data-zag="§ 1 Ра­ци­о­наль­ные выражения (упр. 1—22)" data-nomer="§ 1" data-tema="Ра­ци­о­наль­ные выражения (упр. 1—22)" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 1</span><span class="trek-tema">Ра­ци­о­наль­ные выражения (упр. 1—22)</span></a><a class="trek" href="https://rutube.ru/video/bdc87cbc8cbd6c052b0f85c6fa7bf650/" data-video="https://rutube.ru/play/embed/bdc87cbc8cbd6c052b0f85c6fa7bf650/" data-zag="§ 1 Основное свойство дроби. Со­кра­ще­ние дробей (упр. 23—52)" data-nomer="§ 1" data-tema="Основное свойство дроби. Со­кра­ще­ние дробей (упр. 23—52)" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 1</span><span class="trek-tema">Основное свойство дроби. Со­кра­ще­ние дробей (упр. 23—52)</span></a><a class="trek" href="https://rutube.ru/video/58784f5c6ff406eb0f97e3570beea3f4/" data-video="https://rutube.ru/play/embed/58784f5c6ff406eb0f97e3570beea3f4/" data-zag="§ 2 Сложение и вычитание дробей с оди­на­ко­вы­ми зна­ме­на­те­ля­ми (упр. 53—72)" data-nomer="§ 2" data-tema="Сложение и вычитание дробей с оди­на­ко­вы­ми зна­ме­на­те­ля­ми (упр. 53—72)" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 2</span><span class="trek-tema">Сложение и вычитание дробей с оди­на­ко­вы­ми зна­ме­на­те­ля­ми (упр. 53—72)</span></a><a class="trek" href="https://rutube.ru/video/a887e1cd53b51bb82e9d2d5f820ace7e/" data-video="https://rutube.ru/play/embed/a887e1cd53b51bb82e9d2d5f820ace7e/" data-zag="§ 2 Сложение и вычитание дробей с разными зна­ме­на­те­ля­ми (упр. 73—107)" data-nomer="§ 2" data-tema="Сложение и вычитание дробей с разными зна­ме­на­те­ля­ми (упр. 73—107)" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 2</span><span class="trek-tema">Сложение и вычитание дробей с разными зна­ме­на­те­ля­ми (упр. 73—107)</span></a><a class="trek" href="https://rutube.ru/video/f968c41d419f2d43948951c2d8419dad/" data-video="https://rutube.ru/play/embed/f968c41d419f2d43948951c2d8419dad/" data-zag="§ 3 Умножение дробей. Воз­ве­де­ние дроби в степень (упр. 108—131)" data-nomer="§ 3" data-tema="Умножение дробей. Воз­ве­де­ние дроби в степень (упр. 108—131)" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 3</span><span class="trek-tema">Умножение дробей. Воз­ве­де­ние дроби в степень (упр. 108—131)</span></a><a class="trek" href="https://rutube.ru/video/8667206deb5d6bdcf9110927a1b3a830/" data-video="https://rutube.ru/play/embed/8667206deb5d6bdcf9110927a1b3a830/" data-zag="§ 3 Деление дробей (упр. 132—147)" data-nomer="§ 3" data-tema="Деление дробей (упр. 132—147)" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 3</span><span class="trek-tema">Деление дробей (упр. 132—147)</span></a><a class="trek" href="https://rutube.ru/video/1d5e1774a089abde29609d7123be9acf/" data-video="https://rutube.ru/play/embed/1d5e1774a089abde29609d7123be9acf/" data-zag="§ 3 Пре­об­ра­зо­ва­ние ра­ци­о­наль­ных выражений (упр. 148—178)" data-nomer="§ 3" data-tema="Пре­об­ра­зо­ва­ние ра­ци­о­наль­ных выражений (упр. 148—178)" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 3</span><span class="trek-tema">Пре­об­ра­зо­ва­ние ра­ци­о­наль­ных выражений (упр. 148—178)</span></a><a class="trek" href="https://rutube.ru/video/5476bfe06747662b01cb433c092e78e2/" data-video="https://rutube.ru/play/embed/5476bfe06747662b01cb433c092e78e2/" data-zag="§ 3 Функция y = k/x и её график (упр. 179—196)" data-nomer="§ 3" data-tema="Функция y = k/x и её график (упр. 179—196)" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 3</span><span class="trek-tema">Функция y = k/x и её график (упр. 179—196)</span></a><div class="trek-gruppa">Глава II. Квад­рат­ные корни</div><a class="trek" href="https://rutube.ru/video/63a2fd2d12521b5fb642d21e88e050d4/" data-video="https://rutube.ru/play/embed/63a2fd2d12521b5fb642d21e88e050d4/" data-zag="§ 4 Ра­ци­о­наль­ные числа" data-nomer="§ 4" data-tema="Ра­ци­о­наль­ные числа" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 4</span><span class="trek-tema">Ра­ци­о­наль­ные числа</span></a><a class="trek" href="https://rutube.ru/video/3f1254055f947b14fd8854109ed15ab9/" data-video="https://rutube.ru/play/embed/3f1254055f947b14fd8854109ed15ab9/" data-zag="§ 4 Ир­ра­ци­о­наль­ные числа" data-nomer="§ 4" data-tema="Ир­ра­ци­о­наль­ные числа" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 4</span><span class="trek-tema">Ир­ра­ци­о­наль­ные числа</span></a><a class="trek" href="https://rutube.ru/video/6ea1c83e0a0608938021b45cdf1ba2c0/" data-video="https://rutube.ru/play/embed/6ea1c83e0a0608938021b45cdf1ba2c0/" data-zag="§ 5 Квад­рат­ные корни. Ариф­ме­ти­че­ский квад­рат­ный корень" data-nomer="§ 5" data-tema="Квад­рат­ные корни. Ариф­ме­ти­че­ский квад­рат­ный корень" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 5</span><span class="trek-tema">Квад­рат­ные корни. Ариф­ме­ти­че­ский квад­рат­ный корень</span></a><a class="trek" href="https://rutube.ru/video/4dddeb58dd7f6c359af2b344fab2ed97/" data-video="https://rutube.ru/play/embed/4dddeb58dd7f6c359af2b344fab2ed97/" data-zag="§ 5 Уравнение x² = a" data-nomer="§ 5" data-tema="Уравнение x² = a" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 5</span><span class="trek-tema">Уравнение x² = a</span></a><a class="trek" href="https://rutube.ru/video/0c76c0313fef79acb71eb128cdf8ede5/" data-video="https://rutube.ru/play/embed/0c76c0313fef79acb71eb128cdf8ede5/" data-zag="§ 5 На­хо­жде­ние при­ближён­ных значений квад­рат­но­го корня" data-nomer="§ 5" data-tema="На­хо­жде­ние при­ближён­ных значений квад­рат­но­го корня" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 5</span><span class="trek-tema">На­хо­жде­ние при­ближён­ных значений квад­рат­но­го корня</span></a><a class="trek" href="https://rutube.ru/video/082a3aa4d4388169198b4cbb45ac9eb6/" data-video="https://rutube.ru/play/embed/082a3aa4d4388169198b4cbb45ac9eb6/" data-zag="§ 5 Функция y = √x и её график" data-nomer="§ 5" data-tema="Функция y = √x и её график" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 5</span><span class="trek-tema">Функция y = √x и её график</span></a><a class="trek" href="https://rutube.ru/video/cae74fe2ac0951f62db7f5eb58728c8d/" data-video="https://rutube.ru/play/embed/cae74fe2ac0951f62db7f5eb58728c8d/" data-zag="§ 6 Квад­рат­ный корень из про­из­ве­де­ния и дроби" data-nomer="§ 6" data-tema="Квад­рат­ный корень из про­из­ве­де­ния и дроби" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 6</span><span class="trek-tema">Квад­рат­ный корень из про­из­ве­де­ния и дроби</span></a><a class="trek" href="https://rutube.ru/video/8e856f578d6d6b10cd0141281ad7b19b/" data-video="https://rutube.ru/play/embed/8e856f578d6d6b10cd0141281ad7b19b/" data-zag="§ 6 Квад­рат­ный корень из степени" data-nomer="§ 6" data-tema="Квад­рат­ный корень из степени" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 6</span><span class="trek-tema">Квад­рат­ный корень из степени</span></a><a class="trek" href="https://rutube.ru/video/7b03feeee17430124703d3c48d34d220/" data-video="https://rutube.ru/play/embed/7b03feeee17430124703d3c48d34d220/" data-zag="§ 7 Вынесение множителя за знак корня. Внесение множителя под знак корня" data-nomer="§ 7" data-tema="Вынесение множителя за знак корня. Внесение множителя под знак корня" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 7</span><span class="trek-tema">Вынесение множителя за знак корня. Внесение множителя под знак корня</span></a><a class="trek" href="https://rutube.ru/video/420e58fd30daf4c5bc0c9c18a0de1764/" data-video="https://rutube.ru/play/embed/420e58fd30daf4c5bc0c9c18a0de1764/" data-zag="§ 7 Пре­об­ра­зо­ва­ние выражений, со­дер­жа­щих квад­рат­ные корни" data-nomer="§ 7" data-tema="Пре­об­ра­зо­ва­ние выражений, со­дер­жа­щих квад­рат­ные корни" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 7</span><span class="trek-tema">Пре­об­ра­зо­ва­ние выражений, со­дер­жа­щих квад­рат­ные корни</span></a><div class="trek-gruppa">Глава III. Квад­рат­ные уравнения</div><a class="trek" href="https://rutube.ru/video/72ef7dd5b6b4136e84178aa8799282d1/" data-video="https://rutube.ru/play/embed/72ef7dd5b6b4136e84178aa8799282d1/" data-zag="§ 8 Неполные квад­рат­ные уравнения" data-nomer="§ 8" data-tema="Неполные квад­рат­ные уравнения" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 8</span><span class="trek-tema">Неполные квад­рат­ные уравнения</span></a><a class="trek" href="https://rutube.ru/video/b5c9502f437fd61390057d128520b8d8/" data-video="https://rutube.ru/play/embed/b5c9502f437fd61390057d128520b8d8/" data-zag="§ 8 Формула корней квад­рат­но­го уравнения" data-nomer="§ 8" data-tema="Формула корней квад­рат­но­го уравнения" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 8</span><span class="trek-tema">Формула корней квад­рат­но­го уравнения</span></a><a class="trek" href="https://rutube.ru/video/3e1f25ef307a8062707cba45b03a671a/" data-video="https://rutube.ru/play/embed/3e1f25ef307a8062707cba45b03a671a/" data-zag="§ 8 Решение задач с помощью квад­рат­ных уравнений" data-nomer="§ 8" data-tema="Решение задач с помощью квад­рат­ных уравнений" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 8</span><span class="trek-tema">Решение задач с помощью квад­рат­ных уравнений</span></a><a class="trek" href="https://rutube.ru/video/00fce6293112c924beeb913d4e33f04a/" data-video="https://rutube.ru/play/embed/00fce6293112c924beeb913d4e33f04a/" data-zag="§ 8 Теорема Виета" data-nomer="§ 8" data-tema="Теорема Виета" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 8</span><span class="trek-tema">Теорема Виета</span></a><a class="trek" href="https://rutube.ru/video/554fff0f67a41d2214d2b2245f0604fe/" data-video="https://rutube.ru/play/embed/554fff0f67a41d2214d2b2245f0604fe/" data-zag="§ 9 Решение дробных ра­ци­о­наль­ных уравнений" data-nomer="§ 9" data-tema="Решение дробных ра­ци­о­наль­ных уравнений" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 9</span><span class="trek-tema">Решение дробных ра­ци­о­наль­ных уравнений</span></a><a class="trek" href="https://rutube.ru/video/74d93cc63a1414f49e92aac421f35924/" data-video="https://rutube.ru/play/embed/74d93cc63a1414f49e92aac421f35924/" data-zag="§ 9 Решение задач с помощью ра­ци­о­наль­ных уравнений" data-nomer="§ 9" data-tema="Решение задач с помощью ра­ци­о­наль­ных уравнений" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 9</span><span class="trek-tema">Решение задач с помощью ра­ци­о­наль­ных уравнений</span></a><a class="trek" href="https://rutube.ru/video/d22017b03020be215aca8a13a2ab90f1/" data-video="https://rutube.ru/play/embed/d22017b03020be215aca8a13a2ab90f1/" data-zag="§ 9 Уравнения с па­ра­мет­ром" data-nomer="§ 9" data-tema="Уравнения с па­ра­мет­ром" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 9</span><span class="trek-tema">Уравнения с па­ра­мет­ром</span></a><div class="trek-gruppa">Глава IV. Не­ра­вен­ства</div><a class="trek" href="https://rutube.ru/video/6473dac22ea092a792f7ef0523bcb459/" data-video="https://rutube.ru/play/embed/6473dac22ea092a792f7ef0523bcb459/" data-zag="§ 10 Числовые не­ра­вен­ства" data-nomer="§ 10" data-tema="Числовые не­ра­вен­ства" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 10</span><span class="trek-tema">Числовые не­ра­вен­ства</span></a><a class="trek" href="https://rutube.ru/video/090121ec329288ef505cdd229be3184c/" data-video="https://rutube.ru/play/embed/090121ec329288ef505cdd229be3184c/" data-zag="§ 10 Свойства числовых не­ра­венств" data-nomer="§ 10" data-tema="Свойства числовых не­ра­венств" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 10</span><span class="trek-tema">Свойства числовых не­ра­венств</span></a><a class="trek" href="https://rutube.ru/video/ff027ed2d9b31aa5ea69e64a8c1be869/" data-video="https://rutube.ru/play/embed/ff027ed2d9b31aa5ea69e64a8c1be869/" data-zag="§ 10 Сложение и умножение числовых не­ра­венств" data-nomer="§ 10" data-tema="Сложение и умножение числовых не­ра­венств" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 10</span><span class="trek-tema">Сложение и умножение числовых не­ра­венств</span></a><a class="trek" href="https://rutube.ru/video/8516c7776e504a759254c0f36b32325c/" data-video="https://rutube.ru/play/embed/8516c7776e504a759254c0f36b32325c/" data-zag="§ 10 По­греш­ность и точность при­бли­же­ния" data-nomer="§ 10" data-tema="По­греш­ность и точность при­бли­же­ния" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 10</span><span class="trek-tema">По­греш­ность и точность при­бли­же­ния</span></a><a class="trek" href="https://rutube.ru/video/19975cd6f7e60d1ff0070d46b4e10c46/" data-video="https://rutube.ru/play/embed/19975cd6f7e60d1ff0070d46b4e10c46/" data-zag="§ 11 Пе­ре­се­че­ние и объ­еди­не­ние множеств" data-nomer="§ 11" data-tema="Пе­ре­се­че­ние и объ­еди­не­ние множеств" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 11</span><span class="trek-tema">Пе­ре­се­че­ние и объ­еди­не­ние множеств</span></a><a class="trek" href="https://rutube.ru/video/f3bc3f7fa5d09f1937846a35e23bb871/" data-video="https://rutube.ru/play/embed/f3bc3f7fa5d09f1937846a35e23bb871/" data-zag="§ 11 Числовые про­ме­жут­ки" data-nomer="§ 11" data-tema="Числовые про­ме­жут­ки" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 11</span><span class="trek-tema">Числовые про­ме­жут­ки</span></a><a class="trek" href="https://rutube.ru/video/a6c207b4cd10ee98082f00912533df83/" data-video="https://rutube.ru/play/embed/a6c207b4cd10ee98082f00912533df83/" data-zag="§ 11 Решение не­ра­венств с одной пе­ре­мен­ной" data-nomer="§ 11" data-tema="Решение не­ра­венств с одной пе­ре­мен­ной" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 11</span><span class="trek-tema">Решение не­ра­венств с одной пе­ре­мен­ной</span></a><a class="trek" href="https://rutube.ru/video/0f4d83ff567242e802bb4331aa3ac957/" data-video="https://rutube.ru/play/embed/0f4d83ff567242e802bb4331aa3ac957/" data-zag="§ 11 Решение систем не­ра­венств с одной пе­ре­мен­ной" data-nomer="§ 11" data-tema="Решение систем не­ра­венств с одной пе­ре­мен­ной" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 11</span><span class="trek-tema">Решение систем не­ра­венств с одной пе­ре­мен­ной</span></a><div class="trek-gruppa">Глава V. Степень с целым по­ка­за­те­лем. Элементы ста­ти­сти­ки</div><a class="trek" href="https://rutube.ru/video/ca85bd489a3e5ae83869b05729208fda/" data-video="https://rutube.ru/play/embed/ca85bd489a3e5ae83869b05729208fda/" data-zag="§ 12 Степень с целым от­ри­ца­тель­ным по­ка­за­те­лем" data-nomer="§ 12" data-tema="Степень с целым от­ри­ца­тель­ным по­ка­за­те­лем" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 12</span><span class="trek-tema">Степень с целым от­ри­ца­тель­ным по­ка­за­те­лем</span></a><a class="trek" href="https://rutube.ru/video/4b5016aec84d9883590b3187fdc99d34/" data-video="https://rutube.ru/play/embed/4b5016aec84d9883590b3187fdc99d34/" data-zag="§ 12 Свойства степени с целым по­ка­за­те­лем" data-nomer="§ 12" data-tema="Свойства степени с целым по­ка­за­те­лем" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 12</span><span class="trek-tema">Свойства степени с целым по­ка­за­те­лем</span></a><a class="trek" href="https://rutube.ru/video/02339930ea7ffb964c859242a22f9982/" data-video="https://rutube.ru/play/embed/02339930ea7ffb964c859242a22f9982/" data-zag="§ 12 Стан­дарт­ный вид числа" data-nomer="§ 12" data-tema="Стан­дарт­ный вид числа" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 12</span><span class="trek-tema">Стан­дарт­ный вид числа</span></a></div></details><details class="pl-blok" data-nabor="1"><summary class="pl-imya" onclick="return shkRaskryt(this)"><span class="pl-nazv">Разбор домашних заданий</span><span class="strela"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 9l7 7 7-7"/></svg></span></summary><div class="pl-telo"><a class="trek" href="https://rutube.ru/video/b24f820bcfaf4aac6ae2a21bc4a2d5dc/" data-video="https://rutube.ru/play/embed/b24f820bcfaf4aac6ae2a21bc4a2d5dc/" data-zag="§ 1 Номера 1—24" data-nomer="§ 1" data-tema="Номера 1—24" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 1</span><span class="trek-tema">Номера 1—24</span></a><a class="trek" href="https://rutube.ru/video/142d11a2c3ac885f6540366cba5da2db/" data-video="https://rutube.ru/play/embed/142d11a2c3ac885f6540366cba5da2db/" data-zag="§ 1 Номера 25—54" data-nomer="§ 1" data-tema="Номера 25—54" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 1</span><span class="trek-tema">Номера 25—54</span></a><a class="trek" href="https://rutube.ru/video/fde1549feb6ffa218fe3ec4a16fe90ea/" data-video="https://rutube.ru/play/embed/fde1549feb6ffa218fe3ec4a16fe90ea/" data-zag="Сложение и вычитание дробей с одинак. знамен., 55-74 номера" data-nomer="" data-tema="Сложение и вычитание дробей с одинак. знамен., 55-74 номера" onclick="return shkIgrat(this)"><span class="trek-tema">Сложение и вычитание дробей с одинак. знамен., 55-74 номера</span></a><a class="trek" href="https://rutube.ru/video/469e317e5cda1fd2d729cc6df0096a6b/" data-video="https://rutube.ru/play/embed/469e317e5cda1fd2d729cc6df0096a6b/" data-zag="Сложение и вычитание дробей с разными знамен., 75-82 номера" data-nomer="" data-tema="Сложение и вычитание дробей с разными знамен., 75-82 номера" onclick="return shkIgrat(this)"><span class="trek-tema">Сложение и вычитание дробей с разными знамен., 75-82 номера</span></a><a class="trek" href="https://rutube.ru/video/d910b08234b23f485819c2cc119f52b1/" data-video="https://rutube.ru/play/embed/d910b08234b23f485819c2cc119f52b1/" data-zag="Сложение и вычитание дробей с разными знамен., 83-90 номера" data-nomer="" data-tema="Сложение и вычитание дробей с разными знамен., 83-90 номера" onclick="return shkIgrat(this)"><span class="trek-tema">Сложение и вычитание дробей с разными знамен., 83-90 номера</span></a><a class="trek" href="https://rutube.ru/video/46d177f87a3eb39c9cbdbef3d0f387b3/" data-video="https://rutube.ru/play/embed/46d177f87a3eb39c9cbdbef3d0f387b3/" data-zag="Сложение и вычитание дробей с разными знамен., 91-97 номера" data-nomer="" data-tema="Сложение и вычитание дробей с разными знамен., 91-97 номера" onclick="return shkIgrat(this)"><span class="trek-tema">Сложение и вычитание дробей с разными знамен., 91-97 номера</span></a><a class="trek" href="https://rutube.ru/video/c0c25c27de0179db3cf64bff2b86004f/" data-video="https://rutube.ru/play/embed/c0c25c27de0179db3cf64bff2b86004f/" data-zag="Сложение и вычитание дробей с разными знамен., 98-109 номера" data-nomer="" data-tema="Сложение и вычитание дробей с разными знамен., 98-109 номера" onclick="return shkIgrat(this)"><span class="trek-tema">Сложение и вычитание дробей с разными знамен., 98-109 номера</span></a><a class="trek" href="https://rutube.ru/video/33038b0736e86e6ef4dc8161926c3af2/" data-video="https://rutube.ru/play/embed/33038b0736e86e6ef4dc8161926c3af2/" data-zag="Умножение и воз­ве­де­ние в степень дробей, 110-121 номера" data-nomer="" data-tema="Умножение и воз­ве­де­ние в степень дробей, 110-121 номера" onclick="return shkIgrat(this)"><span class="trek-tema">Умножение и воз­ве­де­ние в степень дробей, 110-121 номера</span></a><a class="trek" href="https://rutube.ru/video/53cd18f21e610411f391f3e2c4f3cdc1/" data-video="https://rutube.ru/play/embed/53cd18f21e610411f391f3e2c4f3cdc1/" data-zag="Умножение и воз­ве­де­ние в степень дробей, 122-133 номера" data-nomer="" data-tema="Умножение и воз­ве­де­ние в степень дробей, 122-133 номера" onclick="return shkIgrat(this)"><span class="trek-tema">Умножение и воз­ве­де­ние в степень дробей, 122-133 номера</span></a><a class="trek" href="https://rutube.ru/video/ccadb242dd84a9d1135cfb463c245966/" data-video="https://rutube.ru/play/embed/ccadb242dd84a9d1135cfb463c245966/" data-zag="Деление дробей, 134-140 номера" data-nomer="" data-tema="Деление дробей, 134-140 номера" onclick="return shkIgrat(this)"><span class="trek-tema">Деление дробей, 134-140 номера</span></a><a class="trek" href="https://rutube.ru/video/2f5e95ca6f98743eea4883a5b5f46e77/" data-video="https://rutube.ru/play/embed/2f5e95ca6f98743eea4883a5b5f46e77/" data-zag="Деление дробей, 141-149 номера" data-nomer="" data-tema="Деление дробей, 141-149 номера" onclick="return shkIgrat(this)"><span class="trek-tema">Деление дробей, 141-149 номера</span></a><a class="trek" href="https://rutube.ru/video/5e4aefc80b0184a851629ac63c8deaac/" data-video="https://rutube.ru/play/embed/5e4aefc80b0184a851629ac63c8deaac/" data-zag="Деление дробей, 150-154 номера" data-nomer="" data-tema="Деление дробей, 150-154 номера" onclick="return shkIgrat(this)"><span class="trek-tema">Деление дробей, 150-154 номера</span></a><a class="trek" href="https://rutube.ru/video/fd9dd9c59f1cec3ace2758ef70b7516d/" data-video="https://rutube.ru/play/embed/fd9dd9c59f1cec3ace2758ef70b7516d/" data-zag="Пре­об­ра­зо­ва­ние ра­ци­о­наль­ных выражений, 155-163 номера" data-nomer="" data-tema="Пре­об­ра­зо­ва­ние ра­ци­о­наль­ных выражений, 155-163 номера" onclick="return shkIgrat(this)"><span class="trek-tema">Пре­об­ра­зо­ва­ние ра­ци­о­наль­ных выражений, 155-163 номера</span></a><a class="trek" href="https://rutube.ru/video/4d01dbe684406b0a75f2a0b04edabbd7/" data-video="https://rutube.ru/play/embed/4d01dbe684406b0a75f2a0b04edabbd7/" data-zag="Пре­об­ра­зо­ва­ние ра­ци­о­наль­ных выражений, 156-180 номера" data-nomer="" data-tema="Пре­об­ра­зо­ва­ние ра­ци­о­наль­ных выражений, 156-180 номера" onclick="return shkIgrat(this)"><span class="trek-tema">Пре­об­ра­зо­ва­ние ра­ци­о­наль­ных выражений, 156-180 номера</span></a></div></details><details class="pl-blok" data-nabor="2"><summary class="pl-imya" onclick="return shkRaskryt(this)"><span class="pl-nazv">Курс большими частями</span><span class="strela"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 9l7 7 7-7"/></svg></span></summary><div class="pl-telo"><a class="trek" href="https://rutube.ru/video/0e3cd1125b70518cdf51420b236287df/" data-video="https://rutube.ru/play/embed/0e3cd1125b70518cdf51420b236287df/" data-zag="Часть 1 (п 21-23)" data-nomer="" data-tema="Часть 1 (п 21-23)" onclick="return shkIgrat(this)"><span class="trek-tema">Часть 1 (п 21-23)</span></a><a class="trek" href="https://rutube.ru/video/4bd707ce820a0848dd9c2149c57e3775/" data-video="https://rutube.ru/play/embed/4bd707ce820a0848dd9c2149c57e3775/" data-zag="Часть 2 (п 18-19 кр)" data-nomer="" data-tema="Часть 2 (п 18-19 кр)" onclick="return shkIgrat(this)"><span class="trek-tema">Часть 2 (п 18-19 кр)</span></a><a class="trek" href="https://rutube.ru/video/a4dbb8091bd6f533881c39475510efa7/" data-video="https://rutube.ru/play/embed/a4dbb8091bd6f533881c39475510efa7/" data-zag="Часть 3 (п 17 кр)" data-nomer="" data-tema="Часть 3 (п 17 кр)" onclick="return shkIgrat(this)"><span class="trek-tema">Часть 3 (п 17 кр)</span></a><a class="trek" href="https://rutube.ru/video/1cedb1eab3ea6a28fd6ee3a87daa4338/" data-video="https://rutube.ru/play/embed/1cedb1eab3ea6a28fd6ee3a87daa4338/" data-zag="Часть 4 (п 12-16)" data-nomer="" data-tema="Часть 4 (п 12-16)" onclick="return shkIgrat(this)"><span class="trek-tema">Часть 4 (п 12-16)</span></a><a class="trek" href="https://rutube.ru/video/f33915e2c3786e2771ceae7db4bfe60a/" data-video="https://rutube.ru/play/embed/f33915e2c3786e2771ceae7db4bfe60a/" data-zag="Часть 5 (п 10-11)" data-nomer="" data-tema="Часть 5 (п 10-11)" onclick="return shkIgrat(this)"><span class="trek-tema">Часть 5 (п 10-11)</span></a><a class="trek" href="https://rutube.ru/video/743d1c958e3a45bf0694568a32185748/" data-video="https://rutube.ru/play/embed/743d1c958e3a45bf0694568a32185748/" data-zag="Часть 6 (п.7 и 8)" data-nomer="" data-tema="Часть 6 (п.7 и 8)" onclick="return shkIgrat(this)"><span class="trek-tema">Часть 6 (п.7 и 8)</span></a><a class="trek" href="https://rutube.ru/video/f379f719a9b3cf54b512d9d59e679d41/" data-video="https://rutube.ru/play/embed/f379f719a9b3cf54b512d9d59e679d41/" data-zag="Часть 7 (п.5и6)" data-nomer="" data-tema="Часть 7 (п.5и6)" onclick="return shkIgrat(this)"><span class="trek-tema">Часть 7 (п.5и6)</span></a><a class="trek" href="https://rutube.ru/video/316f623259531861a53f3d34d3303762/" data-video="https://rutube.ru/play/embed/316f623259531861a53f3d34d3303762/" data-zag="Часть 8 (п. 3и4)" data-nomer="" data-tema="Часть 8 (п. 3и4)" onclick="return shkIgrat(this)"><span class="trek-tema">Часть 8 (п. 3и4)</span></a><a class="trek" href="https://rutube.ru/video/bcb7fdda3a8bd1fad2aa1e0dd0aa9b17/" data-video="https://rutube.ru/play/embed/bcb7fdda3a8bd1fad2aa1e0dd0aa9b17/" data-zag="Часть 9 (п.1 и 2)" data-nomer="" data-tema="Часть 9 (п.1 и 2)" onclick="return shkIgrat(this)"><span class="trek-tema">Часть 9 (п.1 и 2)</span></a></div></details><details class="pl-blok" data-nabor="3"><summary class="pl-imya" onclick="return shkRaskryt(this)"><span class="pl-nazv">По­вто­ре­ние за год</span><span class="strela"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 9l7 7 7-7"/></svg></span></summary><div class="pl-telo"><a class="trek" href="https://rutube.ru/video/e18a0fd5b4e3a7b5fe5e655761a3b6b3/" data-video="https://rutube.ru/play/embed/e18a0fd5b4e3a7b5fe5e655761a3b6b3/" data-zag="По­вто­ре­ние, часть 1" data-nomer="" data-tema="По­вто­ре­ние, часть 1" onclick="return shkIgrat(this)"><span class="trek-tema">По­вто­ре­ние, часть 1</span></a><a class="trek" href="https://rutube.ru/video/eb48a366d6a705abefe7f8df5e35e5a9/" data-video="https://rutube.ru/play/embed/eb48a366d6a705abefe7f8df5e35e5a9/" data-zag="По­вто­ре­ние, часть 2" data-nomer="" data-tema="По­вто­ре­ние, часть 2" onclick="return shkIgrat(this)"><span class="trek-tema">По­вто­ре­ние, часть 2</span></a><a class="trek" href="https://rutube.ru/video/8cc64824a601e8354f246776119bf3af/" data-video="https://rutube.ru/play/embed/8cc64824a601e8354f246776119bf3af/" data-zag="По­вто­ре­ние, часть 3" data-nomer="" data-tema="По­вто­ре­ние, часть 3" onclick="return shkIgrat(this)"><span class="trek-tema">По­вто­ре­ние, часть 3</span></a><a class="trek" href="https://rutube.ru/video/ccb6e37ac2d325d12f4133b709b1f680/" data-video="https://rutube.ru/play/embed/ccb6e37ac2d325d12f4133b709b1f680/" data-zag="По­вто­ре­ние, часть 4" data-nomer="" data-tema="По­вто­ре­ние, часть 4" onclick="return shkIgrat(this)"><span class="trek-tema">По­вто­ре­ние, часть 4</span></a><a class="trek" href="https://rutube.ru/video/be98395dfb8913035eefa2fdc806214b/" data-video="https://rutube.ru/play/embed/be98395dfb8913035eefa2fdc806214b/" data-zag="По­вто­ре­ние, часть 5" data-nomer="" data-tema="По­вто­ре­ние, часть 5" onclick="return shkIgrat(this)"><span class="trek-tema">По­вто­ре­ние, часть 5</span></a><a class="trek" href="https://rutube.ru/video/025fe7e7589c3f22c5e4053ea03ceaa7/" data-video="https://rutube.ru/play/embed/025fe7e7589c3f22c5e4053ea03ceaa7/" data-zag="По­вто­ре­ние, часть 6" data-nomer="" data-tema="По­вто­ре­ние, часть 6" onclick="return shkIgrat(this)"><span class="trek-tema">По­вто­ре­ние, часть 6</span></a><a class="trek" href="https://rutube.ru/video/08b8aaa68e43870217f639d0c21dc5b3/" data-video="https://rutube.ru/play/embed/08b8aaa68e43870217f639d0c21dc5b3/" data-zag="По­вто­ре­ние, часть 7" data-nomer="" data-tema="По­вто­ре­ние, часть 7" onclick="return shkIgrat(this)"><span class="trek-tema">По­вто­ре­ние, часть 7</span></a><a class="trek" href="https://rutube.ru/video/5b48a95bff911b61d1086e71540a35d8/" data-video="https://rutube.ru/play/embed/5b48a95bff911b61d1086e71540a35d8/" data-zag="По­вто­ре­ние, часть 8" data-nomer="" data-tema="По­вто­ре­ние, часть 8" onclick="return shkIgrat(this)"><span class="trek-tema">По­вто­ре­ние, часть 8</span></a><a class="trek" href="https://rutube.ru/video/8eacbe025a64da0191496699d226ff9e/" data-video="https://rutube.ru/play/embed/8eacbe025a64da0191496699d226ff9e/" data-zag="По­вто­ре­ние, часть 9" data-nomer="" data-tema="По­вто­ре­ние, часть 9" onclick="return shkIgrat(this)"><span class="trek-tema">По­вто­ре­ние, часть 9</span></a></div></details></div></div>
+<div class="pleyer-wrap"><div class="pleyer-shapka"><span class="pleyer-zag" id="pleyer-zag">С какого параграфа начнём?</span></div><div class="pleyer-mesto"><div class="pleyer" id="pleyer"><a class="pleyer-knopka" href="#" aria-label="Плейлист" onclick="return shkPleylistTog()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7.6v8.8l7.4-4.4z"/><path d="M14.6 8.4h5.4"/><path d="M14.6 12h5.4"/><path d="M14.6 15.6h5.4"/></svg></a></div><div class="pleyer-vybor" id="pleyer-vybor" style="display:none"><div class="vybor-karta" id="vybor-karta"><a class="vybor-zakryt" id="vybor-zakryt" href="#" aria-label="Закрыть" onclick="return shkZakrytKartu()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6.5 6.5l11 11"/><path d="M17.5 6.5l-11 11"/></svg></a><span class="vybor-tekst" id="vybor-tekst"></span><span class="vybor-knopki"><a class="vybor-knopka" id="vybor-glavnaya" href="#"></a><a class="vybor-knopka vtoraya" id="vybor-vtoraya" href="#"></a></span></div></div></div><div class="pl-vse"><details class="pl-blok aktiven" data-nabor="0"><summary class="pl-imya" onclick="return shkRaskryt(this)"><span class="pl-nazv">По па­ра­гра­фам</span><span class="strela"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 9l7 7 7-7"/></svg></span></summary><div class="pl-telo"><div class="trek-gruppa">Глава I. Ра­ци­о­наль­ные дроби</div><a class="trek" href="https://rutube.ru/video/938d570fe8fc3c5fe6d5ac45e538dc2f/" data-video="https://rutube.ru/play/embed/938d570fe8fc3c5fe6d5ac45e538dc2f/" data-zag="§ 1 Ра­ци­о­наль­ные выражения (упр. 1—22)" data-nomer="§ 1" data-tema="Ра­ци­о­наль­ные выражения (упр. 1—22)" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 1</span><span class="trek-tema">Ра­ци­о­наль­ные выражения (упр. 1—22)</span></a><a class="trek" href="https://rutube.ru/video/bdc87cbc8cbd6c052b0f85c6fa7bf650/" data-video="https://rutube.ru/play/embed/bdc87cbc8cbd6c052b0f85c6fa7bf650/" data-zag="§ 1 Основное свойство дроби. Со­кра­ще­ние дробей (упр. 23—52)" data-nomer="§ 1" data-tema="Основное свойство дроби. Со­кра­ще­ние дробей (упр. 23—52)" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 1</span><span class="trek-tema">Основное свойство дроби. Со­кра­ще­ние дробей (упр. 23—52)</span></a><a class="trek" href="https://rutube.ru/video/58784f5c6ff406eb0f97e3570beea3f4/" data-video="https://rutube.ru/play/embed/58784f5c6ff406eb0f97e3570beea3f4/" data-zag="§ 2 Сложение и вычитание дробей с оди­на­ко­вы­ми зна­ме­на­те­ля­ми (упр. 53—72)" data-nomer="§ 2" data-tema="Сложение и вычитание дробей с оди­на­ко­вы­ми зна­ме­на­те­ля­ми (упр. 53—72)" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 2</span><span class="trek-tema">Сложение и вычитание дробей с оди­на­ко­вы­ми зна­ме­на­те­ля­ми (упр. 53—72)</span></a><a class="trek" href="https://rutube.ru/video/a887e1cd53b51bb82e9d2d5f820ace7e/" data-video="https://rutube.ru/play/embed/a887e1cd53b51bb82e9d2d5f820ace7e/" data-zag="§ 2 Сложение и вычитание дробей с разными зна­ме­на­те­ля­ми (упр. 73—107)" data-nomer="§ 2" data-tema="Сложение и вычитание дробей с разными зна­ме­на­те­ля­ми (упр. 73—107)" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 2</span><span class="trek-tema">Сложение и вычитание дробей с разными зна­ме­на­те­ля­ми (упр. 73—107)</span></a><a class="trek" href="https://rutube.ru/video/f968c41d419f2d43948951c2d8419dad/" data-video="https://rutube.ru/play/embed/f968c41d419f2d43948951c2d8419dad/" data-zag="§ 3 Умножение дробей. Воз­ве­де­ние дроби в степень (упр. 108—131)" data-nomer="§ 3" data-tema="Умножение дробей. Воз­ве­де­ние дроби в степень (упр. 108—131)" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 3</span><span class="trek-tema">Умножение дробей. Воз­ве­де­ние дроби в степень (упр. 108—131)</span></a><a class="trek" href="https://rutube.ru/video/8667206deb5d6bdcf9110927a1b3a830/" data-video="https://rutube.ru/play/embed/8667206deb5d6bdcf9110927a1b3a830/" data-zag="§ 3 Деление дробей (упр. 132—147)" data-nomer="§ 3" data-tema="Деление дробей (упр. 132—147)" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 3</span><span class="trek-tema">Деление дробей (упр. 132—147)</span></a><a class="trek" href="https://rutube.ru/video/1d5e1774a089abde29609d7123be9acf/" data-video="https://rutube.ru/play/embed/1d5e1774a089abde29609d7123be9acf/" data-zag="§ 3 Пре­об­ра­зо­ва­ние ра­ци­о­наль­ных выражений (упр. 148—178)" data-nomer="§ 3" data-tema="Пре­об­ра­зо­ва­ние ра­ци­о­наль­ных выражений (упр. 148—178)" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 3</span><span class="trek-tema">Пре­об­ра­зо­ва­ние ра­ци­о­наль­ных выражений (упр. 148—178)</span></a><a class="trek" href="https://rutube.ru/video/5476bfe06747662b01cb433c092e78e2/" data-video="https://rutube.ru/play/embed/5476bfe06747662b01cb433c092e78e2/" data-zag="§ 3 Функция y = k/x и её график (упр. 179—196)" data-nomer="§ 3" data-tema="Функция y = k/x и её график (упр. 179—196)" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 3</span><span class="trek-tema">Функция y = k/x и её график (упр. 179—196)</span></a><div class="trek-gruppa">Глава II. Квад­рат­ные корни</div><a class="trek" href="https://rutube.ru/video/63a2fd2d12521b5fb642d21e88e050d4/" data-video="https://rutube.ru/play/embed/63a2fd2d12521b5fb642d21e88e050d4/" data-zag="§ 4 Ра­ци­о­наль­ные числа" data-nomer="§ 4" data-tema="Ра­ци­о­наль­ные числа" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 4</span><span class="trek-tema">Ра­ци­о­наль­ные числа</span></a><a class="trek" href="https://rutube.ru/video/3f1254055f947b14fd8854109ed15ab9/" data-video="https://rutube.ru/play/embed/3f1254055f947b14fd8854109ed15ab9/" data-zag="§ 4 Ир­ра­ци­о­наль­ные числа" data-nomer="§ 4" data-tema="Ир­ра­ци­о­наль­ные числа" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 4</span><span class="trek-tema">Ир­ра­ци­о­наль­ные числа</span></a><a class="trek" href="https://rutube.ru/video/6ea1c83e0a0608938021b45cdf1ba2c0/" data-video="https://rutube.ru/play/embed/6ea1c83e0a0608938021b45cdf1ba2c0/" data-zag="§ 5 Квад­рат­ные корни. Ариф­ме­ти­че­ский квад­рат­ный корень" data-nomer="§ 5" data-tema="Квад­рат­ные корни. Ариф­ме­ти­че­ский квад­рат­ный корень" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 5</span><span class="trek-tema">Квад­рат­ные корни. Ариф­ме­ти­че­ский квад­рат­ный корень</span></a><a class="trek" href="https://rutube.ru/video/4dddeb58dd7f6c359af2b344fab2ed97/" data-video="https://rutube.ru/play/embed/4dddeb58dd7f6c359af2b344fab2ed97/" data-zag="§ 5 Уравнение x² = a" data-nomer="§ 5" data-tema="Уравнение x² = a" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 5</span><span class="trek-tema">Уравнение x² = a</span></a><a class="trek" href="https://rutube.ru/video/0c76c0313fef79acb71eb128cdf8ede5/" data-video="https://rutube.ru/play/embed/0c76c0313fef79acb71eb128cdf8ede5/" data-zag="§ 5 На­хо­жде­ние при­ближён­ных значений квад­рат­но­го корня" data-nomer="§ 5" data-tema="На­хо­жде­ние при­ближён­ных значений квад­рат­но­го корня" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 5</span><span class="trek-tema">На­хо­жде­ние при­ближён­ных значений квад­рат­но­го корня</span></a><a class="trek" href="https://rutube.ru/video/082a3aa4d4388169198b4cbb45ac9eb6/" data-video="https://rutube.ru/play/embed/082a3aa4d4388169198b4cbb45ac9eb6/" data-zag="§ 5 Функция y = √x и её график" data-nomer="§ 5" data-tema="Функция y = √x и её график" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 5</span><span class="trek-tema">Функция y = √x и её график</span></a><a class="trek" href="https://rutube.ru/video/cae74fe2ac0951f62db7f5eb58728c8d/" data-video="https://rutube.ru/play/embed/cae74fe2ac0951f62db7f5eb58728c8d/" data-zag="§ 6 Квад­рат­ный корень из про­из­ве­де­ния и дроби" data-nomer="§ 6" data-tema="Квад­рат­ный корень из про­из­ве­де­ния и дроби" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 6</span><span class="trek-tema">Квад­рат­ный корень из про­из­ве­де­ния и дроби</span></a><a class="trek" href="https://rutube.ru/video/8e856f578d6d6b10cd0141281ad7b19b/" data-video="https://rutube.ru/play/embed/8e856f578d6d6b10cd0141281ad7b19b/" data-zag="§ 6 Квад­рат­ный корень из степени" data-nomer="§ 6" data-tema="Квад­рат­ный корень из степени" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 6</span><span class="trek-tema">Квад­рат­ный корень из степени</span></a><a class="trek" href="https://rutube.ru/video/7b03feeee17430124703d3c48d34d220/" data-video="https://rutube.ru/play/embed/7b03feeee17430124703d3c48d34d220/" data-zag="§ 7 Вынесение множителя за знак корня. Внесение множителя под знак корня" data-nomer="§ 7" data-tema="Вынесение множителя за знак корня. Внесение множителя под знак корня" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 7</span><span class="trek-tema">Вынесение множителя за знак корня. Внесение множителя под знак корня</span></a><a class="trek" href="https://rutube.ru/video/420e58fd30daf4c5bc0c9c18a0de1764/" data-video="https://rutube.ru/play/embed/420e58fd30daf4c5bc0c9c18a0de1764/" data-zag="§ 7 Пре­об­ра­зо­ва­ние выражений, со­дер­жа­щих квад­рат­ные корни" data-nomer="§ 7" data-tema="Пре­об­ра­зо­ва­ние выражений, со­дер­жа­щих квад­рат­ные корни" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 7</span><span class="trek-tema">Пре­об­ра­зо­ва­ние выражений, со­дер­жа­щих квад­рат­ные корни</span></a><div class="trek-gruppa">Глава III. Квад­рат­ные уравнения</div><a class="trek" href="https://rutube.ru/video/72ef7dd5b6b4136e84178aa8799282d1/" data-video="https://rutube.ru/play/embed/72ef7dd5b6b4136e84178aa8799282d1/" data-zag="§ 8 Неполные квад­рат­ные уравнения" data-nomer="§ 8" data-tema="Неполные квад­рат­ные уравнения" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 8</span><span class="trek-tema">Неполные квад­рат­ные уравнения</span></a><a class="trek" href="https://rutube.ru/video/b5c9502f437fd61390057d128520b8d8/" data-video="https://rutube.ru/play/embed/b5c9502f437fd61390057d128520b8d8/" data-zag="§ 8 Формула корней квад­рат­но­го уравнения" data-nomer="§ 8" data-tema="Формула корней квад­рат­но­го уравнения" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 8</span><span class="trek-tema">Формула корней квад­рат­но­го уравнения</span></a><a class="trek" href="https://rutube.ru/video/3e1f25ef307a8062707cba45b03a671a/" data-video="https://rutube.ru/play/embed/3e1f25ef307a8062707cba45b03a671a/" data-zag="§ 8 Решение задач с помощью квад­рат­ных уравнений" data-nomer="§ 8" data-tema="Решение задач с помощью квад­рат­ных уравнений" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 8</span><span class="trek-tema">Решение задач с помощью квад­рат­ных уравнений</span></a><a class="trek" href="https://rutube.ru/video/00fce6293112c924beeb913d4e33f04a/" data-video="https://rutube.ru/play/embed/00fce6293112c924beeb913d4e33f04a/" data-zag="§ 8 Теорема Виета" data-nomer="§ 8" data-tema="Теорема Виета" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 8</span><span class="trek-tema">Теорема Виета</span></a><a class="trek" href="https://rutube.ru/video/554fff0f67a41d2214d2b2245f0604fe/" data-video="https://rutube.ru/play/embed/554fff0f67a41d2214d2b2245f0604fe/" data-zag="§ 9 Решение дробных ра­ци­о­наль­ных уравнений" data-nomer="§ 9" data-tema="Решение дробных ра­ци­о­наль­ных уравнений" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 9</span><span class="trek-tema">Решение дробных ра­ци­о­наль­ных уравнений</span></a><a class="trek" href="https://rutube.ru/video/74d93cc63a1414f49e92aac421f35924/" data-video="https://rutube.ru/play/embed/74d93cc63a1414f49e92aac421f35924/" data-zag="§ 9 Решение задач с помощью ра­ци­о­наль­ных уравнений" data-nomer="§ 9" data-tema="Решение задач с помощью ра­ци­о­наль­ных уравнений" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 9</span><span class="trek-tema">Решение задач с помощью ра­ци­о­наль­ных уравнений</span></a><a class="trek" href="https://rutube.ru/video/d22017b03020be215aca8a13a2ab90f1/" data-video="https://rutube.ru/play/embed/d22017b03020be215aca8a13a2ab90f1/" data-zag="§ 9 Уравнения с па­ра­мет­ром" data-nomer="§ 9" data-tema="Уравнения с па­ра­мет­ром" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 9</span><span class="trek-tema">Уравнения с па­ра­мет­ром</span></a><div class="trek-gruppa">Глава IV. Не­ра­вен­ства</div><a class="trek" href="https://rutube.ru/video/6473dac22ea092a792f7ef0523bcb459/" data-video="https://rutube.ru/play/embed/6473dac22ea092a792f7ef0523bcb459/" data-zag="§ 10 Числовые не­ра­вен­ства" data-nomer="§ 10" data-tema="Числовые не­ра­вен­ства" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 10</span><span class="trek-tema">Числовые не­ра­вен­ства</span></a><a class="trek" href="https://rutube.ru/video/090121ec329288ef505cdd229be3184c/" data-video="https://rutube.ru/play/embed/090121ec329288ef505cdd229be3184c/" data-zag="§ 10 Свойства числовых не­ра­венств" data-nomer="§ 10" data-tema="Свойства числовых не­ра­венств" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 10</span><span class="trek-tema">Свойства числовых не­ра­венств</span></a><a class="trek" href="https://rutube.ru/video/ff027ed2d9b31aa5ea69e64a8c1be869/" data-video="https://rutube.ru/play/embed/ff027ed2d9b31aa5ea69e64a8c1be869/" data-zag="§ 10 Сложение и умножение числовых не­ра­венств" data-nomer="§ 10" data-tema="Сложение и умножение числовых не­ра­венств" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 10</span><span class="trek-tema">Сложение и умножение числовых не­ра­венств</span></a><a class="trek" href="https://rutube.ru/video/8516c7776e504a759254c0f36b32325c/" data-video="https://rutube.ru/play/embed/8516c7776e504a759254c0f36b32325c/" data-zag="§ 10 По­греш­ность и точность при­бли­же­ния" data-nomer="§ 10" data-tema="По­греш­ность и точность при­бли­же­ния" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 10</span><span class="trek-tema">По­греш­ность и точность при­бли­же­ния</span></a><a class="trek" href="https://rutube.ru/video/19975cd6f7e60d1ff0070d46b4e10c46/" data-video="https://rutube.ru/play/embed/19975cd6f7e60d1ff0070d46b4e10c46/" data-zag="§ 11 Пе­ре­се­че­ние и объ­еди­не­ние множеств" data-nomer="§ 11" data-tema="Пе­ре­се­че­ние и объ­еди­не­ние множеств" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 11</span><span class="trek-tema">Пе­ре­се­че­ние и объ­еди­не­ние множеств</span></a><a class="trek" href="https://rutube.ru/video/f3bc3f7fa5d09f1937846a35e23bb871/" data-video="https://rutube.ru/play/embed/f3bc3f7fa5d09f1937846a35e23bb871/" data-zag="§ 11 Числовые про­ме­жут­ки" data-nomer="§ 11" data-tema="Числовые про­ме­жут­ки" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 11</span><span class="trek-tema">Числовые про­ме­жут­ки</span></a><a class="trek" href="https://rutube.ru/video/a6c207b4cd10ee98082f00912533df83/" data-video="https://rutube.ru/play/embed/a6c207b4cd10ee98082f00912533df83/" data-zag="§ 11 Решение не­ра­венств с одной пе­ре­мен­ной" data-nomer="§ 11" data-tema="Решение не­ра­венств с одной пе­ре­мен­ной" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 11</span><span class="trek-tema">Решение не­ра­венств с одной пе­ре­мен­ной</span></a><a class="trek" href="https://rutube.ru/video/0f4d83ff567242e802bb4331aa3ac957/" data-video="https://rutube.ru/play/embed/0f4d83ff567242e802bb4331aa3ac957/" data-zag="§ 11 Решение систем не­ра­венств с одной пе­ре­мен­ной" data-nomer="§ 11" data-tema="Решение систем не­ра­венств с одной пе­ре­мен­ной" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 11</span><span class="trek-tema">Решение систем не­ра­венств с одной пе­ре­мен­ной</span></a><div class="trek-gruppa">Глава V. Степень с целым по­ка­за­те­лем. Элементы ста­ти­сти­ки</div><a class="trek" href="https://rutube.ru/video/ca85bd489a3e5ae83869b05729208fda/" data-video="https://rutube.ru/play/embed/ca85bd489a3e5ae83869b05729208fda/" data-zag="§ 12 Степень с целым от­ри­ца­тель­ным по­ка­за­те­лем" data-nomer="§ 12" data-tema="Степень с целым от­ри­ца­тель­ным по­ка­за­те­лем" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 12</span><span class="trek-tema">Степень с целым от­ри­ца­тель­ным по­ка­за­те­лем</span></a><a class="trek" href="https://rutube.ru/video/4b5016aec84d9883590b3187fdc99d34/" data-video="https://rutube.ru/play/embed/4b5016aec84d9883590b3187fdc99d34/" data-zag="§ 12 Свойства степени с целым по­ка­за­те­лем" data-nomer="§ 12" data-tema="Свойства степени с целым по­ка­за­те­лем" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 12</span><span class="trek-tema">Свойства степени с целым по­ка­за­те­лем</span></a><a class="trek" href="https://rutube.ru/video/02339930ea7ffb964c859242a22f9982/" data-video="https://rutube.ru/play/embed/02339930ea7ffb964c859242a22f9982/" data-zag="§ 12 Стан­дарт­ный вид числа" data-nomer="§ 12" data-tema="Стан­дарт­ный вид числа" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 12</span><span class="trek-tema">Стан­дарт­ный вид числа</span></a></div></details><details class="pl-blok" data-nabor="1"><summary class="pl-imya" onclick="return shkRaskryt(this)"><span class="pl-nazv">Разбор домашних заданий</span><span class="strela"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 9l7 7 7-7"/></svg></span></summary><div class="pl-telo"><a class="trek" href="https://rutube.ru/video/b24f820bcfaf4aac6ae2a21bc4a2d5dc/" data-video="https://rutube.ru/play/embed/b24f820bcfaf4aac6ae2a21bc4a2d5dc/" data-zag="§ 1 Номера 1—24" data-nomer="§ 1" data-tema="Номера 1—24" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 1</span><span class="trek-tema">Номера 1—24</span></a><a class="trek" href="https://rutube.ru/video/142d11a2c3ac885f6540366cba5da2db/" data-video="https://rutube.ru/play/embed/142d11a2c3ac885f6540366cba5da2db/" data-zag="§ 1 Номера 25—54" data-nomer="§ 1" data-tema="Номера 25—54" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 1</span><span class="trek-tema">Номера 25—54</span></a><a class="trek" href="https://rutube.ru/video/fde1549feb6ffa218fe3ec4a16fe90ea/" data-video="https://rutube.ru/play/embed/fde1549feb6ffa218fe3ec4a16fe90ea/" data-zag="Сложение и вычитание дробей с одинак. знамен., 55-74 номера" data-nomer="" data-tema="Сложение и вычитание дробей с одинак. знамен., 55-74 номера" onclick="return shkIgrat(this)"><span class="trek-tema">Сложение и вычитание дробей с одинак. знамен., 55-74 номера</span></a><a class="trek" href="https://rutube.ru/video/469e317e5cda1fd2d729cc6df0096a6b/" data-video="https://rutube.ru/play/embed/469e317e5cda1fd2d729cc6df0096a6b/" data-zag="Сложение и вычитание дробей с разными знамен., 75-82 номера" data-nomer="" data-tema="Сложение и вычитание дробей с разными знамен., 75-82 номера" onclick="return shkIgrat(this)"><span class="trek-tema">Сложение и вычитание дробей с разными знамен., 75-82 номера</span></a><a class="trek" href="https://rutube.ru/video/d910b08234b23f485819c2cc119f52b1/" data-video="https://rutube.ru/play/embed/d910b08234b23f485819c2cc119f52b1/" data-zag="Сложение и вычитание дробей с разными знамен., 83-90 номера" data-nomer="" data-tema="Сложение и вычитание дробей с разными знамен., 83-90 номера" onclick="return shkIgrat(this)"><span class="trek-tema">Сложение и вычитание дробей с разными знамен., 83-90 номера</span></a><a class="trek" href="https://rutube.ru/video/46d177f87a3eb39c9cbdbef3d0f387b3/" data-video="https://rutube.ru/play/embed/46d177f87a3eb39c9cbdbef3d0f387b3/" data-zag="Сложение и вычитание дробей с разными знамен., 91-97 номера" data-nomer="" data-tema="Сложение и вычитание дробей с разными знамен., 91-97 номера" onclick="return shkIgrat(this)"><span class="trek-tema">Сложение и вычитание дробей с разными знамен., 91-97 номера</span></a><a class="trek" href="https://rutube.ru/video/c0c25c27de0179db3cf64bff2b86004f/" data-video="https://rutube.ru/play/embed/c0c25c27de0179db3cf64bff2b86004f/" data-zag="Сложение и вычитание дробей с разными знамен., 98-109 номера" data-nomer="" data-tema="Сложение и вычитание дробей с разными знамен., 98-109 номера" onclick="return shkIgrat(this)"><span class="trek-tema">Сложение и вычитание дробей с разными знамен., 98-109 номера</span></a><a class="trek" href="https://rutube.ru/video/33038b0736e86e6ef4dc8161926c3af2/" data-video="https://rutube.ru/play/embed/33038b0736e86e6ef4dc8161926c3af2/" data-zag="Умножение и воз­ве­де­ние в степень дробей, 110-121 номера" data-nomer="" data-tema="Умножение и воз­ве­де­ние в степень дробей, 110-121 номера" onclick="return shkIgrat(this)"><span class="trek-tema">Умножение и воз­ве­де­ние в степень дробей, 110-121 номера</span></a><a class="trek" href="https://rutube.ru/video/53cd18f21e610411f391f3e2c4f3cdc1/" data-video="https://rutube.ru/play/embed/53cd18f21e610411f391f3e2c4f3cdc1/" data-zag="Умножение и воз­ве­де­ние в степень дробей, 122-133 номера" data-nomer="" data-tema="Умножение и воз­ве­де­ние в степень дробей, 122-133 номера" onclick="return shkIgrat(this)"><span class="trek-tema">Умножение и воз­ве­де­ние в степень дробей, 122-133 номера</span></a><a class="trek" href="https://rutube.ru/video/ccadb242dd84a9d1135cfb463c245966/" data-video="https://rutube.ru/play/embed/ccadb242dd84a9d1135cfb463c245966/" data-zag="Деление дробей, 134-140 номера" data-nomer="" data-tema="Деление дробей, 134-140 номера" onclick="return shkIgrat(this)"><span class="trek-tema">Деление дробей, 134-140 номера</span></a><a class="trek" href="https://rutube.ru/video/2f5e95ca6f98743eea4883a5b5f46e77/" data-video="https://rutube.ru/play/embed/2f5e95ca6f98743eea4883a5b5f46e77/" data-zag="Деление дробей, 141-149 номера" data-nomer="" data-tema="Деление дробей, 141-149 номера" onclick="return shkIgrat(this)"><span class="trek-tema">Деление дробей, 141-149 номера</span></a><a class="trek" href="https://rutube.ru/video/5e4aefc80b0184a851629ac63c8deaac/" data-video="https://rutube.ru/play/embed/5e4aefc80b0184a851629ac63c8deaac/" data-zag="Деление дробей, 150-154 номера" data-nomer="" data-tema="Деление дробей, 150-154 номера" onclick="return shkIgrat(this)"><span class="trek-tema">Деление дробей, 150-154 номера</span></a><a class="trek" href="https://rutube.ru/video/fd9dd9c59f1cec3ace2758ef70b7516d/" data-video="https://rutube.ru/play/embed/fd9dd9c59f1cec3ace2758ef70b7516d/" data-zag="Пре­об­ра­зо­ва­ние ра­ци­о­наль­ных выражений, 155-163 номера" data-nomer="" data-tema="Пре­об­ра­зо­ва­ние ра­ци­о­наль­ных выражений, 155-163 номера" onclick="return shkIgrat(this)"><span class="trek-tema">Пре­об­ра­зо­ва­ние ра­ци­о­наль­ных выражений, 155-163 номера</span></a><a class="trek" href="https://rutube.ru/video/4d01dbe684406b0a75f2a0b04edabbd7/" data-video="https://rutube.ru/play/embed/4d01dbe684406b0a75f2a0b04edabbd7/" data-zag="Пре­об­ра­зо­ва­ние ра­ци­о­наль­ных выражений, 156-180 номера" data-nomer="" data-tema="Пре­об­ра­зо­ва­ние ра­ци­о­наль­ных выражений, 156-180 номера" onclick="return shkIgrat(this)"><span class="trek-tema">Пре­об­ра­зо­ва­ние ра­ци­о­наль­ных выражений, 156-180 номера</span></a></div></details><details class="pl-blok" data-nabor="2"><summary class="pl-imya" onclick="return shkRaskryt(this)"><span class="pl-nazv">Курс большими частями</span><span class="strela"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 9l7 7 7-7"/></svg></span></summary><div class="pl-telo"><a class="trek" href="https://rutube.ru/video/0e3cd1125b70518cdf51420b236287df/" data-video="https://rutube.ru/play/embed/0e3cd1125b70518cdf51420b236287df/" data-zag="Часть 1 (п 21-23)" data-nomer="" data-tema="Часть 1 (п 21-23)" onclick="return shkIgrat(this)"><span class="trek-tema">Часть 1 (п 21-23)</span></a><a class="trek" href="https://rutube.ru/video/4bd707ce820a0848dd9c2149c57e3775/" data-video="https://rutube.ru/play/embed/4bd707ce820a0848dd9c2149c57e3775/" data-zag="Часть 2 (п 18-19 кр)" data-nomer="" data-tema="Часть 2 (п 18-19 кр)" onclick="return shkIgrat(this)"><span class="trek-tema">Часть 2 (п 18-19 кр)</span></a><a class="trek" href="https://rutube.ru/video/a4dbb8091bd6f533881c39475510efa7/" data-video="https://rutube.ru/play/embed/a4dbb8091bd6f533881c39475510efa7/" data-zag="Часть 3 (п 17 кр)" data-nomer="" data-tema="Часть 3 (п 17 кр)" onclick="return shkIgrat(this)"><span class="trek-tema">Часть 3 (п 17 кр)</span></a><a class="trek" href="https://rutube.ru/video/1cedb1eab3ea6a28fd6ee3a87daa4338/" data-video="https://rutube.ru/play/embed/1cedb1eab3ea6a28fd6ee3a87daa4338/" data-zag="Часть 4 (п 12-16)" data-nomer="" data-tema="Часть 4 (п 12-16)" onclick="return shkIgrat(this)"><span class="trek-tema">Часть 4 (п 12-16)</span></a><a class="trek" href="https://rutube.ru/video/f33915e2c3786e2771ceae7db4bfe60a/" data-video="https://rutube.ru/play/embed/f33915e2c3786e2771ceae7db4bfe60a/" data-zag="Часть 5 (п 10-11)" data-nomer="" data-tema="Часть 5 (п 10-11)" onclick="return shkIgrat(this)"><span class="trek-tema">Часть 5 (п 10-11)</span></a><a class="trek" href="https://rutube.ru/video/743d1c958e3a45bf0694568a32185748/" data-video="https://rutube.ru/play/embed/743d1c958e3a45bf0694568a32185748/" data-zag="Часть 6 (п.7 и 8)" data-nomer="" data-tema="Часть 6 (п.7 и 8)" onclick="return shkIgrat(this)"><span class="trek-tema">Часть 6 (п.7 и 8)</span></a><a class="trek" href="https://rutube.ru/video/f379f719a9b3cf54b512d9d59e679d41/" data-video="https://rutube.ru/play/embed/f379f719a9b3cf54b512d9d59e679d41/" data-zag="Часть 7 (п.5и6)" data-nomer="" data-tema="Часть 7 (п.5и6)" onclick="return shkIgrat(this)"><span class="trek-tema">Часть 7 (п.5и6)</span></a><a class="trek" href="https://rutube.ru/video/316f623259531861a53f3d34d3303762/" data-video="https://rutube.ru/play/embed/316f623259531861a53f3d34d3303762/" data-zag="Часть 8 (п. 3и4)" data-nomer="" data-tema="Часть 8 (п. 3и4)" onclick="return shkIgrat(this)"><span class="trek-tema">Часть 8 (п. 3и4)</span></a><a class="trek" href="https://rutube.ru/video/bcb7fdda3a8bd1fad2aa1e0dd0aa9b17/" data-video="https://rutube.ru/play/embed/bcb7fdda3a8bd1fad2aa1e0dd0aa9b17/" data-zag="Часть 9 (п.1 и 2)" data-nomer="" data-tema="Часть 9 (п.1 и 2)" onclick="return shkIgrat(this)"><span class="trek-tema">Часть 9 (п.1 и 2)</span></a></div></details><details class="pl-blok" data-nabor="3"><summary class="pl-imya" onclick="return shkRaskryt(this)"><span class="pl-nazv">По­вто­ре­ние за год</span><span class="strela"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 9l7 7 7-7"/></svg></span></summary><div class="pl-telo"><a class="trek" href="https://rutube.ru/video/e18a0fd5b4e3a7b5fe5e655761a3b6b3/" data-video="https://rutube.ru/play/embed/e18a0fd5b4e3a7b5fe5e655761a3b6b3/" data-zag="По­вто­ре­ние, часть 1" data-nomer="" data-tema="По­вто­ре­ние, часть 1" onclick="return shkIgrat(this)"><span class="trek-tema">По­вто­ре­ние, часть 1</span></a><a class="trek" href="https://rutube.ru/video/eb48a366d6a705abefe7f8df5e35e5a9/" data-video="https://rutube.ru/play/embed/eb48a366d6a705abefe7f8df5e35e5a9/" data-zag="По­вто­ре­ние, часть 2" data-nomer="" data-tema="По­вто­ре­ние, часть 2" onclick="return shkIgrat(this)"><span class="trek-tema">По­вто­ре­ние, часть 2</span></a><a class="trek" href="https://rutube.ru/video/8cc64824a601e8354f246776119bf3af/" data-video="https://rutube.ru/play/embed/8cc64824a601e8354f246776119bf3af/" data-zag="По­вто­ре­ние, часть 3" data-nomer="" data-tema="По­вто­ре­ние, часть 3" onclick="return shkIgrat(this)"><span class="trek-tema">По­вто­ре­ние, часть 3</span></a><a class="trek" href="https://rutube.ru/video/ccb6e37ac2d325d12f4133b709b1f680/" data-video="https://rutube.ru/play/embed/ccb6e37ac2d325d12f4133b709b1f680/" data-zag="По­вто­ре­ние, часть 4" data-nomer="" data-tema="По­вто­ре­ние, часть 4" onclick="return shkIgrat(this)"><span class="trek-tema">По­вто­ре­ние, часть 4</span></a><a class="trek" href="https://rutube.ru/video/be98395dfb8913035eefa2fdc806214b/" data-video="https://rutube.ru/play/embed/be98395dfb8913035eefa2fdc806214b/" data-zag="По­вто­ре­ние, часть 5" data-nomer="" data-tema="По­вто­ре­ние, часть 5" onclick="return shkIgrat(this)"><span class="trek-tema">По­вто­ре­ние, часть 5</span></a><a class="trek" href="https://rutube.ru/video/025fe7e7589c3f22c5e4053ea03ceaa7/" data-video="https://rutube.ru/play/embed/025fe7e7589c3f22c5e4053ea03ceaa7/" data-zag="По­вто­ре­ние, часть 6" data-nomer="" data-tema="По­вто­ре­ние, часть 6" onclick="return shkIgrat(this)"><span class="trek-tema">По­вто­ре­ние, часть 6</span></a><a class="trek" href="https://rutube.ru/video/08b8aaa68e43870217f639d0c21dc5b3/" data-video="https://rutube.ru/play/embed/08b8aaa68e43870217f639d0c21dc5b3/" data-zag="По­вто­ре­ние, часть 7" data-nomer="" data-tema="По­вто­ре­ние, часть 7" onclick="return shkIgrat(this)"><span class="trek-tema">По­вто­ре­ние, часть 7</span></a><a class="trek" href="https://rutube.ru/video/5b48a95bff911b61d1086e71540a35d8/" data-video="https://rutube.ru/play/embed/5b48a95bff911b61d1086e71540a35d8/" data-zag="По­вто­ре­ние, часть 8" data-nomer="" data-tema="По­вто­ре­ние, часть 8" onclick="return shkIgrat(this)"><span class="trek-tema">По­вто­ре­ние, часть 8</span></a><a class="trek" href="https://rutube.ru/video/8eacbe025a64da0191496699d226ff9e/" data-video="https://rutube.ru/play/embed/8eacbe025a64da0191496699d226ff9e/" data-zag="По­вто­ре­ние, часть 9" data-nomer="" data-tema="По­вто­ре­ние, часть 9" onclick="return shkIgrat(this)"><span class="trek-tema">По­вто­ре­ние, часть 9</span></a></div></details></div></div>
 <aside class="panel" id="pleylist-panel"><div class="panel-verh"><span class="panel-zag" id="pl-zag">По па­ра­гра­фам</span><a class="panel-zakryt" href="#" aria-label="Закрыть плейлист" onclick="return shkPleylist(false)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6.5 6.5l11 11"/><path d="M17.5 6.5l-11 11"/></svg></a></div><div class="panel-telo"><div class="pleylist aktiven" data-nabor="0" data-imya="По па­ра­гра­фам"><div class="trek-gruppa">Глава I. Ра­ци­о­наль­ные дроби</div><a class="trek" href="https://rutube.ru/video/938d570fe8fc3c5fe6d5ac45e538dc2f/" data-video="https://rutube.ru/play/embed/938d570fe8fc3c5fe6d5ac45e538dc2f/" data-zag="§ 1 Ра­ци­о­наль­ные выражения (упр. 1—22)" data-nomer="§ 1" data-tema="Ра­ци­о­наль­ные выражения (упр. 1—22)" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 1</span><span class="trek-tema">Ра­ци­о­наль­ные выражения (упр. 1—22)</span></a><a class="trek" href="https://rutube.ru/video/bdc87cbc8cbd6c052b0f85c6fa7bf650/" data-video="https://rutube.ru/play/embed/bdc87cbc8cbd6c052b0f85c6fa7bf650/" data-zag="§ 1 Основное свойство дроби. Со­кра­ще­ние дробей (упр. 23—52)" data-nomer="§ 1" data-tema="Основное свойство дроби. Со­кра­ще­ние дробей (упр. 23—52)" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 1</span><span class="trek-tema">Основное свойство дроби. Со­кра­ще­ние дробей (упр. 23—52)</span></a><a class="trek" href="https://rutube.ru/video/58784f5c6ff406eb0f97e3570beea3f4/" data-video="https://rutube.ru/play/embed/58784f5c6ff406eb0f97e3570beea3f4/" data-zag="§ 2 Сложение и вычитание дробей с оди­на­ко­вы­ми зна­ме­на­те­ля­ми (упр. 53—72)" data-nomer="§ 2" data-tema="Сложение и вычитание дробей с оди­на­ко­вы­ми зна­ме­на­те­ля­ми (упр. 53—72)" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 2</span><span class="trek-tema">Сложение и вычитание дробей с оди­на­ко­вы­ми зна­ме­на­те­ля­ми (упр. 53—72)</span></a><a class="trek" href="https://rutube.ru/video/a887e1cd53b51bb82e9d2d5f820ace7e/" data-video="https://rutube.ru/play/embed/a887e1cd53b51bb82e9d2d5f820ace7e/" data-zag="§ 2 Сложение и вычитание дробей с разными зна­ме­на­те­ля­ми (упр. 73—107)" data-nomer="§ 2" data-tema="Сложение и вычитание дробей с разными зна­ме­на­те­ля­ми (упр. 73—107)" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 2</span><span class="trek-tema">Сложение и вычитание дробей с разными зна­ме­на­те­ля­ми (упр. 73—107)</span></a><a class="trek" href="https://rutube.ru/video/f968c41d419f2d43948951c2d8419dad/" data-video="https://rutube.ru/play/embed/f968c41d419f2d43948951c2d8419dad/" data-zag="§ 3 Умножение дробей. Воз­ве­де­ние дроби в степень (упр. 108—131)" data-nomer="§ 3" data-tema="Умножение дробей. Воз­ве­де­ние дроби в степень (упр. 108—131)" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 3</span><span class="trek-tema">Умножение дробей. Воз­ве­де­ние дроби в степень (упр. 108—131)</span></a><a class="trek" href="https://rutube.ru/video/8667206deb5d6bdcf9110927a1b3a830/" data-video="https://rutube.ru/play/embed/8667206deb5d6bdcf9110927a1b3a830/" data-zag="§ 3 Деление дробей (упр. 132—147)" data-nomer="§ 3" data-tema="Деление дробей (упр. 132—147)" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 3</span><span class="trek-tema">Деление дробей (упр. 132—147)</span></a><a class="trek" href="https://rutube.ru/video/1d5e1774a089abde29609d7123be9acf/" data-video="https://rutube.ru/play/embed/1d5e1774a089abde29609d7123be9acf/" data-zag="§ 3 Пре­об­ра­зо­ва­ние ра­ци­о­наль­ных выражений (упр. 148—178)" data-nomer="§ 3" data-tema="Пре­об­ра­зо­ва­ние ра­ци­о­наль­ных выражений (упр. 148—178)" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 3</span><span class="trek-tema">Пре­об­ра­зо­ва­ние ра­ци­о­наль­ных выражений (упр. 148—178)</span></a><a class="trek" href="https://rutube.ru/video/5476bfe06747662b01cb433c092e78e2/" data-video="https://rutube.ru/play/embed/5476bfe06747662b01cb433c092e78e2/" data-zag="§ 3 Функция y = k/x и её график (упр. 179—196)" data-nomer="§ 3" data-tema="Функция y = k/x и её график (упр. 179—196)" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 3</span><span class="trek-tema">Функция y = k/x и её график (упр. 179—196)</span></a><div class="trek-gruppa">Глава II. Квад­рат­ные корни</div><a class="trek" href="https://rutube.ru/video/63a2fd2d12521b5fb642d21e88e050d4/" data-video="https://rutube.ru/play/embed/63a2fd2d12521b5fb642d21e88e050d4/" data-zag="§ 4 Ра­ци­о­наль­ные числа" data-nomer="§ 4" data-tema="Ра­ци­о­наль­ные числа" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 4</span><span class="trek-tema">Ра­ци­о­наль­ные числа</span></a><a class="trek" href="https://rutube.ru/video/3f1254055f947b14fd8854109ed15ab9/" data-video="https://rutube.ru/play/embed/3f1254055f947b14fd8854109ed15ab9/" data-zag="§ 4 Ир­ра­ци­о­наль­ные числа" data-nomer="§ 4" data-tema="Ир­ра­ци­о­наль­ные числа" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 4</span><span class="trek-tema">Ир­ра­ци­о­наль­ные числа</span></a><a class="trek" href="https://rutube.ru/video/6ea1c83e0a0608938021b45cdf1ba2c0/" data-video="https://rutube.ru/play/embed/6ea1c83e0a0608938021b45cdf1ba2c0/" data-zag="§ 5 Квад­рат­ные корни. Ариф­ме­ти­че­ский квад­рат­ный корень" data-nomer="§ 5" data-tema="Квад­рат­ные корни. Ариф­ме­ти­че­ский квад­рат­ный корень" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 5</span><span class="trek-tema">Квад­рат­ные корни. Ариф­ме­ти­че­ский квад­рат­ный корень</span></a><a class="trek" href="https://rutube.ru/video/4dddeb58dd7f6c359af2b344fab2ed97/" data-video="https://rutube.ru/play/embed/4dddeb58dd7f6c359af2b344fab2ed97/" data-zag="§ 5 Уравнение x² = a" data-nomer="§ 5" data-tema="Уравнение x² = a" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 5</span><span class="trek-tema">Уравнение x² = a</span></a><a class="trek" href="https://rutube.ru/video/0c76c0313fef79acb71eb128cdf8ede5/" data-video="https://rutube.ru/play/embed/0c76c0313fef79acb71eb128cdf8ede5/" data-zag="§ 5 На­хо­жде­ние при­ближён­ных значений квад­рат­но­го корня" data-nomer="§ 5" data-tema="На­хо­жде­ние при­ближён­ных значений квад­рат­но­го корня" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 5</span><span class="trek-tema">На­хо­жде­ние при­ближён­ных значений квад­рат­но­го корня</span></a><a class="trek" href="https://rutube.ru/video/082a3aa4d4388169198b4cbb45ac9eb6/" data-video="https://rutube.ru/play/embed/082a3aa4d4388169198b4cbb45ac9eb6/" data-zag="§ 5 Функция y = √x и её график" data-nomer="§ 5" data-tema="Функция y = √x и её график" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 5</span><span class="trek-tema">Функция y = √x и её график</span></a><a class="trek" href="https://rutube.ru/video/cae74fe2ac0951f62db7f5eb58728c8d/" data-video="https://rutube.ru/play/embed/cae74fe2ac0951f62db7f5eb58728c8d/" data-zag="§ 6 Квад­рат­ный корень из про­из­ве­де­ния и дроби" data-nomer="§ 6" data-tema="Квад­рат­ный корень из про­из­ве­де­ния и дроби" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 6</span><span class="trek-tema">Квад­рат­ный корень из про­из­ве­де­ния и дроби</span></a><a class="trek" href="https://rutube.ru/video/8e856f578d6d6b10cd0141281ad7b19b/" data-video="https://rutube.ru/play/embed/8e856f578d6d6b10cd0141281ad7b19b/" data-zag="§ 6 Квад­рат­ный корень из степени" data-nomer="§ 6" data-tema="Квад­рат­ный корень из степени" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 6</span><span class="trek-tema">Квад­рат­ный корень из степени</span></a><a class="trek" href="https://rutube.ru/video/7b03feeee17430124703d3c48d34d220/" data-video="https://rutube.ru/play/embed/7b03feeee17430124703d3c48d34d220/" data-zag="§ 7 Вынесение множителя за знак корня. Внесение множителя под знак корня" data-nomer="§ 7" data-tema="Вынесение множителя за знак корня. Внесение множителя под знак корня" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 7</span><span class="trek-tema">Вынесение множителя за знак корня. Внесение множителя под знак корня</span></a><a class="trek" href="https://rutube.ru/video/420e58fd30daf4c5bc0c9c18a0de1764/" data-video="https://rutube.ru/play/embed/420e58fd30daf4c5bc0c9c18a0de1764/" data-zag="§ 7 Пре­об­ра­зо­ва­ние выражений, со­дер­жа­щих квад­рат­ные корни" data-nomer="§ 7" data-tema="Пре­об­ра­зо­ва­ние выражений, со­дер­жа­щих квад­рат­ные корни" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 7</span><span class="trek-tema">Пре­об­ра­зо­ва­ние выражений, со­дер­жа­щих квад­рат­ные корни</span></a><div class="trek-gruppa">Глава III. Квад­рат­ные уравнения</div><a class="trek" href="https://rutube.ru/video/72ef7dd5b6b4136e84178aa8799282d1/" data-video="https://rutube.ru/play/embed/72ef7dd5b6b4136e84178aa8799282d1/" data-zag="§ 8 Неполные квад­рат­ные уравнения" data-nomer="§ 8" data-tema="Неполные квад­рат­ные уравнения" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 8</span><span class="trek-tema">Неполные квад­рат­ные уравнения</span></a><a class="trek" href="https://rutube.ru/video/b5c9502f437fd61390057d128520b8d8/" data-video="https://rutube.ru/play/embed/b5c9502f437fd61390057d128520b8d8/" data-zag="§ 8 Формула корней квад­рат­но­го уравнения" data-nomer="§ 8" data-tema="Формула корней квад­рат­но­го уравнения" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 8</span><span class="trek-tema">Формула корней квад­рат­но­го уравнения</span></a><a class="trek" href="https://rutube.ru/video/3e1f25ef307a8062707cba45b03a671a/" data-video="https://rutube.ru/play/embed/3e1f25ef307a8062707cba45b03a671a/" data-zag="§ 8 Решение задач с помощью квад­рат­ных уравнений" data-nomer="§ 8" data-tema="Решение задач с помощью квад­рат­ных уравнений" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 8</span><span class="trek-tema">Решение задач с помощью квад­рат­ных уравнений</span></a><a class="trek" href="https://rutube.ru/video/00fce6293112c924beeb913d4e33f04a/" data-video="https://rutube.ru/play/embed/00fce6293112c924beeb913d4e33f04a/" data-zag="§ 8 Теорема Виета" data-nomer="§ 8" data-tema="Теорема Виета" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 8</span><span class="trek-tema">Теорема Виета</span></a><a class="trek" href="https://rutube.ru/video/554fff0f67a41d2214d2b2245f0604fe/" data-video="https://rutube.ru/play/embed/554fff0f67a41d2214d2b2245f0604fe/" data-zag="§ 9 Решение дробных ра­ци­о­наль­ных уравнений" data-nomer="§ 9" data-tema="Решение дробных ра­ци­о­наль­ных уравнений" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 9</span><span class="trek-tema">Решение дробных ра­ци­о­наль­ных уравнений</span></a><a class="trek" href="https://rutube.ru/video/74d93cc63a1414f49e92aac421f35924/" data-video="https://rutube.ru/play/embed/74d93cc63a1414f49e92aac421f35924/" data-zag="§ 9 Решение задач с помощью ра­ци­о­наль­ных уравнений" data-nomer="§ 9" data-tema="Решение задач с помощью ра­ци­о­наль­ных уравнений" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 9</span><span class="trek-tema">Решение задач с помощью ра­ци­о­наль­ных уравнений</span></a><a class="trek" href="https://rutube.ru/video/d22017b03020be215aca8a13a2ab90f1/" data-video="https://rutube.ru/play/embed/d22017b03020be215aca8a13a2ab90f1/" data-zag="§ 9 Уравнения с па­ра­мет­ром" data-nomer="§ 9" data-tema="Уравнения с па­ра­мет­ром" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 9</span><span class="trek-tema">Уравнения с па­ра­мет­ром</span></a><div class="trek-gruppa">Глава IV. Не­ра­вен­ства</div><a class="trek" href="https://rutube.ru/video/6473dac22ea092a792f7ef0523bcb459/" data-video="https://rutube.ru/play/embed/6473dac22ea092a792f7ef0523bcb459/" data-zag="§ 10 Числовые не­ра­вен­ства" data-nomer="§ 10" data-tema="Числовые не­ра­вен­ства" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 10</span><span class="trek-tema">Числовые не­ра­вен­ства</span></a><a class="trek" href="https://rutube.ru/video/090121ec329288ef505cdd229be3184c/" data-video="https://rutube.ru/play/embed/090121ec329288ef505cdd229be3184c/" data-zag="§ 10 Свойства числовых не­ра­венств" data-nomer="§ 10" data-tema="Свойства числовых не­ра­венств" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 10</span><span class="trek-tema">Свойства числовых не­ра­венств</span></a><a class="trek" href="https://rutube.ru/video/ff027ed2d9b31aa5ea69e64a8c1be869/" data-video="https://rutube.ru/play/embed/ff027ed2d9b31aa5ea69e64a8c1be869/" data-zag="§ 10 Сложение и умножение числовых не­ра­венств" data-nomer="§ 10" data-tema="Сложение и умножение числовых не­ра­венств" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 10</span><span class="trek-tema">Сложение и умножение числовых не­ра­венств</span></a><a class="trek" href="https://rutube.ru/video/8516c7776e504a759254c0f36b32325c/" data-video="https://rutube.ru/play/embed/8516c7776e504a759254c0f36b32325c/" data-zag="§ 10 По­греш­ность и точность при­бли­же­ния" data-nomer="§ 10" data-tema="По­греш­ность и точность при­бли­же­ния" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 10</span><span class="trek-tema">По­греш­ность и точность при­бли­же­ния</span></a><a class="trek" href="https://rutube.ru/video/19975cd6f7e60d1ff0070d46b4e10c46/" data-video="https://rutube.ru/play/embed/19975cd6f7e60d1ff0070d46b4e10c46/" data-zag="§ 11 Пе­ре­се­че­ние и объ­еди­не­ние множеств" data-nomer="§ 11" data-tema="Пе­ре­се­че­ние и объ­еди­не­ние множеств" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 11</span><span class="trek-tema">Пе­ре­се­че­ние и объ­еди­не­ние множеств</span></a><a class="trek" href="https://rutube.ru/video/f3bc3f7fa5d09f1937846a35e23bb871/" data-video="https://rutube.ru/play/embed/f3bc3f7fa5d09f1937846a35e23bb871/" data-zag="§ 11 Числовые про­ме­жут­ки" data-nomer="§ 11" data-tema="Числовые про­ме­жут­ки" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 11</span><span class="trek-tema">Числовые про­ме­жут­ки</span></a><a class="trek" href="https://rutube.ru/video/a6c207b4cd10ee98082f00912533df83/" data-video="https://rutube.ru/play/embed/a6c207b4cd10ee98082f00912533df83/" data-zag="§ 11 Решение не­ра­венств с одной пе­ре­мен­ной" data-nomer="§ 11" data-tema="Решение не­ра­венств с одной пе­ре­мен­ной" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 11</span><span class="trek-tema">Решение не­ра­венств с одной пе­ре­мен­ной</span></a><a class="trek" href="https://rutube.ru/video/0f4d83ff567242e802bb4331aa3ac957/" data-video="https://rutube.ru/play/embed/0f4d83ff567242e802bb4331aa3ac957/" data-zag="§ 11 Решение систем не­ра­венств с одной пе­ре­мен­ной" data-nomer="§ 11" data-tema="Решение систем не­ра­венств с одной пе­ре­мен­ной" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 11</span><span class="trek-tema">Решение систем не­ра­венств с одной пе­ре­мен­ной</span></a><div class="trek-gruppa">Глава V. Степень с целым по­ка­за­те­лем. Элементы ста­ти­сти­ки</div><a class="trek" href="https://rutube.ru/video/ca85bd489a3e5ae83869b05729208fda/" data-video="https://rutube.ru/play/embed/ca85bd489a3e5ae83869b05729208fda/" data-zag="§ 12 Степень с целым от­ри­ца­тель­ным по­ка­за­те­лем" data-nomer="§ 12" data-tema="Степень с целым от­ри­ца­тель­ным по­ка­за­те­лем" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 12</span><span class="trek-tema">Степень с целым от­ри­ца­тель­ным по­ка­за­те­лем</span></a><a class="trek" href="https://rutube.ru/video/4b5016aec84d9883590b3187fdc99d34/" data-video="https://rutube.ru/play/embed/4b5016aec84d9883590b3187fdc99d34/" data-zag="§ 12 Свойства степени с целым по­ка­за­те­лем" data-nomer="§ 12" data-tema="Свойства степени с целым по­ка­за­те­лем" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 12</span><span class="trek-tema">Свойства степени с целым по­ка­за­те­лем</span></a><a class="trek" href="https://rutube.ru/video/02339930ea7ffb964c859242a22f9982/" data-video="https://rutube.ru/play/embed/02339930ea7ffb964c859242a22f9982/" data-zag="§ 12 Стан­дарт­ный вид числа" data-nomer="§ 12" data-tema="Стан­дарт­ный вид числа" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 12</span><span class="trek-tema">Стан­дарт­ный вид числа</span></a></div><div class="pleylist" data-nabor="1" data-imya="Разбор домашних заданий" style="display:none"><a class="trek" href="https://rutube.ru/video/b24f820bcfaf4aac6ae2a21bc4a2d5dc/" data-video="https://rutube.ru/play/embed/b24f820bcfaf4aac6ae2a21bc4a2d5dc/" data-zag="§ 1 Номера 1—24" data-nomer="§ 1" data-tema="Номера 1—24" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 1</span><span class="trek-tema">Номера 1—24</span></a><a class="trek" href="https://rutube.ru/video/142d11a2c3ac885f6540366cba5da2db/" data-video="https://rutube.ru/play/embed/142d11a2c3ac885f6540366cba5da2db/" data-zag="§ 1 Номера 25—54" data-nomer="§ 1" data-tema="Номера 25—54" onclick="return shkIgrat(this)"><span class="trek-nomer">§ 1</span><span class="trek-tema">Номера 25—54</span></a><a class="trek" href="https://rutube.ru/video/fde1549feb6ffa218fe3ec4a16fe90ea/" data-video="https://rutube.ru/play/embed/fde1549feb6ffa218fe3ec4a16fe90ea/" data-zag="Сложение и вычитание дробей с одинак. знамен., 55-74 номера" data-nomer="" data-tema="Сложение и вычитание дробей с одинак. знамен., 55-74 номера" onclick="return shkIgrat(this)"><span class="trek-tema">Сложение и вычитание дробей с одинак. знамен., 55-74 номера</span></a><a class="trek" href="https://rutube.ru/video/469e317e5cda1fd2d729cc6df0096a6b/" data-video="https://rutube.ru/play/embed/469e317e5cda1fd2d729cc6df0096a6b/" data-zag="Сложение и вычитание дробей с разными знамен., 75-82 номера" data-nomer="" data-tema="Сложение и вычитание дробей с разными знамен., 75-82 номера" onclick="return shkIgrat(this)"><span class="trek-tema">Сложение и вычитание дробей с разными знамен., 75-82 номера</span></a><a class="trek" href="https://rutube.ru/video/d910b08234b23f485819c2cc119f52b1/" data-video="https://rutube.ru/play/embed/d910b08234b23f485819c2cc119f52b1/" data-zag="Сложение и вычитание дробей с разными знамен., 83-90 номера" data-nomer="" data-tema="Сложение и вычитание дробей с разными знамен., 83-90 номера" onclick="return shkIgrat(this)"><span class="trek-tema">Сложение и вычитание дробей с разными знамен., 83-90 номера</span></a><a class="trek" href="https://rutube.ru/video/46d177f87a3eb39c9cbdbef3d0f387b3/" data-video="https://rutube.ru/play/embed/46d177f87a3eb39c9cbdbef3d0f387b3/" data-zag="Сложение и вычитание дробей с разными знамен., 91-97 номера" data-nomer="" data-tema="Сложение и вычитание дробей с разными знамен., 91-97 номера" onclick="return shkIgrat(this)"><span class="trek-tema">Сложение и вычитание дробей с разными знамен., 91-97 номера</span></a><a class="trek" href="https://rutube.ru/video/c0c25c27de0179db3cf64bff2b86004f/" data-video="https://rutube.ru/play/embed/c0c25c27de0179db3cf64bff2b86004f/" data-zag="Сложение и вычитание дробей с разными знамен., 98-109 номера" data-nomer="" data-tema="Сложение и вычитание дробей с разными знамен., 98-109 номера" onclick="return shkIgrat(this)"><span class="trek-tema">Сложение и вычитание дробей с разными знамен., 98-109 номера</span></a><a class="trek" href="https://rutube.ru/video/33038b0736e86e6ef4dc8161926c3af2/" data-video="https://rutube.ru/play/embed/33038b0736e86e6ef4dc8161926c3af2/" data-zag="Умножение и воз­ве­де­ние в степень дробей, 110-121 номера" data-nomer="" data-tema="Умножение и воз­ве­де­ние в степень дробей, 110-121 номера" onclick="return shkIgrat(this)"><span class="trek-tema">Умножение и воз­ве­де­ние в степень дробей, 110-121 номера</span></a><a class="trek" href="https://rutube.ru/video/53cd18f21e610411f391f3e2c4f3cdc1/" data-video="https://rutube.ru/play/embed/53cd18f21e610411f391f3e2c4f3cdc1/" data-zag="Умножение и воз­ве­де­ние в степень дробей, 122-133 номера" data-nomer="" data-tema="Умножение и воз­ве­де­ние в степень дробей, 122-133 номера" onclick="return shkIgrat(this)"><span class="trek-tema">Умножение и воз­ве­де­ние в степень дробей, 122-133 номера</span></a><a class="trek" href="https://rutube.ru/video/ccadb242dd84a9d1135cfb463c245966/" data-video="https://rutube.ru/play/embed/ccadb242dd84a9d1135cfb463c245966/" data-zag="Деление дробей, 134-140 номера" data-nomer="" data-tema="Деление дробей, 134-140 номера" onclick="return shkIgrat(this)"><span class="trek-tema">Деление дробей, 134-140 номера</span></a><a class="trek" href="https://rutube.ru/video/2f5e95ca6f98743eea4883a5b5f46e77/" data-video="https://rutube.ru/play/embed/2f5e95ca6f98743eea4883a5b5f46e77/" data-zag="Деление дробей, 141-149 номера" data-nomer="" data-tema="Деление дробей, 141-149 номера" onclick="return shkIgrat(this)"><span class="trek-tema">Деление дробей, 141-149 номера</span></a><a class="trek" href="https://rutube.ru/video/5e4aefc80b0184a851629ac63c8deaac/" data-video="https://rutube.ru/play/embed/5e4aefc80b0184a851629ac63c8deaac/" data-zag="Деление дробей, 150-154 номера" data-nomer="" data-tema="Деление дробей, 150-154 номера" onclick="return shkIgrat(this)"><span class="trek-tema">Деление дробей, 150-154 номера</span></a><a class="trek" href="https://rutube.ru/video/fd9dd9c59f1cec3ace2758ef70b7516d/" data-video="https://rutube.ru/play/embed/fd9dd9c59f1cec3ace2758ef70b7516d/" data-zag="Пре­об­ра­зо­ва­ние ра­ци­о­наль­ных выражений, 155-163 номера" data-nomer="" data-tema="Пре­об­ра­зо­ва­ние ра­ци­о­наль­ных выражений, 155-163 номера" onclick="return shkIgrat(this)"><span class="trek-tema">Пре­об­ра­зо­ва­ние ра­ци­о­наль­ных выражений, 155-163 номера</span></a><a class="trek" href="https://rutube.ru/video/4d01dbe684406b0a75f2a0b04edabbd7/" data-video="https://rutube.ru/play/embed/4d01dbe684406b0a75f2a0b04edabbd7/" data-zag="Пре­об­ра­зо­ва­ние ра­ци­о­наль­ных выражений, 156-180 номера" data-nomer="" data-tema="Пре­об­ра­зо­ва­ние ра­ци­о­наль­ных выражений, 156-180 номера" onclick="return shkIgrat(this)"><span class="trek-tema">Пре­об­ра­зо­ва­ние ра­ци­о­наль­ных выражений, 156-180 номера</span></a></div><div class="pleylist" data-nabor="2" data-imya="Курс большими частями" style="display:none"><a class="trek" href="https://rutube.ru/video/0e3cd1125b70518cdf51420b236287df/" data-video="https://rutube.ru/play/embed/0e3cd1125b70518cdf51420b236287df/" data-zag="Часть 1 (п 21-23)" data-nomer="" data-tema="Часть 1 (п 21-23)" onclick="return shkIgrat(this)"><span class="trek-tema">Часть 1 (п 21-23)</span></a><a class="trek" href="https://rutube.ru/video/4bd707ce820a0848dd9c2149c57e3775/" data-video="https://rutube.ru/play/embed/4bd707ce820a0848dd9c2149c57e3775/" data-zag="Часть 2 (п 18-19 кр)" data-nomer="" data-tema="Часть 2 (п 18-19 кр)" onclick="return shkIgrat(this)"><span class="trek-tema">Часть 2 (п 18-19 кр)</span></a><a class="trek" href="https://rutube.ru/video/a4dbb8091bd6f533881c39475510efa7/" data-video="https://rutube.ru/play/embed/a4dbb8091bd6f533881c39475510efa7/" data-zag="Часть 3 (п 17 кр)" data-nomer="" data-tema="Часть 3 (п 17 кр)" onclick="return shkIgrat(this)"><span class="trek-tema">Часть 3 (п 17 кр)</span></a><a class="trek" href="https://rutube.ru/video/1cedb1eab3ea6a28fd6ee3a87daa4338/" data-video="https://rutube.ru/play/embed/1cedb1eab3ea6a28fd6ee3a87daa4338/" data-zag="Часть 4 (п 12-16)" data-nomer="" data-tema="Часть 4 (п 12-16)" onclick="return shkIgrat(this)"><span class="trek-tema">Часть 4 (п 12-16)</span></a><a class="trek" href="https://rutube.ru/video/f33915e2c3786e2771ceae7db4bfe60a/" data-video="https://rutube.ru/play/embed/f33915e2c3786e2771ceae7db4bfe60a/" data-zag="Часть 5 (п 10-11)" data-nomer="" data-tema="Часть 5 (п 10-11)" onclick="return shkIgrat(this)"><span class="trek-tema">Часть 5 (п 10-11)</span></a><a class="trek" href="https://rutube.ru/video/743d1c958e3a45bf0694568a32185748/" data-video="https://rutube.ru/play/embed/743d1c958e3a45bf0694568a32185748/" data-zag="Часть 6 (п.7 и 8)" data-nomer="" data-tema="Часть 6 (п.7 и 8)" onclick="return shkIgrat(this)"><span class="trek-tema">Часть 6 (п.7 и 8)</span></a><a class="trek" href="https://rutube.ru/video/f379f719a9b3cf54b512d9d59e679d41/" data-video="https://rutube.ru/play/embed/f379f719a9b3cf54b512d9d59e679d41/" data-zag="Часть 7 (п.5и6)" data-nomer="" data-tema="Часть 7 (п.5и6)" onclick="return shkIgrat(this)"><span class="trek-tema">Часть 7 (п.5и6)</span></a><a class="trek" href="https://rutube.ru/video/316f623259531861a53f3d34d3303762/" data-video="https://rutube.ru/play/embed/316f623259531861a53f3d34d3303762/" data-zag="Часть 8 (п. 3и4)" data-nomer="" data-tema="Часть 8 (п. 3и4)" onclick="return shkIgrat(this)"><span class="trek-tema">Часть 8 (п. 3и4)</span></a><a class="trek" href="https://rutube.ru/video/bcb7fdda3a8bd1fad2aa1e0dd0aa9b17/" data-video="https://rutube.ru/play/embed/bcb7fdda3a8bd1fad2aa1e0dd0aa9b17/" data-zag="Часть 9 (п.1 и 2)" data-nomer="" data-tema="Часть 9 (п.1 и 2)" onclick="return shkIgrat(this)"><span class="trek-tema">Часть 9 (п.1 и 2)</span></a></div><div class="pleylist" data-nabor="3" data-imya="По­вто­ре­ние за год" style="display:none"><a class="trek" href="https://rutube.ru/video/e18a0fd5b4e3a7b5fe5e655761a3b6b3/" data-video="https://rutube.ru/play/embed/e18a0fd5b4e3a7b5fe5e655761a3b6b3/" data-zag="По­вто­ре­ние, часть 1" data-nomer="" data-tema="По­вто­ре­ние, часть 1" onclick="return shkIgrat(this)"><span class="trek-tema">По­вто­ре­ние, часть 1</span></a><a class="trek" href="https://rutube.ru/video/eb48a366d6a705abefe7f8df5e35e5a9/" data-video="https://rutube.ru/play/embed/eb48a366d6a705abefe7f8df5e35e5a9/" data-zag="По­вто­ре­ние, часть 2" data-nomer="" data-tema="По­вто­ре­ние, часть 2" onclick="return shkIgrat(this)"><span class="trek-tema">По­вто­ре­ние, часть 2</span></a><a class="trek" href="https://rutube.ru/video/8cc64824a601e8354f246776119bf3af/" data-video="https://rutube.ru/play/embed/8cc64824a601e8354f246776119bf3af/" data-zag="По­вто­ре­ние, часть 3" data-nomer="" data-tema="По­вто­ре­ние, часть 3" onclick="return shkIgrat(this)"><span class="trek-tema">По­вто­ре­ние, часть 3</span></a><a class="trek" href="https://rutube.ru/video/ccb6e37ac2d325d12f4133b709b1f680/" data-video="https://rutube.ru/play/embed/ccb6e37ac2d325d12f4133b709b1f680/" data-zag="По­вто­ре­ние, часть 4" data-nomer="" data-tema="По­вто­ре­ние, часть 4" onclick="return shkIgrat(this)"><span class="trek-tema">По­вто­ре­ние, часть 4</span></a><a class="trek" href="https://rutube.ru/video/be98395dfb8913035eefa2fdc806214b/" data-video="https://rutube.ru/play/embed/be98395dfb8913035eefa2fdc806214b/" data-zag="По­вто­ре­ние, часть 5" data-nomer="" data-tema="По­вто­ре­ние, часть 5" onclick="return shkIgrat(this)"><span class="trek-tema">По­вто­ре­ние, часть 5</span></a><a class="trek" href="https://rutube.ru/video/025fe7e7589c3f22c5e4053ea03ceaa7/" data-video="https://rutube.ru/play/embed/025fe7e7589c3f22c5e4053ea03ceaa7/" data-zag="По­вто­ре­ние, часть 6" data-nomer="" data-tema="По­вто­ре­ние, часть 6" onclick="return shkIgrat(this)"><span class="trek-tema">По­вто­ре­ние, часть 6</span></a><a class="trek" href="https://rutube.ru/video/08b8aaa68e43870217f639d0c21dc5b3/" data-video="https://rutube.ru/play/embed/08b8aaa68e43870217f639d0c21dc5b3/" data-zag="По­вто­ре­ние, часть 7" data-nomer="" data-tema="По­вто­ре­ние, часть 7" onclick="return shkIgrat(this)"><span class="trek-tema">По­вто­ре­ние, часть 7</span></a><a class="trek" href="https://rutube.ru/video/5b48a95bff911b61d1086e71540a35d8/" data-video="https://rutube.ru/play/embed/5b48a95bff911b61d1086e71540a35d8/" data-zag="По­вто­ре­ние, часть 8" data-nomer="" data-tema="По­вто­ре­ние, часть 8" onclick="return shkIgrat(this)"><span class="trek-tema">По­вто­ре­ние, часть 8</span></a><a class="trek" href="https://rutube.ru/video/8eacbe025a64da0191496699d226ff9e/" data-video="https://rutube.ru/play/embed/8eacbe025a64da0191496699d226ff9e/" data-zag="По­вто­ре­ние, часть 9" data-nomer="" data-tema="По­вто­ре­ние, часть 9" onclick="return shkIgrat(this)"><span class="trek-tema">По­вто­ре­ние, часть 9</span></a></div></div></aside><div class="panel-tyanulka pleylista" tabindex="0" role="separator" aria-orientation="vertical" aria-label="Изменить ширину" onkeydown="return shkTyan(event)"></div>
 <script>
 (function(){
@@ -777,6 +1022,13 @@ a.knopka:focus, a.knopka:hover, a.knopka:active{
     var v=document.getElementById('pleyer-vybor');
     if(v){ v.style.display=skryt ? 'none' : ''; }
   }
+  /* «Закрыть» на уведомлении: карточка уходит, кадр остаётся на паузе —
+     тот урок, на котором остановились. Вернуть карточку можно тем, что
+     выбрать урок заново. */
+  window.shkZakrytKartu=function(){
+    karta(true);
+    return false;
+  };
 
   function vklyuchit(kod, zag, nomer, tema, igrat, sekunda){
     tek={kod:kod, zag:zag, nomer:nomer, tema:tema,
@@ -867,6 +1119,8 @@ a.knopka:focus, a.knopka:hover, a.knopka:active{
   }
   function pokazat_kartu(h){
     var t=document.getElementById('vybor-tekst');
+    var tret=document.getElementById('vybor-zakryt');
+    if(tret){ tret.style.display=''; }
     var nomer=(h.nomer||'').trim();
     var tema=(h.tema||'').trim();
     /* Фильм или урок? У уроков подпись пункта — «§ 12», у фильмов —
@@ -1056,8 +1310,12 @@ a.knopka:focus, a.knopka:hover, a.knopka:active{
     if(otkryt){
       b.classList.add('menu-otkryto');
       b.classList.remove('pleylist-otkryto');
+      /* Фокус встаёт на первую строку списка — и в меню, и в плейлисте
+         одинаково. Крестик закрытия при открытии не подсвечивается
+         нигде: раньше в меню фокус шёл на название класса, а в панели
+         плейлиста на первый пункт, и крестики выглядели по-разному. */
       var p=document.getElementById('panel');
-      var perv=p && p.querySelector('summary, .panel-plitka');
+      var perv=p && p.querySelector('.panel-telo a');
       if(perv) perv.focus();
     } else {
       b.classList.remove('menu-otkryto');
@@ -1070,7 +1328,7 @@ a.knopka:focus, a.knopka:hover, a.knopka:active{
       b.classList.add('pleylist-otkryto');
       b.classList.remove('menu-otkryto');
       var p=document.getElementById('pleylist-panel');
-      var perv=p && p.querySelector('.trek, .panel-zakryt');
+      var perv=p && p.querySelector('.panel-telo a');
       if(perv) perv.focus();
     } else {
       b.classList.remove('pleylist-otkryto');
@@ -1121,8 +1379,13 @@ a.knopka:focus, a.knopka:hover, a.knopka:active{
      Одна и та же у меню и у плейлиста: потянули за кромку — панель
      шире или уже, с пульта то же самое стрелками. Ширина запоминается
      в браузере, как и урок. */
-  function panel_min(){ return 300; }
+  function panel_min(){ return (window.innerWidth < 640) ? 240 : 300; }
   function panel_max(){
+    /* На телефоне панель занимает почти весь кадр: полоска 40 px
+       остаётся, чтобы видеть, что закрывать. */
+    if(window.innerWidth < 640){
+      return Math.max(panel_min(), Math.min(420, window.innerWidth - 40));
+    }
     return Math.max(panel_min() + 40,
                     Math.min(900, window.innerWidth - 320));
   }
@@ -1191,6 +1454,33 @@ a.knopka:focus, a.knopka:hover, a.knopka:active{
     poleCeli.addEventListener('input', shirinaCeli);
     window.addEventListener('resize', shirinaCeli);
   }
+
+  /* ---- кто учится и зачем ----
+     Строка под путём на каждой странице. Имя и цель человек написал сам
+     на главном экране, здесь мы их только читаем из памяти браузера:
+     ничего не выдумываем и ничего не дописываем. Ни того, ни другого
+     нет — строки на странице тоже нет. */
+  function imya_stroka(){
+    var stroka=document.getElementById('imya-stroka');
+    if(!stroka){ return; }
+    /* На главном экране эти же имя и цель стоят полями — там строка
+       была бы повторением. */
+    if(document.getElementById('imya')){ stroka.hidden=true; return; }
+    var imya='', cel='';
+    try{
+      imya=(localStorage.getItem('shkola.imya')||'').trim();
+      cel=(localStorage.getItem('shkola.tsel')||'').trim();
+    }catch(e){}
+    if(!imya && !cel){ stroka.hidden=true; return; }
+    /* Цель читается как «Хочу …»: если так уже написано — не повторяем. */
+    if(cel && !/^хочу/i.test(cel)){ cel='Хочу '+cel; }
+    var kuski=[];
+    if(imya){ kuski.push('<b>'+imya+'</b>'); }
+    if(cel){ kuski.push(cel); }
+    stroka.innerHTML=kuski.join(' · ');
+    stroka.hidden=false;
+  }
+  imya_stroka();
 
   var polya=[['imya', 'shkola.imya'], ['tsel', 'shkola.tsel']];
   for(var p=0; p<polya.length; p++){

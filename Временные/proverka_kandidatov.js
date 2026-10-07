@@ -3,7 +3,7 @@
 // откроет наша страница.
 //
 //   node Временные/proverka_kandidatov.js <код> <код> ...
-const { chromium } = require('playwright');
+const { chromium } = require('./плейрайт.js');
 
 const kody = process.argv.slice(2);
 if (!kody.length) { console.error('нужны коды видео'); process.exit(2); }
@@ -26,15 +26,22 @@ async function svedeniya(kod) {
   const p = await b.newPage({ viewport: { width: 900, height: 560 } });
   for (const kod of kody) {
     const s = await svedeniya(kod);
-    await p.goto('https://rutube.ru/play/embed/' + kod + '/',
-                 { waitUntil: 'domcontentloaded' }).catch(() => {});
-    await p.waitForTimeout(3500);
-    const itog = await p.evaluate(() => {
-      const v = document.querySelector('video');
-      const t = (document.body.innerText || '').replace(/\s+/g, ' ');
-      return { video: !!v, dlina: v ? Math.round(v.duration || 0) : 0,
-               nedostupno: /недоступно|ограничений|не найдено|удалено/i.test(t) };
-    });
+    /* «Кадра нет» бывает и просто неудачей кадра: Rutube то отдаёт видео,
+       то нет на том же ролике. Пока не закрыт по регионам — пробуем
+       заново, до трёх раз: верим только последнему исходу. */
+    let itog = { video: false, dlina: 0, nedostupno: false };
+    for (let popytka = 0; popytka < 3; popytka++) {
+      await p.goto('https://rutube.ru/play/embed/' + kod + '/',
+                   { waitUntil: 'domcontentloaded' }).catch(() => {});
+      await p.waitForTimeout(3500);
+      itog = await p.evaluate(() => {
+        const v = document.querySelector('video');
+        const t = (document.body.innerText || '').replace(/\s+/g, ' ');
+        return { video: !!v, dlina: v ? Math.round(v.duration || 0) : 0,
+                 nedostupno: /недоступно|ограничений|не найдено|удалено/i.test(t) };
+      });
+      if (itog.nedostupno || itog.video) break;
+    }
     const m = Math.floor(s.sek / 60), sc = s.sek % 60;
     const verdikt = itog.nedostupno ? 'ЗАКРЫТ ПО РЕГИОНАМ'
                   : (itog.video ? 'ИГРАЕТ' : 'кадра нет');

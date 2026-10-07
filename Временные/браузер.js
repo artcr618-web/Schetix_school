@@ -6,7 +6,7 @@
 // как оно выглядит на самом деле. Снимки кладёт в Временные/снимки/.
 const fs = require('fs');
 const path = require('path');
-const { chromium } = require('playwright');
+const { chromium } = require('./плейрайт.js');
 
 const put = process.argv[2] || 'Проект/База данных/5 класс/География/видеоуроки.html';
 const imya = path.basename(path.dirname(put)) + '-' + path.basename(put, '.html');

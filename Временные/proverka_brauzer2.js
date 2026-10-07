@@ -1,5 +1,5 @@
 const path = require('path');
-const { chromium } = require('playwright');
+const { chromium } = require('./плейрайт.js');
 const put = process.argv[2] || 'Проект/База данных/5 класс/География/видеоуроки.html';
 (async () => {
   const b = await chromium.launch();
