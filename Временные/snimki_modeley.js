@@ -1,48 +1,24 @@
-// Снимки для сравнения и для таблицы моделей экрана.
-// Запуск: bash Инструменты/с_плейрайтом.sh node Временные/snimki_modeley.js
+// Снимки шести моделей экрана с главной страницы: для таблицы моделей
+// и для сравнения «до/после» правок вида.
+// Запуск: bash Инструменты/с_плейрайтом.sh node Временные/snimki_modeley.js [папка]
 const { chromium } = require('/home/user/Временные/плейрайт.js');
 const path = require('path');
-
-// Как было до этой правки: одна колонка уже с 960.
-const BYLO = `
-@container (min-width: 560px){ .pleyer-vybor{position:absolute; inset:0; z-index:5; margin-top:0} }
-@media (max-width:959px){
-  .setka{grid-template-columns:minmax(0, 1fr); gap:16px; --polosa:13px; --radius:14px}
-  a.plitka{aspect-ratio:16 / 9}
-  a.plitka .nazv{font-size:32px}
-  a.plitka .poyas{font-size:17px}
-  a.plitka.klass .nazv .chislo{font-size:clamp(110px, 30vw, 186px)}
-}
-@media (max-width:639px){
-  body{--panel-shirina:420px}
-  body.menu-otkryto, body.pleylist-otkryto{padding-right:calc(var(--panel-shirina) + 10px)}
-}
-.wrap{padding:22px 44px}
-`;
-
-const kadry = [
-  ['предметы-768', 'Проект/База данных/5 класс.html', 768, true],
-  ['предметы-640', 'Проект/База данных/5 класс.html', 640, true],
-  ['предметы-360', 'Проект/База данных/5 класс.html', 360, true],
-  ['предметы-320', 'Проект/База данных/5 класс.html', 320, true],
-];
-
+const kuda = process.argv[2] || 'Временные/снимки';
+const kadry = [[1920, '1-широкий'], [1280, '2-обычный'], [1100, '3-планшет-гор'],
+               [800, '4-планшет-верт'], [560, '5-телефон-гор'], [360, '6-телефон-верт']];
 (async () => {
   const b = await chromium.launch();
-  for (const [imya, f, w, sravnit] of kadry) {
-    for (const kak of ['было', 'стало']) {
-      const p = await b.newPage({ viewport: { width: w, height: 1000 } });
-      await p.goto('file://' + path.resolve(f), { waitUntil: 'load' });
-      await p.waitForTimeout(220);
-      if (kak === 'было') { await p.addStyleTag({ content: BYLO }); await p.waitForTimeout(180); }
-      const vysota = await p.evaluate(() => Math.min(
-        Math.ceil(document.querySelector('.setka').getBoundingClientRect().bottom) + 24, 2200));
-      await p.setViewportSize({ width: w, height: vysota });
-      await p.waitForTimeout(180);
-      await p.screenshot({ path: `Временные/снимки/разметка-${kak}-${imya}.png` });
-      await p.close();
-    }
-    console.log('снято: ' + imya);
+  for (const [w, imya] of kadry) {
+    const p = await b.newPage({ viewport: { width: w, height: 1000 } });
+    await p.goto('file://' + path.resolve('Проект/Начать учиться.html'), { waitUntil: 'load' });
+    await p.waitForTimeout(300);
+    const h = await p.evaluate(() => Math.min(
+      Math.ceil(document.querySelector('.setka').getBoundingClientRect().bottom) + 20, 1500));
+    await p.setViewportSize({ width: w, height: h });
+    await p.waitForTimeout(220);
+    await p.screenshot({ path: path.join(kuda, `модель-${imya}.png`) });
+    await p.close();
   }
   await b.close();
+  console.log('снято шесть моделей в ' + kuda);
 })();

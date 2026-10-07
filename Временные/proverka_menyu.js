@@ -182,7 +182,6 @@ const stroka_chistaya = s => s &&
   console.log('=== строки списков');
   const stroki = [
     ['заголовок главы в панели', '#pleylist-panel .trek-gruppa'],
-    ['название плейлиста под кадром', 'summary.pl-imya'],
     ['класс в меню', '#panel summary.klass-knopka'],
   ];
   for (const [imya, sel] of stroki) {
@@ -190,6 +189,22 @@ const stroka_chistaya = s => s &&
     if (!s) { console.log('     (' + imya + ' на этой странице нет)'); continue; }
     proverka(imya + ' — просто текст, без подложки и рамок',
              stroka_chistaya(s), s);
+  }
+  // Строка плейлиста под кадром — того же вида, что пункт меню: подложки
+  // в покое нет, а место под жёлтую чёрточку оставлено (прозрачная
+  // полоса 6 px). Поэтому проверка тут своя: у заголовков рамок нет
+  // вовсе, а у строки списка полоса есть всегда — иначе отметка
+  // сдвигала бы текст.
+  const stroka_plitka = await stil_stroki(p, '.pl-vse a.pl-plitka:not(.tekushchiy)');
+  if (stroka_plitka) {
+    proverka('строка плейлиста под кадром — текст, как пункт меню',
+             (stroka_plitka.fon === 'rgba(0, 0, 0, 0)' ||
+              stroka_plitka.fon === 'transparent') &&
+             /^0px 0px 0px 6px$/.test(stroka_plitka.ramki) &&
+             /^(none|0px)/.test(stroka_plitka.obvodka) &&
+             ne_siniy(stroka_plitka.kraska), stroka_plitka);
+  } else {
+    console.log('     (плейлист на этой странице один — строка отмечена текущей)');
   }
   // Строка списка — текст: в покое ни подложки, ни рамок, ни обводки.
   // Но место под жёлтую чёрточку оставлено у КАЖДОЙ строки (прозрачная
@@ -208,8 +223,7 @@ const stroka_chistaya = s => s &&
   await p.waitForTimeout(250);
   const obychnye = await p.evaluate(() => {
     const a = document.querySelector('#panel a.panel-plitka:not(.tekushchiy)');
-    const t = [...document.querySelectorAll('.pl-telo a.trek')]
-      .find(x => !x.className.includes('aktiven'));
+    const t = document.querySelector('.pl-vse a.pl-plitka:not(.tekushchiy)');
     const mertva = el => {
       if (!el) return null;
       const s = getComputedStyle(el);
@@ -329,51 +343,102 @@ const stroka_chistaya = s => s &&
       .forEach(e => e.removeAttribute('data-proverka-kursor')));
   }
 
-  // --- пункты под кадром (только там, где есть плеер)
+  // --- список плейлистов под кадром (только там, где есть плеер)
   const est_pleer = await p.evaluate(() => !!document.querySelector('#pleyer'));
   if (est_pleer) {
-    console.log('=== пункты под кадром');
+    console.log('=== список плейлистов под кадром');
     await p.evaluate(() => window.shkPleylist(false));
     await p.waitForTimeout(400);
+    // Под кадром — только названия плейлистов, без самих уроков:
+    // уроки живут в панели. Строки идут тем же классом, что пункты
+    // бокового меню, поэтому и вид у них один и тот же.
+    const sostav = await p.evaluate(() => ({
+      strok: document.querySelectorAll('.pl-vse a.pl-plitka').length,
+      plitok: document.querySelectorAll('.pl-vse a.panel-plitka').length,
+      urokev: document.querySelectorAll('.pl-vse a.trek').length,
+      razdelov: document.querySelectorAll('.pl-vse .trek-gruppa').length,
+    }));
+    proverka('под кадром — список плейлистов, а не уроки',
+             sostav.strok > 0 && sostav.strok === sostav.plitok &&
+             sostav.urokev === 0 && sostav.razdelov === 0, sostav);
     const pod = await p.evaluate(() => {
-      const a = [...document.querySelectorAll('.pl-telo a.trek')]
-        .find(x => !x.className.includes('aktiven'));
+      const a = document.querySelector('.pl-vse a.pl-plitka:not(.tekushchiy)');
       if (!a) return null;
       const s = getComputedStyle(a);
-      const n = a.querySelector('.trek-nomer');
       return { fon: s.backgroundColor, ramki: [s.borderTopWidth, s.borderRightWidth,
                s.borderBottomWidth, s.borderLeftWidth].join(' '),
-               polosa: s.borderLeftColor, kraska: s.color,
-               nomer: n ? getComputedStyle(n).color : '—' };
+               polosa: s.borderLeftColor, kraska: s.color, razmer: s.fontSize };
     });
-    proverka('пункт под кадром в покое — текст, подложки и рамок нет',
-             pod && (pod.fon === 'rgba(0, 0, 0, 0)' || pod.fon === 'transparent') &&
-             /^0px 0px 0px 6px$/.test(pod.ramki) &&
-             pod.polosa === 'rgba(0, 0, 0, 0)' && ne_siniy(pod.kraska), pod);
+    if (pod) {
+      proverka('строка плейлиста в покое — текст, подложки и рамок нет',
+               (pod.fon === 'rgba(0, 0, 0, 0)' || pod.fon === 'transparent') &&
+               /^0px 0px 0px 6px$/.test(pod.ramki) &&
+               pod.polosa === 'rgba(0, 0, 0, 0)' && ne_siniy(pod.kraska), pod);
+    } else {
+      // Плейлист на странице один: он же и играет, и отмечен. Покоя,
+      // который тут можно померить, нет — не выдумывать ошибку.
+      console.log('     (плейлист один — в покое мерить нечего)');
+    }
     const aktiv = await p.evaluate(() => {
-      const a = document.querySelector('.pl-telo a.trek.aktiven');
+      const a = document.querySelector('.pl-vse a.pl-plitka.tekushchiy');
       if (!a) return null;
       const s = getComputedStyle(a);
-      const n = a.querySelector('.trek-nomer');
       return { fon: s.backgroundColor,
                polosa: s.borderLeftWidth + ' ' + s.borderLeftColor,
-               radius: s.borderTopLeftRadius,
-               nomer: n ? getComputedStyle(n).color : '—' };
+               radius: s.borderTopLeftRadius, kraska: s.color };
     });
     if (aktiv) {
-      proverka('играющий пункт под кадром: подложка, жёлтая чёрточка со скруглением, ' +
-               'жёлтый номер',
+      proverka('открытый плейлист: подложка и жёлтая чёрточка со скруглением',
                aktiv.fon === 'rgb(35, 44, 56)' &&
                aktiv.polosa === '6px rgb(255, 210, 63)' &&
-               aktiv.radius === '12px' &&
-               (aktiv.nomer === '—' || aktiv.nomer === 'rgb(255, 210, 63)'),
-               aktiv);
+               aktiv.radius === '12px', aktiv);
     }
-    const nomer = await stil_stroki(p, '.pl-telo .trek-nomer');
-    proverka('номер параграфа без подложки и не жёлтый',
-             nomer && (nomer.fon === 'rgba(0, 0, 0, 0)' ||
-                       nomer.fon === 'transparent') &&
-             !(rgb(nomer.kraska)[0] > rgb(nomer.kraska)[2] + 40), nomer);
+    // Реакция на наведение — как у пункта меню: та же серая подложка.
+    // Наводим настоящей мышью: подделанное правило проиграло бы
+    // настоящему по точности селектора, и проверка соврала бы.
+    if (pod) {
+      const do_navedeniya = await p.evaluate(() => getComputedStyle(
+        document.querySelector('.pl-vse a.pl-plitka:not(.tekushchiy)'))
+        .backgroundColor);
+      await p.hover('.pl-vse a.pl-plitka:not(.tekushchiy)');
+      await p.waitForTimeout(250);
+      const posle_navedeniya = await p.evaluate(() => getComputedStyle(
+        document.querySelector('.pl-vse a.pl-plitka:not(.tekushchiy)'))
+        .backgroundColor);
+      await p.mouse.move(4, 4);
+      await p.waitForTimeout(200);
+      proverka('наведение на строку плейлиста даёт ту же серую подложку',
+               posle_navedeniya === 'rgb(27, 33, 43)' &&
+               do_navedeniya === 'rgba(0, 0, 0, 0)',
+               [do_navedeniya, posle_navedeniya]);
+    }
+    // Отступ от номера параграфа до текста в панели: зазор задан, и он
+    // одинаков во всех строках — это и просили убрать («слишком большой
+    // отступ от номера до текста»).
+    const zazor = await p.evaluate(() => {
+      // Только видимые строки: у скрытых плейлистов прямоугольники
+      // нулевые, и замер показал бы зазор 0 вместо настоящего.
+      const ryady = [...document.querySelectorAll('#pleylist-panel .trek-nomer')]
+        .filter(n => n.getBoundingClientRect().width > 0);
+      const z = [];
+      ryady.forEach(n => {
+        const a = n.closest('a.trek'); const t = a && a.querySelector('.trek-tema');
+        if (!t) return;
+        z.push(Math.round(t.getBoundingClientRect().left -
+                          n.getBoundingClientRect().right));
+      });
+      if (!z.length) return null;
+      return { strok: z.length, min: Math.min(...z), maks: Math.max(...z),
+               kolonka: Math.round(ryady[0].getBoundingClientRect().width),
+               za: getComputedStyle(ryady[0]).textAlign };
+    });
+    if (zazor) {
+      proverka('от номера до текста ровно один зазор, одинаковый во всех строках',
+               zazor.min === zazor.maks && zazor.min <= 20,
+               zazor);
+      proverka('номер прижат вправо в своей колонке',
+               zazor.za === 'right', zazor.za);
+    }
     await p.screenshot({ path: path.join(kuda, 'меню-под-кадром.png'),
                          fullPage: true });
   }

@@ -58,13 +58,15 @@ def main(fayl, put, dannye, menyu_spisok=None, menyu_zagolovok='', kniga=None,
     R, nabor = nabor_iz_dannyh(dannye)
     if not nabor:
         raise SystemExit(f'В файле {dannye} нет ни одной подборки')
-    bloki = [_tv.blok_playera(nabor)]
+    blok_pleera, panel_pleylista = _tv.blok_playera(nabor)
+    bloki = [blok_pleera]
     put_fayla, razmer = _tv.sobrat(R['заголовок'], R['подзаголовок'], bloki,
                                    fayl, put=put, indeks=True,
                                    menyu_spisok=menyu_spisok,
                                    menyu_zagolovok=menyu_zagolovok,
                                    kniga=kniga, klassy=klassy,
-                                   telo_klass='pleylist-otkryto')
+                                   telo_klass='pleylist-otkryto',
+                                   paneli=panel_pleylista)
     print(f'  {fayl:<46} ' + ', '.join(f'{i} ({len(r)})' for i, r in nabor) +
           f', {razmer:>6} байт')
     return put_fayla

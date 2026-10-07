@@ -59,7 +59,7 @@
    "do": 959,
    "v_ryadu": 2,
    "nazv": 28,
-   "kadr": "16 / 9"
+   "kadr": "3 / 2"
   },
   {
    "imya": "телефоны горизонтальные",
@@ -75,5 +75,8 @@
    "nazv": 32,
    "kadr": "4 / 3"
   }
- ]
+ ],
+ "konteyner": "stranica",
+ "zona_klass": "rabochaya",
+ "menyu_vo_vsyu": 960
 }

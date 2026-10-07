@@ -1,7 +1,8 @@
 // Стенд плеера: без браузера проверяем весь путь зрителя.
 //
 // Подставляем крошечный DOM и запускаем скрипты, снятые с настоящей
-// страницы видеоуроков. Плейлисты берём из её же разметки, поэтому
+// страницы видеоуроков. Правила оформления берём из файла, на который
+// страница ссылается, — в самой странице их больше нет. Плейлисты берём из её же разметки, поэтому
 // стенд проверяет то, что ребёнок увидит на телевизоре, а не выдумку.
 //
 // Запуск:
@@ -10,7 +11,16 @@
 const fs = require('fs');
 
 const put = process.argv[2] || 'Проект/База данных/5 класс/История/видеоуроки.html';
-const html = fs.readFileSync(put, 'utf8');
+const path = require('path');
+// Оформление лежит отдельным файлом, поэтому часть проверок смотрит
+// правила, а часть — разметку. Читаем оба и склеиваем: правил в этой
+// странице больше нет, они в файле, на который она ссылается.
+const syroy = fs.readFileSync(put, 'utf8');
+const ssylka = syroy.match(/<link[^>]+href="([^"]+\.css)"/);
+if (!ssylka) { console.error('В странице нет ссылки на файл оформления: ' + put); process.exit(2); }
+const css_put = path.resolve(path.dirname(put), ssylka[1]);
+const css = fs.readFileSync(css_put, 'utf8');
+const html = syroy + '\n/* оформление: ' + path.basename(css_put) + ' */\n' + css;
 
 const skripty = (html.match(/<script>[\s\S]*?<\/script>/g) || [])
   .map(s => s.replace(/<\/?script>/g, ''));
@@ -43,19 +53,15 @@ const naydeno = nachala.map((x, i) => ({
                                                  : html.indexOf('</aside>', x.ot)),
 }));
 const kuski = naydeno.map(x => ({ nomer: x.nomer, otkryt: x.otkryt, treki: razor(x.kusok) }));
-// Плейлисты под кадром: имя берём из шапки блока, а пункты — из его же
-// разметки. Так стенд проверяет и то, что списков два (в панели и под
-// кадром), и то, что содержимое у них одно и то же.
-const nachala_blokov = [...html.matchAll(/<details class="pl-blok([^"]*)"\s+data-nabor="(\d+)"/g)]
-  .map(m => ({ nomer: Number(m[2]), aktiven: m[1].includes('aktiven'), ot: m.index }));
-const konec_podvideo = html.indexOf('<aside class="panel" id="pleylist-panel">');
-const knopki = nachala_blokov.map((x, i) => {
-  const kusok = html.slice(x.ot, i + 1 < nachala_blokov.length
-                                  ? nachala_blokov[i + 1].ot : konec_podvideo);
-  return { nomer: x.nomer, aktiven: x.aktiven,
-           imya: (kusok.match(/<span class="pl-nazv">([^<]*)<\/span>/) || [])[1] || '',
-           treki: razor(kusok) };
-});
+// Плейлисты под кадром — теперь СПИСОК ПЛЕЙЛИСТОВ: строка на каждый,
+// без содержимого (уроки живут в панели). Строка того же класса, что
+// пункт бокового меню, поэтому вид у них буквально один и тот же.
+// Отсюда и берём: сколько строк, как называются, какая открыта.
+const knopki = [...html.matchAll(
+    /<a class="panel-plitka pl-plitka([^"]*)"[^>]*data-nabor="(\d+)"[^>]*>([^<]*)<\/a>/g)]
+  .map(m => ({ nomer: Number(m[2]), aktiven: m[1].includes('tekushchiy'),
+               imya: m[3], treki: [] }));
+const nachala_blokov = knopki.map(k => ({ ot: 0 }));
 
 // ---------- крошечный DOM ----------
 function uzel(tag, attrs) {
@@ -96,16 +102,14 @@ function pleylist(kusok) {
 
 const spiski = kuski.map(pleylist);
 spiski.forEach((sp, i) => { sp.attrs['data-imya'] = knopki[i].imya; });
-// Блок под кадром — это <details> с раскрывающимся <summary>. Ссылки
-// внутри него — те же уроки, что и в панели.
+// Строка под кадром — та же ссылка, что пункт меню: href, data-nabor
+// и onclick. Нажатие открывает плейлист в панели (shkNabor).
 const knopki_uzly = knopki.map(k => {
-  const u = uzel('details', { class: 'pl-blok' + (k.aktiven ? ' aktiven' : ''),
-                              'data-nabor': String(k.nomer) });
-  u.open = k.aktiven;
+  const u = uzel('a', { class: 'panel-plitka pl-plitka' +
+                               (k.aktiven ? ' tekushchiy' : ''),
+                        'data-nabor': String(k.nomer) });
   u.textContent = k.imya;
-  u.summary = uzel('summary', { class: 'pl-imya' });
-  u.summary.parentNode = u;
-  u.treki = k.treki;
+  u.closest = () => null;
   return u;
 });
 
@@ -158,7 +162,7 @@ global.document = {
   querySelectorAll(sel) {
     if (sel === '.pleylist') return spiski;
     if (sel === '.trek') return spiski.flatMap(s => s.treks);
-    if (sel === '.pl-blok') return knopki_uzly;
+    if (sel === '.pl-plitka') return knopki_uzly;
     if (sel === '.panel-tyanulka') return ruki_uzly;
     return [];
   },
@@ -170,14 +174,10 @@ global.document = {
   },
 };
 global.location = { pathname: '/' + put };
-// Раскрывающиеся шапки плейлистов под кадром: браузер сам вешает на них
-// onclick из разметки, поэтому в стенде подставляем то же самое.
+// Нажатие на строку под кадром: браузер сам зовёт onclick из разметки,
+// в стенде подставляем то же самое — открыть этот плейлист в панели.
 knopki_uzly.forEach(u => {
-  u.summary.onclick = () => {
-    const r = window.shkRaskryt(u.summary);
-    if (r !== false) { u.open = !u.open; }   // так делает сам браузер
-    return r;
-  };
+  u.onclick = () => window.shkNabor(u.attrs['data-nabor']);
 });
 global.window = Object.assign(global.window || {}, { innerWidth: 1600 });
 // у body своя переменная ширины панели
@@ -188,6 +188,7 @@ global.getComputedStyle = () => ({
 });
 
 eval(skript_pleera);
+zastavka_paneli();
 
 function soobshchenie(obj) {
   (sobytiya['message'] || []).forEach(f => f({ data: JSON.stringify(obj) }));
@@ -201,11 +202,24 @@ function perezagruzka() {
   // SHK_HOME не трогаем: его ставит скрипт страницы, а не плеера —
   // без него имя записи в памяти получилось бы другим.
   ['shkIgrat', 'shkPanel', 'shkPleylist', 'shkPleylistTog', 'shkMenu',
-   'shkProdolzhit', 'shkTyan', 'shkRaskryt', 'shkBanner',
+   'shkProdolzhit', 'shkTyan', 'shkBanner',
    'shkBannerIgrat', 'shkBannerGde'
   ].forEach(i => { try { delete window[i]; } catch (e) { window[i] = undefined; } });
   eval(skript_pleera);
+  zastavka_paneli();
 }
+/* Открытие панели живёт в скрипте страницы, а стенд подставляет его
+   позже — в настоящей странице скрипты тоже идут друг за другом, и к
+   моменту нажатия всё уже на месте. До этого ставим заглушку и
+   запоминаем, что её позвали: проверяем, что строка плейлиста под
+   кадром ОТКРЫВАЕТ плейлист в панели, а не запускает урок. */
+let panel_otkryvali = [];
+function zastavka_paneli(){
+  if(!window.shkPleylist){
+    window.shkPleylist = function(o){ panel_otkryvali.push(!!o); return false; };
+  }
+}
+
 let oshibki = 0;
 const proverka = (imya, uslovie, fakticheskoe) => {
   console.log((uslovie ? '  ок   ' : '  ОШИБКА ') + imya +
@@ -320,16 +334,23 @@ proverka('главная кнопка — следующий',
 console.log('=== 9. кнопки вариантов плейлиста');
 if (spiski.length > 1) {
   const vtoroy = spiski[1].treks;
+  // Выбор плейлиста сам урок не включает: кадр остаётся как был, пока
+  // человек не нажмёт пункт. Так же ведёт себя и пункт бокового меню.
+  const bylo_v_kadre = elId.ramka.src;
   window.shkNabor(1);
   proverka('открыт второй плейлист',
            spiski[1].style.display === '' && spiski[0].style.display === 'none',
            spiski.map(s => s.style.display));
   proverka('под кадром подсвечен тот же вариант',
-           knopki_uzly[1].className.includes('aktiven') &&
-           !knopki_uzly[0].className.includes('aktiven'),
+           knopki_uzly[1].className.includes('tekushchiy') &&
+           !knopki_uzly[0].className.includes('tekushchiy'),
            knopki_uzly.map(k => k.className));
-  proverka('в кадре — первый урок второго плейлиста, на паузе',
-           elId.ramka.src === vtoroy[0].attrs['data-video'] ,
+  proverka('выбор плейлиста кадр не трогает',
+           elId.ramka.src === bylo_v_kadre,
+           [bylo_v_kadre, elId.ramka.src]);
+  window.shkIgrat(vtoroy[0]);
+  proverka('нажатие на пункт включает урок второго плейлиста',
+           elId.ramka.src === vtoroy[0].attrs['data-video'],
            elId.ramka.src);
   proverka('подсвечен он же', vtoroy[0].className.includes('aktiven'),
            vtoroy.map(t => t.className));
@@ -444,6 +465,13 @@ proverka('у пункта под кадром в покое нет подлож�
          !!trek && !/\n\s*background:#/.test(trek.split(':hover')[0]), trek);
 proverka('у пункта под кадром место под чёрточку 6 px, полоса прозрачная',
          !!trek && /border-left:6px solid transparent/.test(trek), trek);
+// Строка плейлиста под кадром — тот же класс, что пункт бокового меню:
+// отдельных правил у неё нет, поэтому вид буквально один и тот же.
+proverka('строка плейлиста под кадром — тем же классом, что пункт меню',
+         html.includes('class="panel-plitka pl-plitka'),
+         (html.match(/class="panel-plitka pl-plitka[^"]*"/) || [])[0] || 'нет');
+proverka('под кадром нет раскрывающихся списков уроков',
+         !/\.pl-telo|summary\.pl-imya|class="pl-blok/.test(html));
 const akt = blok('a.trek.aktiven{');
 proverka('играющий пункт — серая подложка и жёлтая чёрточка',
          !!akt && /background:#232c38/.test(akt) &&
@@ -464,10 +492,7 @@ proverka('в панели номер параграфа жёлтый, как и 
          !!nomer && /#ffd23f/.test(nomer), nomer);
 proverka('синим ничего не подсвечиваем',
          !/#[0-9a-f]*[0-9a-f]*(a0c|07c|1a4f7a|3b82f6)/i.test(html));
-proverka('название плейлиста не обводится рамкой в фокусе',
-         /summary\.pl-imya:focus[^}]*outline:none/.test(html));
-proverka('у названий плейлистов и глав нет жёлтого',
-         /summary\.pl-imya\{[\s\S]{0,320}color:#8b95a5/.test(html) &&
+proverka('у заголовков глав в панели нет жёлтого',
          /\.trek-gruppa\{[\s\S]{0,220}color:#8b95a5/.test(html));
 proverka('в боковом меню не осталось задвоенного разделителя',
          !/class="panel-razd"/.test(html));
@@ -519,50 +544,46 @@ if (skript_stranicy && elId['pleylist-panel']) {
   console.log('  (общий скрипт не найден — переключение пропускаем)');
 }
 
-console.log('=== 13. плейлисты под кадром');
-proverka('под кадром столько же плейлистов, сколько в панели',
+console.log('=== 13. список плейлистов под кадром');
+proverka('под кадром столько строк, сколько плейлистов',
          knopki_uzly.length === spiski.length,
          [knopki_uzly.length, spiski.length]);
-proverka('содержимое совпадает с панелью',
-         knopki.every((k, i) => {
-           const a = k.treki.map(t => t.video).join(',');
-           const b = spiski[i].treks.map(t => t.attrs['data-video']).join(',');
-           return a === b && a.length > 0;
-         }),
-         knopki.map((k, i) => [k.treki.length, spiski[i].treks.length]));
-proverka('открытый плейлист подсвечен',
-         knopki_uzly[0].className.includes('aktiven'),
+proverka('названия совпадают с панелью',
+         knopki.every((k, i) => k.imya === spiski[i].attrs['data-imya']) &&
+         knopki.length > 0,
+         knopki.map((k, i) => [k.imya, spiski[i].attrs['data-imya']]));
+proverka('под кадром нет самих уроков — только строки плейлистов',
+         !/<div class="pl-vse">[\s\S]{0,4000}?class="trek"/.test(html),
+         (html.match(/<div class="pl-vse">[\s\S]{0,200}/) || [])[0] || 'нет');
+proverka('открытый плейлист отмечен текущим',
+         knopki_uzly[0].className.includes('tekushchiy'),
          knopki_uzly.map(k => k.className));
 if (elId['pl-zag'] && knopki_uzly.length > 1) {
-  // Нажали на пункт в списке под кадром — урок играет, а в панели
-  // открылся тот плейлист, откуда его взяли.
-  const chuzhoy = knopki_uzly[1];
-  const ego_trek = spiski[1].treks[0];
-  window.shkNabor(0);
-  window.shkIgrat(ego_trek);
-  proverka('нажатие на пункт включает урок',
-           elId.ramka.src === 
-                              ego_trek.attrs['data-video'] ,
-           elId.ramka.src);
-  proverka('и в панели открылся тот плейлист, откуда урок',
+  // Нажали на строку второго плейлиста — он открылся в панели,
+  // а кадр не тронут: человек ещё выбирает, что смотреть.
+  window.shkIgrat(spiski[0].treks[0]);          // что-то уже играет
+  const bylo = elId.ramka.src;
+  panel_otkryvali = [];
+  knopki_uzly[1].onclick();
+  proverka('нажатие открывает этот плейлист в панели',
            spiski[1].style.display === '' && spiski[0].style.display === 'none',
            spiski.map(s => s.style.display));
+  proverka('и панель плейлиста открылась',
+           telo.classList.has('pleylist-otkryto'),
+           telo.classList.has('pleylist-otkryto'));
   proverka('шапка панели — его название',
            elId['pl-zag'].textContent === knopki_uzly[1].textContent,
            [elId['pl-zag'].textContent, knopki_uzly[1].textContent]);
-  // Раскрытие: открыт всегда один.
-  knopki_uzly[0].open = false; knopki_uzly[1].open = false;
-  knopki_uzly[0].summary.onclick();
-  proverka('раскрыли первый — он и открыт, второй закрылся',
-           knopki_uzly[0].open === true && knopki_uzly[1].open === false,
-           [knopki_uzly[0].open, knopki_uzly[1].open]);
-  knopki_uzly[1].summary.onclick();
-  proverka('раскрыли второй — первый закрылся',
-           knopki_uzly[1].open === true && knopki_uzly[0].open === false,
-           [knopki_uzly[0].open, knopki_uzly[1].open]);
-  proverka('в панели тоже открылся второй',
-           spiski[1].style.display === '' && spiski[0].style.display === 'none',
+  proverka('кадр открытие списка не трогает — урок тот же',
+           elId.ramka.src === bylo, [bylo, elId.ramka.src]);
+  knopki_uzly[0].onclick();
+  proverka('вернулись к первому — он открыт в панели',
+           spiski[0].style.display === '' && spiski[1].style.display === 'none',
            spiski.map(s => s.style.display));
+  proverka('и отметка снова на нём',
+           knopki_uzly[0].className.includes('tekushchiy') &&
+           !knopki_uzly[1].className.includes('tekushchiy'),
+           knopki_uzly.map(k => k.className));
 } else {
   console.log('  (плейлист один — переключение пропускаем)');
 }

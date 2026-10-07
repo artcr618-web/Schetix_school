@@ -60,6 +60,19 @@ def main():
             continue
         s = io.open(path, encoding='utf-8').read()
 
+        # Оформление лежит в отдельном файле, на который страница
+        # ссылается; раньше оно было вписано в саму страницу. Для
+        # проверок ниже важно и то и другое: разметка — в странице,
+        # правила — в файле. Читаем файл так же, как его прочитает
+        # браузер: путь считается от самой страницы.
+        oformlenie = s
+        for m in re.finditer(r'<link[^>]+href="([^"]+\.css)"', s):
+            fayl_css = os.path.normpath(os.path.join(os.path.dirname(path), m.group(1)))
+            if os.path.exists(fayl_css):
+                oformlenie += '\n' + io.open(fayl_css, encoding='utf-8').read()
+            else:
+                notes_net_css = True
+
         p = Proverka()
         p.feed(s)
 
@@ -73,6 +86,10 @@ def main():
                         and not (0x0400 <= ord(c) <= 0x04FF)}) # кириллица
 
         notes = []
+        for m in re.finditer(r'<link[^>]+href="([^"]+\.css)"', s):
+            fayl_css = os.path.normpath(os.path.join(os.path.dirname(path), m.group(1)))
+            if not os.path.exists(fayl_css):
+                notes.append('нет файла оформления: ' + m.group(1))
         if p.stack:
             notes.append('незакрыто: ' + ', '.join(t for t, _ in p.stack))
         if p.err:
@@ -90,12 +107,11 @@ def main():
         # выглядит она как голый текст браузера. Один раз так пропала
         # вся карточка учебника: обложка растянулась во весь экран,
         # а у названия нарисовался браузерный треугольник.
-        stil = re.search(r'<style>(.*?)</style>', s, re.S)
-        if stil and '<body' in s:
+        if '<body' in s:
             telo = s[s.index('<body'):]
             bez_pravil = sorted({k for m in re.finditer(r'class="([^"]+)"', telo)
                                  for k in m.group(1).split()
-                                 if ('.' + k) not in stil.group(1)})
+                                 if ('.' + k) not in oformlenie})
             if bez_pravil:
                 notes.append('классы без правил в оформлении: '
                              + ', '.join(bez_pravil))
@@ -105,8 +121,8 @@ def main():
         # нужен: подсказка одна — наша стрелка, в одну строку с
         # названием и без ничего перед ним.
         if ('class="kniga-stroka"' in s or 'class="vybor-klassa"' in s) and (
-                'list-style:none' not in s
-                or '::-webkit-details-marker' not in s):
+                'list-style:none' not in oformlenie
+                or '::-webkit-details-marker' not in oformlenie):
             notes.append('у раскрывающейся строки не убран браузерный '
                          'треугольник (нужны list-style:none и '
                          '::-webkit-details-marker)')

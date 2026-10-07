@@ -81,13 +81,15 @@ def main(fayl, put, menyu_spisok=None, menyu_zagolovok='', kniga=None,
     # На странице одни уроки: тематические подборки переехали на
     # страницу кино, чтобы ребёнок не искал фильмы среди параграфов.
     nabor = [('По параграфам', ryady)]
-    bloki = [_tv.blok_playera(nabor)]
+    blok_pleera, panel_pleylista = _tv.blok_playera(nabor)
+    bloki = [blok_pleera]
     put_fayla, razmer = _tv.sobrat(ZAGOLOVOK, POD, bloki, fayl,
                                    put=put, indeks=True,
                                    menyu_spisok=menyu_spisok,
                                    menyu_zagolovok=menyu_zagolovok,
                                    kniga=kniga, klassy=klassy,
-                                   telo_klass='pleylist-otkryto')
+                                   telo_klass='pleylist-otkryto',
+                                   paneli=panel_pleylista)
     print(f'  {fayl:<46} {len(ryady):>3} параграфов, {razmer:>6} байт')
 
 

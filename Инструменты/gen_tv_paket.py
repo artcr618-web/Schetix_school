@@ -1064,6 +1064,7 @@ def main():
         for predmet in predmety:
             nuzhnye.add(put_predmeta(klass, predmet))
     _tv.podgotovit_paket(nuzhnye)
+    print('оформление:', _tv.zapisat_css())
 
     # --- уровень 3: страницы предметов, плитки по материалам ---
     for klass, predmety in DEREVO.items():
@@ -1152,6 +1153,7 @@ def main():
                (POYASNENIYA[key][0], None)]
         zag, pod = ZAGOLOVKI[key]
         jest_pleylist = bool(video and ryady)
+        panel_pleylista = ''
         if jest_pleylist:
             # На странице видеоуроков нет ничего, кроме строки учебника,
             # плеера и плейлиста: ни заголовка, ни подсказок, ни
@@ -1162,7 +1164,8 @@ def main():
                              else 'По параграфам')
             nabor = [(imya_glavnogo, ryady)]
             nabor += dop_pleylisty(put_ish, karta, key)
-            bloki = [_tv.blok_playera(nabor)] + bloki
+            blok_pleera, panel_pleylista = _tv.blok_playera(nabor)
+            bloki = [blok_pleera] + bloki
             print('    плейлистов: ' + ', '.join(
                 f'{i} ({len(r)})' for i, r in nabor))
         f, raz = _tv.sobrat(zag, pod, bloki, fayl, put=put, indeks=video,
@@ -1170,7 +1173,8 @@ def main():
                             menyu_zagolovok=klass, klassy=KLASSY,
                             kniga=stroka_uchebnika(klass, predmet, fayl),
                             telo_klass='pleylist-otkryto' if jest_pleylist
-                                       else '')
+                                       else '',
+                            paneli=panel_pleylista)
         print(f'  {fayl:<46} {skolko:>3} ссылок, {raz:>6} байт')
 
     # --- кино и документалистика: свои данные, схема как у видеоуроков ---

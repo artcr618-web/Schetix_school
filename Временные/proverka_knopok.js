@@ -318,13 +318,28 @@ async function uzkoe_okno(stranica) {
     await p.goto('file://' + path.resolve(stranica), { waitUntil: 'load' });
     await p.waitForTimeout(700);
     await gotovim_kartu(p);
-    if (w < 640) {
-      // Телефон: панель плейлиста занимает почти весь кадр и накрывает
-      // страницу — так и задумано (РАЗМЕТКА.md, исключение для
-      // телефонов). Поэтому кнопки карточки проверяем с закрытой
-      // панелью, а саму панель — отдельно: она должна влезать в кадр.
-      const pm = await p.evaluate(() => {
+    if (w < 960) {
+      // Вертикальный планшет и телефоны: панель плейлиста разворачивается
+      // на всю ширину экрана (РАЗМЕТКА.md), поэтому сама она не
+      // открывается — иначе при входе на страницу было бы видно список,
+      // а не кадр. Кнопки карточки проверяем сразу, а панель — отдельно:
+      // открыли её — она во всю ширину и влезает в кадр.
+      const sam = await p.evaluate(() => ({
+        otkryta: document.body.classList.contains('pleylist-otkryto'),
+        vidna: (() => {
+          const pn = document.getElementById('pleylist-panel');
+          return getComputedStyle(pn).visibility === 'visible';
+        })(),
+      }));
+      proverka(`плейлист не открыт сам (${w} px)`,
+               !sam.otkryta && !sam.vidna, JSON.stringify(sam));
+      // Панель выезжает за 0.32 с: меряем после того, как она встала на
+      // место, иначе замер ловит её в начале выезда — за правым краем.
+      await p.evaluate(() => {
         document.body.classList.add('pleylist-otkryto');
+      });
+      await p.waitForTimeout(500);
+      const pm = await p.evaluate(() => {
         const pn = document.getElementById('pleylist-panel');
         const r = pn.getBoundingClientRect();
         return { left: Math.round(r.left), right: Math.round(r.right),
@@ -332,6 +347,9 @@ async function uzkoe_okno(stranica) {
       });
       proverka(`панель плейлиста влезает в кадр (${w} px)`,
                pm.left >= -1 && pm.right <= pm.sw + 1,
+               JSON.stringify(pm));
+      proverka(`панель плейлиста во всю ширину экрана (${w} px)`,
+               Math.abs(pm.w - pm.sw) <= 1 && Math.abs(pm.left) <= 1,
                JSON.stringify(pm));
       await p.evaluate(() => {
         document.body.classList.remove('pleylist-otkryto', 'menu-otkryto');

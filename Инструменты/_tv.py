@@ -50,6 +50,7 @@ iframe: по file:// браузеры запрещают заглядывать 
 для каждой страницы считаются здесь же, поэтому при переезде файлов
 править html не нужно.
 """
+import io
 import os
 import posixpath
 import sys
@@ -68,6 +69,13 @@ BAZA = 'База данных'
 """Папка со всеми страницами. Имена папок и файлов — по-русски."""
 
 VHOD = 'Начать учиться.html'
+
+# Оформление страниц лежит отдельным файлом, а не внутри каждой страницы.
+# В html остаётся только разметка; файл подключается ссылкой, путь до
+# него считается от самой страницы (otnositelno), поэтому он работает
+# и с флешки, и из любой папки. Собирает его ta же сборка, что и
+# страницы: см. zapisat_css().
+CSS_FAYL = BAZA + '/оформление.css'
 """Единственный файл в корне пакета (и в корне флешки)."""
 
 KOREN = '.'
@@ -154,11 +162,24 @@ body{
   transition:padding-right .32s ease;
 }
 body.menu-otkryto{padding-right:var(--panel-shirina)}
-.wrap{max-width:1500px; margin:0 auto;
-  /* Поля по краям: на широком экране 44 px, на телефоне 20 px
-     (см. POLYA в Инструменты/разметка.py). Плашка занимает всю
-     строку, и на телефоне широкие поля съедали бы четверть кадра. */
-  padding:22px clamp(20px, 4vw, 44px)}
+
+/* ---- рабочая ширина страницы ----
+   Рабочая ширина — ширина ТОЙ ОБЛАСТИ, где стоят плашки и строки, а не
+   ширина окна. Открытое боковое меню забирает у страницы своё место
+   (padding-right у body выше), поэтому раскладку надо считать по
+   остатку: иначе на широком экране с открытым меню в ряд по-прежнему
+   встают три плашки, места им не хватает и цифры вылезают наружу.
+
+   Контейнер — внешний блок вокруг .wrap: его ширина и есть рабочая.
+   Поля страницы (.wrap) в неё не входят, поэтому модель экрана та же,
+   как если бы окно было ровно такой ширины. Раскладка по этой ширине
+   собирается в Инструменты/разметка.py (@container stranica).
+
+   Панели (меню и плейлист) стоят СНАРУЖИ контейнера: внутри него
+   position:fixed считался бы от него, а не от окна. */
+.ZONA-KLASS{container-type:inline-size; container-name:KONTEYNER-IMYA}
+.wrap{max-width:1500px; margin:0 auto}
+/* ПОЛЯ-СТРАНИЦЫ */
 
 /* ---- шапка, одинаковая на всех страницах ---- */
 nav.verh{
@@ -273,29 +294,63 @@ a.tumbler.net{background:#22262c; color:#7d8695}
 .kniga-stroka .strela svg{width:26px; height:26px; display:block}
 details.kniga-stroka[open] .strela{transform:rotate(180deg)}
 /* Раскрытая часть — карточка учебника: маленькая обложка и подписи
-   рядом с ней, а не картинка во весь экран: размер обложки задан
-   здесь, потому что сама она приходит в натуральную величину. */
+   рядом с ней. Обложка здесь ровно вполовину прежнего (было 180 px,
+   стало 90): рядом со строками текста большая картинка выглядела
+   плакатом, а у предмета с двумя учебниками обложки смыкались друг с
+   другом. Рассмотреть её подробно можно нажатием — она открывается во
+   весь экран (см. окно обложки ниже). */
 .kn-podrobno{padding:12px 0 4px}
-.kn-kartochka{display:flex; align-items:flex-start; gap:26px}
+.kn-kartochka{display:flex; align-items:flex-start; gap:24px}
+/* Две карточки подряд (у предмета с двумя учебниками) раньше стояли
+   вплотную: низ одной обложки упирался в верх следующей. */
+.kn-kartochka + .kn-kartochka{margin-top:26px}
+.kn-oblozhka{
+  flex:0 0 auto; display:block; line-height:0; cursor:zoom-in;
+  border:3px solid transparent; border-radius:12px;
+}
+.kn-oblozhka:focus, .kn-oblozhka:focus-visible{
+  outline:3px solid #ffd23f; outline-offset:2px;
+}
 .kn-kartochka img{
-  flex:0 0 auto; width:180px; height:auto; display:block;
-  border-radius:10px;
+  width:90px; height:auto; display:block; border-radius:9px;
 }
 .kn-kartotekst{
   display:flex; flex-direction:column; gap:10px; min-width:0;
-  padding-top:4px;
+  padding-top:2px;
 }
 .kn-knazv{
   font-size:27px; font-weight:600; color:#f3f5f9; line-height:1.2;
   hyphens:manual; overflow-wrap:break-word;
 }
 /* На узком экране обложка встаёт над описанием: рядом они не помещаются,
-   и обложка выдавливала текст в столбик шириной в пару букв. */
-@media (max-width:959px){
-  .kn-kartochka{flex-direction:column; gap:14px}
-  .kn-kartochka img{width:150px}
+   и обложка выдавливала текст в столбик шириной в пару букв. Ширина —
+   рабочая: с открытым меню она тоже сужается, и карточка перестраивается
+   вместе со страницей (Инструменты/разметка.py). */
+@container stranica (max-width:959px){
+  .kn-kartochka{flex-direction:column; gap:12px}
+  .kn-kartochka + .kn-kartochka{margin-top:22px}
+  .kn-kartochka img{width:78px}
 }
 .kn-kavt{font-size:23px; color:#98a2b3; line-height:1.3}
+
+/* ---- обложка во весь экран ----
+   Нажали на обложку — она открылась крупно, чтобы рассмотреть
+   подробности. Окно поверх всего: тёмный фон, обложка по центру,
+   закрывается нажатием в любое место или клавишей Esc (её ловит тот же
+   обработчик, что закрывает панели). Самого окна в разметке нет: его
+   собирает скрипт при первом нажатии — на страницах без учебника оно
+   ни к чему. */
+#shk-oblozhka{
+  position:fixed; inset:0; z-index:80; padding:24px;
+  display:flex; align-items:center; justify-content:center;
+  background:rgba(6,8,12,.9); cursor:zoom-out;
+}
+#shk-oblozhka[hidden]{display:none}
+#shk-oblozhka img{
+  width:auto; height:auto;
+  max-width:min(92vw, 620px); max-height:86vh;
+  border-radius:14px; box-shadow:0 26px 70px rgba(0,0,0,.65);
+}
 
 /* ---- обложка учебника — фон всей плашки ----
    Обложка ложится на плашку целиком (cover), а не полосой сбоку:
@@ -348,37 +403,17 @@ a.plitka.s-kartinkoy{
    вариантов больше одного: уроки по параграфам, короткие пересказы,
    разборы домашних заданий, повторение. */
 /* ---- плейлисты под кадром ----
-   Названия всех собранных плейлистов стоят под видео, каждое
-   раскрывается: внутри те же пункты, что и в панели справа, и нажатие
-   включает урок точно так же. Плейлист, открытый сейчас в панели,
-   подсвечен. Открыт всегда один — иначе страница уезжает на несколько
-   экранов. */
+   Под кадром стоит СПИСОК ПЛЕЙЛИСТОВ, а не их содержимое: сами уроки
+   живут в панели справа, и держать их ещё и на странице незачем —
+   страница уезжала на несколько экранов. Название плейлиста — строка,
+   нажатие открывает этот плейлист в панели.
+   Оформление — как у пунктов бокового меню (a.panel-plitka): обычный
+   текст без подложки и полосы, при наведении серая подложка, а
+   открытый плейлист отмечен подложкой и жёлтой скруглённой полосой
+   слева. Строки идут тем же классом, поэтому вид у них буквально один
+   и тот же — отдельных правил под кадром нет. */
 .pl-vse{margin-top:26px}
-.pl-blok{margin-bottom:6px}
-.pl-vse{padding-left:14px}
-/* Название плейлиста — простая строка, как название учебника: ни
-   подложки, ни жёлтой полосы, ни обводки. Открытый плейлист отличается
-   только цветом текста, он ярче остальных. */
-summary.pl-imya{
-  display:flex; align-items:center; gap:14px; cursor:pointer;
-  padding:12px 4px; margin:0; background:none; border:0;
-  border-radius:0; color:#8b95a5;
-  font-size:27px; list-style:none;
-  hyphens:manual; overflow-wrap:break-word;
-}
-summary.pl-imya::-webkit-details-marker{display:none}
-summary.pl-imya::marker{content:''}
-summary.pl-imya .pl-nazv{flex:1 1 auto; min-width:0}
-/* Рамки на фокусе нет: открытый плейлист и без неё видно (название
-   ярче остальных), а жёсткая белая рамка превращала строку в кнопку. */
-summary.pl-imya:focus, summary.pl-imya:focus-visible{outline:none}
-summary.pl-imya:hover{color:#f3f5f9}
-summary.pl-imya .strela svg{width:30px; height:30px}
-details.pl-blok[open] > summary.pl-imya .strela{transform:rotate(180deg)}
-.pl-blok.aktiven > summary.pl-imya{color:#f3f5f9}
-/* Все строки плейлиста — и заголовки глав, и пункты — стоят с отступом
-   слева: список вложен в название плейлиста, и по отступу это видно. */
-.pl-telo{padding:12px 0 6px 18px}
+.pl-plitka{margin-bottom:2px}
 .panel-telo .pleylist{margin-left:14px}
 
 /* Плейлист — такая же выезжающая панель, как меню, и в тех же
@@ -390,15 +425,6 @@ details.pl-blok[open] > summary.pl-imya .strela{transform:rotate(180deg)}
    перекрывала даже кнопки уведомления над кадром. */
 body.pleylist-otkryto{padding-right:calc(var(--panel-shirina) + 10px)}
 
-/* На телефонах места на две колонки нет: панель занимает почти весь
-   кадр, а страница под ней не сжимается. Иначе на 320 px от страницы
-   осталась бы полоска в 40 px. Это единственная ширина, где прежнее
-   правило «панель не накрывает экран» невыполнимо: справа остаётся
-   полоска 40 px, за которую панель можно закрыть. */
-@media (max-width:639px){
-  body{--panel-shirina:min(420px, calc(100vw - 40px))}
-  body.menu-otkryto, body.pleylist-otkryto{padding-right:0}
-}
 #pleylist-panel{transform:translateX(100%); visibility:hidden;
   transition:transform .32s ease, visibility 0s linear .32s}
 body.pleylist-otkryto #pleylist-panel{transform:none; visibility:visible;
@@ -513,7 +539,7 @@ a.vybor-knopka:focus, a.vybor-knopka:hover{
    полоса слева), поэтому играющий пункт встаёт на своё место и список
    от него не сдвигается ни на пиксель. */
 a.trek{
-  display:flex; align-items:baseline; gap:18px; text-decoration:none;
+  display:flex; align-items:baseline; gap:14px; text-decoration:none;
   color:#c9d2df; background:none;
   border:0; border-left:6px solid transparent; border-radius:12px;
   padding:11px 16px;
@@ -529,8 +555,8 @@ a.trek:hover, a.trek:focus, a.trek:focus-visible{
    Играющий пункт от фокуса отличается: у него жёлтая чёрточка. */
 a.trek:focus-visible{outline:3px solid #ffd23f; outline-offset:0}
 .trek-nomer{
-  flex:0 0 auto; min-width:96px; font-size:28px; color:#8b95a5;
-  line-height:1.25;
+  flex:0 0 auto; min-width:70px; text-align:right;
+  font-size:28px; color:#8b95a5; line-height:1.25;
 }
 .trek-tema{flex:1 1 auto; min-width:0; font-size:28px; line-height:1.25}
 /* ИГРАЮЩИЙ пункт — единственная строка, которая выглядит плашкой:
@@ -559,7 +585,7 @@ a.trek.aktiven .trek-nomer{color:#ffd23f}
    список ПОД КАДРОМ и боковое меню (правило выше), панели оно не
    касается: так и было решено. */
 #pleylist-panel a.trek{
-  gap:20px;
+  gap:14px;
   background:#1b212b;
   border-left:6px solid #ffd23f;
   border-radius:12px;
@@ -576,11 +602,15 @@ a.trek.aktiven .trek-nomer{color:#ffd23f}
 #pleylist-panel a.trek:focus-visible{outline:3px solid #ffd23f}
 /* Играющий пункт — плашка светлее остальных. */
 #pleylist-panel a.trek.aktiven{background:#232c38}
-/* Колонка номера — 100 px, как было: после неё тема начинается на
-   одном и том же месте во всех строках, длинный номер колонку
-   растягивает («45 мин» шире сотни). */
+/* Колонка номера. Была 100 px — и от «§ 1» до темы оставалось 74 px
+   пустоты: колонка шире самого широкого номера почти вдвое. Теперь
+   колонка по самому длинному номеру («§ 45» — 67 px), а номер в ней
+   прижат ВПРАВО: тогда до текста ровно один зазор (14 px) в каждой
+   строке, и тема начинается на одном и том же месте. Длинная подпись
+   («1 ч 22 мин» шире колонки) растягивает её сама. */
 #pleylist-panel .trek-nomer{
-  min-width:100px; font-size:30px; font-weight:700; line-height:1.3;
+  min-width:70px; text-align:right;
+  font-size:30px; font-weight:700; line-height:1.3;
   color:#ffd23f;
 }
 #pleylist-panel .trek-tema{font-size:28px; line-height:1.3}
@@ -643,6 +673,11 @@ body.menu-otkryto .panel{transform:none; visibility:visible;
 .panel-tyanulka:focus{outline:3px solid #f3f5f9; outline-offset:-3px}
 body.menu-otkryto .panel-tyanulka.menyu,
 body.pleylist-otkryto .panel-tyanulka.pleylista{display:block}
+/* Сколько места у страницы забирает открытая панель: на десктопах и
+   горизонтальном планшете — своя ширина справа, с вертикального
+   планшета и на телефонах — во весь экран. Собрано в
+   Инструменты/разметка.py (menyu_css). */
+/* МЕНЮ-ПАНЕЛЬ */
 a.panel-zakryt{
   flex:0 0 auto; display:inline-flex; padding:8px; border-radius:10px;
   border:3px solid transparent; color:#f3f5f9;
@@ -772,8 +807,9 @@ a.banner-trek.aktiven{color:#f3f5f9}
 
 /* Узкий экран: подборки встают в один столбик — как и плашки, которые
    с горизонтального планшета идут по одной в ряд. Иначе строки лекций
-   не влезают и тянут страницу вбок. */
-@media (max-width:959px){
+   не влезают и тянут страницу вбок. Считается по рабочей ширине: с
+   открытым меню она сужается, и подборки перестраиваются. */
+@container stranica (max-width:959px){
   .banner{padding:20px 22px 22px; border-radius:20px}
   .banner-nazv{font-size:30px}
   .banner-podpis{font-size:21px}
@@ -905,6 +941,8 @@ a.plitka.klass .nazv .slovo{
    (a.plitka .nazv и прочие) идут выше, поэтому ступени размеров их
    перебивают — иначе размер оставался бы десктопным на телефоне. */
 
+/* ЗАПАСНОЙ-ПУТЬ-РАСКЛАДКИ */
+
 /* ---- строки со ссылками на самих страницах материалов ---- */
 .stroka{
   display:flex; align-items:center; gap:22px;
@@ -927,8 +965,9 @@ a.knopka:focus, a.knopka:hover, a.knopka:active{
 }
 .stroka.net .tema .chto{color:#7d8695}
 /* На узком экране кнопка уступает кадру: длинная надпись переносится
-   по словам, а не вылезает за край и не тянет страницу вбок. */
-@media (max-width:959px){
+   по словам, а не вылезает за край и не тянет страницу вбок. Считается
+   по рабочей ширине, как и всё остальное на странице. */
+@container stranica (max-width:959px){
   /* overflow-wrap: длинное слово без пробелов (адрес сайта в кнопке)
      иначе вылезает за кнопку и тянет страницу вбок. */
   a.knopka{white-space:normal; max-width:100%; flex:0 1 auto; min-width:0;
@@ -938,9 +977,11 @@ a.knopka:focus, a.knopka:hover, a.knopka:active{
 
 .niz{margin-top:44px; color:#6f7887; font-size:22px; line-height:1.5}
 /* Планшет вертикальный и уже: та же контрольная точка 960, что
-   у Тильды, — новых порогов не заводим (РАЗМЕТКА.md). */
-@media (max-width:959px){
-  body{font-size:26px; --panel-shirina:min(400px, 64vw)}
+   у Тильды, — новых порогов не заводим (РАЗМЕТКА.md). Размер текста
+   и строки считаются по рабочей ширине: с открытым меню она сужается,
+   и страница перестраивается, как если бы окно было такой ширины. */
+@container stranica (max-width:959px){
+  .wrap{font-size:26px}
   h1{font-size:40px}
   a.tumbler.ikonka svg{width:28px; height:28px}
   .stroka{flex-wrap:wrap; gap:14px}
@@ -954,9 +995,18 @@ a.knopka:focus, a.knopka:hover, a.knopka:active{
 # (Инструменты/разметка.py): собирается один раз при импорте.
 import разметка as _razmetka
 CSS = CSS.replace('/* СЕТКА-ПЛАШЕК */', _razmetka.setka_css())
-assert 'СЕТКА-ПЛАШЕК' not in CSS, \
-    'в CSS остался неподставленный блок разметки'
-
+CSS = CSS.replace('/* ПОЛЯ-СТРАНИЦЫ */', _razmetka.polya_css())
+CSS = CSS.replace('/* ЗАПАСНОЙ-ПУТЬ-РАСКЛАДКИ */', _razmetka.zona_css())
+CSS = CSS.replace('/* МЕНЮ-ПАНЕЛЬ */', _razmetka.menyu_css())
+# Имя контейнера рабочей ширины: одно на CSS и на разметку страницы.
+CSS = CSS.replace('KONTEYNER-IMYA', _razmetka.KONTEYNER)
+CSS = CSS.replace('ZONA-KLASS', _razmetka.ZONA_KLASS)
+assert 'KONTEYNER-IMYA' not in CSS and 'ZONA-KLASS' not in CSS, \
+    'в CSS осталось неподставленное имя контейнера рабочей ширины'
+for _marker in ('СЕТКА-ПЛАШЕК', 'ПОЛЯ-СТРАНИЦЫ', 'МЕНЮ-ПАНЕЛЬ',
+                'ЗАПАСНОЙ-ПУТЬ-РАСКЛАДКИ'):
+    assert _marker not in CSS, \
+        f'в CSS остался неподставленный блок разметки: {_marker}'
 # Иконки шапки. Эталон — Tilda Icons и The Noun Project (в Тильде
 # как раз эти две библиотеки встроены): штриховые, геометричные,
 # толщина линии 2, круглые окончания, без заливки.
@@ -1084,8 +1134,37 @@ JS = """<script>
   document.addEventListener('keydown', function(e){
     if(e.key==='Escape'){
       window.shkPanel(false); window.shkPleylist(false);
+      window.shkOblozhkaZakryt();
     }
   });
+
+  /* ---- обложка учебника во весь экран ----
+     Маленькая обложка в карточке учебника нажимается — открывается
+     крупно, чтобы рассмотреть подробности. Окно собирается здесь, при
+     первом нажатии: страницам без учебника оно ни к чему. Закрывается
+     нажатием в любое место или клавишей Esc. */
+  window.shkOblozhkaZakryt=function(){
+    var okno=document.getElementById('shk-oblozhka');
+    if(okno){ okno.hidden=true; }
+    return false;
+  };
+  window.shkOblozhka=function(a){
+    var im=a.querySelector('img');
+    if(!im){ return false; }
+    var okno=document.getElementById('shk-oblozhka');
+    if(!okno){
+      okno=document.createElement('div');
+      okno.id='shk-oblozhka';
+      okno.setAttribute('role','dialog');
+      okno.setAttribute('aria-label','Обложка учебника');
+      okno.innerHTML='<img alt="">';
+      okno.onclick=function(){ okno.hidden=true; };
+      document.body.appendChild(okno);
+    }
+    okno.querySelector('img').src=im.getAttribute('src');
+    okno.hidden=false;
+    return false;
+  };
 
   /* Домашняя страница ровно одна: в браузере лежит одна запись, поэтому
      закрепили новую — прежняя открепилась сама. Никаких надписей об этом
@@ -1106,24 +1185,79 @@ JS = """<script>
     };
   }
 
+  /* ---- запасной путь раскладки ----
+     Модель экрана считается по ширине РАБОЧЕЙ области, а не окна:
+     открытое меню забирает у страницы своё место, и плашки обязаны
+     перестроиться по остатку (РАЗМЕТКА.md). Ведёт это CSS —
+     контейнерными запросами к блоку .rabochaya. Телевизор или старый
+     браузер таких запросов не знает: там полосу называет этот скрипт,
+     кладя на блок рабочей ширины data-polosa, а правила те же самые —
+     собранные из той же таблицы (Инструменты/разметка.py).
+     Где контейнерные запросы есть, скрипт ничего не делает: раскладку
+     ведёт CSS. */
+  var est_konteynery = false;
+  try{
+    est_konteynery = !!(window.CSS && CSS.supports &&
+                        CSS.supports('container-type', 'inline-size'));
+  }catch(e){}
+  if(!est_konteynery){
+    var zona = document.querySelector('.rabochaya');
+    if(zona){
+      var POLOSY = [[1199, 'планшет горизонтальный'],
+                    [959, 'планшет вертикальный'],
+                    [639, 'телефоны горизонтальные'],
+                    [479, 'телефоны вертикальные']];
+      var zonaTaymer = null;
+      window.shkZona = function(){
+        var x = zona.getBoundingClientRect().width;
+        var imya = 'десктопы', i;
+        for(i = 0; i < POLOSY.length; i++){
+          if(x <= POLOSY[i][0]){ imya = POLOSY[i][1]; break; }
+        }
+        zona.setAttribute('data-polosa', imya);
+      };
+      window.shkZona();
+      window.addEventListener('resize', function(){
+        window.shkZona();
+        clearTimeout(zonaTaymer);
+        zonaTaymer = setTimeout(window.shkZona, 400);
+      });
+      /* Панель выезжает плавно: ширина страницы меняется не сразу,
+         поэтому пересчитываем, когда выезд закончился. */
+      document.body.addEventListener('transitionend', function(e){
+        if(e.propertyName === 'padding-right'){ window.shkZona(); }
+      });
+    }
+  }
+
   /* ---- ширина правой панели ----
      Одна и та же у меню и у плейлиста: потянули за кромку — панель
      шире или уже, с пульта то же самое стрелками. Ширина запоминается
-     в браузере, как и урок. */
+     в браузере, как и урок.
+
+     Задавать ширину вручную можно только там, где панель занимает
+     ЧАСТЬ экрана — на десктопах и горизонтальном планшете. С
+     вертикального планшета и на телефонах (граница — в
+     Инструменты/разметка.py) панель разворачивается на всю ширину
+     экрана, и тянуть её не за что: ручки ширины там нет, а своя
+     ширина, запомненная на широком окне, не подставляется. */
+  function panel_na_vsyu(){ return window.innerWidth < MENYU-VO-VSYU; }
   function panel_min(){ return (window.innerWidth < 640) ? 240 : 300; }
   function panel_max(){
-    /* На телефоне панель занимает почти весь кадр: полоска 40 px
-       остаётся, чтобы видеть, что закрывать. */
-    if(window.innerWidth < 640){
-      return Math.max(panel_min(), Math.min(420, window.innerWidth - 40));
-    }
     return Math.max(panel_min() + 40,
                     Math.min(900, window.innerWidth - 320));
   }
+  var panel_ruchnaya = 0;   /* ширина, выставленная ручкой; 0 — по умолчанию */
   function panel_postavit(w){
+    if(panel_na_vsyu()){
+      /* Во всю ширину: своя ширина тут только мешала бы. */
+      document.body.style.removeProperty('--panel-shirina');
+      return;
+    }
     w = Math.max(panel_min(), Math.min(w, panel_max()));
-    document.body.style.setProperty('--panel-shirina', Math.round(w) + 'px');
-    try{ localStorage.setItem('shkola.panel', String(Math.round(w))); }
+    panel_ruchnaya = Math.round(w);
+    document.body.style.setProperty('--panel-shirina', panel_ruchnaya + 'px');
+    try{ localStorage.setItem('shkola.panel', String(panel_ruchnaya)); }
     catch(e){}
   }
   function panel_tekushchaya(){
@@ -1135,6 +1269,17 @@ JS = """<script>
     var sh = parseFloat(localStorage.getItem('shkola.panel'));
     if(sh > 0){ panel_postavit(sh); }
   }catch(e){}
+  /* Окно перетащили через границу «панель во всю ширину»: на узком
+     окне снимаем свою ширину, на широком возвращаем ту, что ставили
+     ручкой. Иначе панель осталась бы узкой посреди телефона. */
+  window.addEventListener('resize', function(){
+    if(panel_na_vsyu()){
+      document.body.style.removeProperty('--panel-shirina');
+    } else if(panel_ruchnaya){
+      document.body.style.setProperty('--panel-shirina',
+                                      panel_ruchnaya + 'px');
+    }
+  });
 
   window.shkTyan=function(e){
     var shag = e.shiftKey ? 80 : 30;
@@ -1384,10 +1529,13 @@ def kniga_stroka(tekst, podrobno=''):
 def kartochka_uchebnika(oblozhka, nazv, avtory):
     """Раскрытая карточка учебника: обложка и подписи о ней.
 
-    `oblozhka` — путь от текущей страницы. Обложка показывается как есть,
-    без растягивания: она маленькая, рядом с подписями.
+    `oblozhka` — путь от текущей страницы. Обложка показывается маленькой
+    (её размер задан в оформлении), а нажатие открывает её во весь экран:
+    подробности обложки видно, но в списке она не занимает полстраницы.
     """
-    kart = (f'<img src="{oblozhka}" alt="" loading="lazy">'
+    kart = (f'<a class="kn-oblozhka" href="#" aria-label="Открыть обложку" '
+            f'onclick="return shkOblozhka(this)">'
+            f'<img src="{oblozhka}" alt="" loading="lazy"></a>'
             if oblozhka else '')
     return (f'<div class="kn-kartochka">{kart}'
             '<div class="kn-kartotekst">'
@@ -1428,6 +1576,15 @@ def id_video(href):
 JS_PLAYERA = """<script>
 (function(){
   var pleerGotov=false, ozhidanie=null, tek=null, poslT=0;
+
+  /* Панель плейлиста на вертикальном планшете и на телефонах
+     разворачивается на всю ширину экрана (Инструменты/разметка.py).
+     Открытая сразу, она занимала бы весь экран — при входе на страницу
+     видеоуроков было бы видно список, а не кадр. Поэтому здесь она
+     закрыта, а вызывается кнопкой плейлиста на кадре. */
+  if(window.innerWidth < MENYU-VO-VSYU){
+    document.body.classList.remove('pleylist-otkryto');
+  }
 
   function klyuch(){
     var h=(window.SHK_HOME||'')+'';
@@ -1735,50 +1892,23 @@ JS_PLAYERA = """<script>
       vse[i].style.display = eto ? '' : 'none';
       vse[i].className = eto ? 'pleylist aktiven' : 'pleylist';
     }
-    var bl=document.querySelectorAll('.pl-blok');
+    var bl=document.querySelectorAll('.pl-plitka');
     for(i=0;i<bl.length;i++){
       var nash=(bl[i].getAttribute('data-nabor')===String(n));
-      bl[i].className = nash ? 'pl-blok aktiven' : 'pl-blok';
+      bl[i].className = nash ? 'panel-plitka pl-plitka tekushchiy'
+                             : 'panel-plitka pl-plitka';
     }
     var zag=document.getElementById('pl-zag'), imya=imya_nabora(n);
     if(zag && imya){ zag.textContent=imya; }
   }
 
-  /* Раскрытие списка под кадром. Открыт всегда один плейлист: раскрыли
-     другой — прежний закрылся, иначе страница уезжает на несколько
-     экранов. Кадр не трогаем: человек ещё выбирает, что смотреть, —
-     урок включится нажатием на пункт. */
-  window.shkRaskryt=function(sm){
-    var d=sm.parentNode;
-    while(d && d.getAttribute && d.getAttribute('data-nabor')===null){
-      d=d.parentNode;
-    }
-    if(!d || !d.getAttribute){ return true; }
-    if(!d.open){
-      var vse=document.querySelectorAll('.pl-blok');
-      for(var i=0;i<vse.length;i++){
-        if(vse[i]!==d && vse[i].open){ vse[i].open=false; }
-      }
-      otkryt_nabor(d.getAttribute('data-nabor'));
-    }
-    return true;
-  };
-
-  /* Открыть плейлист и поставить его первый урок в кадр на паузу. */
+  /* Название плейлиста под кадром: открыть этот плейлист в панели.
+     Кадр не трогаем — человек ещё выбирает, что смотреть: как только
+     он нажмёт пункт в панели, урок включится. Так же ведёт себя и
+     пункт бокового меню: он показывает раздел, а не открывает урок. */
   window.shkNabor=function(n){
     otkryt_nabor(n);
-    var pervyi=otkrytyy().querySelector('.trek');
-    if(!pervyi){ return false; }
-    var kod=pervyi.getAttribute('data-video');
-    var zag=pervyi.getAttribute('data-zag')||'';
-    tek={kod:kod, zag:zag, nomer:pervyi.getAttribute('data-nomer')||'',
-         tema:pervyi.getAttribute('data-tema')||'', vremya:0,
-         dosmotren:false};
-    zapis(); poslT=0;
-    kadr(kod, null, false);
-    shapka(zag);
-    podsvetit(kod);
-    karta(true);
+    window.shkPleylist(true);
     return false;
   };
 
@@ -1928,6 +2058,11 @@ def blok_playera(nabor):
 
     `ryady` — [(номер, тема, ссылка на видео Rutube)]. Пока страница
     открыта, пункты меняют видео по нажатию, ничего не перезагружая.
+
+    Возвращает пару: разметку страницы и разметку панели плейлиста
+    отдельно. Панель — выезжающая, position:fixed, и стоять она должна
+    снаружи контейнера рабочей ширины (см. `sobrat`), поэтому её
+    отдают наверх, а не кладут в середину страницы.
     """
     # Можно передать и просто список пунктов — тогда вариант один.
     if nabor and not (isinstance(nabor[0], tuple) and len(nabor[0]) == 2
@@ -1973,16 +2108,15 @@ def blok_playera(nabor):
               if any('class="trek"' in x for x in t)]
     if not spiski:
         return ''
-    # Плейлисты под кадром: название, а под ним — тот же список, что
-    # и в панели справа. Раскрывается по нажатию, урок включается
-    # нажатием на пункт, как и в панели.
+    # Плейлисты под кадром: СПИСОК ПЛЕЙЛИСТОВ, без их содержимого.
+    # Строка — тот же класс, что у пунктов бокового меню, поэтому вид
+    # один и тот же: обычный текст, при наведении подложка, у открытого
+    # плейлиста подложка и жёлтая чёрточка слева. Нажатие открывает
+    # этот плейлист в панели справа — уроки там, где им и место.
     pod_video = ('<div class="pl-vse">' + ''.join(
-        f'<details class="pl-blok{" aktiven" if n == 0 else ""}" '
-        f'data-nabor="{n}">'
-        f'<summary class="pl-imya" onclick="return shkRaskryt(this)">'
-        f'<span class="pl-nazv">{myagkie(imya)}</span>'
-        f'<span class="strela">{ikona("шеврон")}</span></summary>'
-        f'<div class="pl-telo">{"".join(t)}</div></details>'
+        f'<a class="panel-plitka pl-plitka{" tekushchiy" if n == 0 else ""}" '
+        f'href="#" data-nabor="{n}" onclick="return shkNabor({n})">'
+        f'{myagkie(imya)}</a>'
         for n, (imya, t) in enumerate(spiski)) + '</div>')
     # Имя плейлиста лежит и в самой панели: шапка панели показывает
     # название того плейлиста, который открыт.
@@ -2037,22 +2171,37 @@ def blok_playera(nabor):
                        'role="separator" aria-orientation="vertical" '
                        'aria-label="Изменить ширину" '
                        'onkeydown="return shkTyan(event)"></div>')
-    return (f'<div class="pleyer-wrap">'
-            f'<div class="pleyer-shapka">'
-            f'<span class="pleyer-zag" id="pleyer-zag">{myagkie(vopros)}</span>'
-            f'</div>'
-            f'<div class="pleyer-mesto">'
-            f'<div class="pleyer" id="pleyer">{knopka_pleylista}</div>'
-            f'<div class="pleyer-vybor" id="pleyer-vybor" '
-            f'style="display:none">{karta}</div>'
-            f'</div>'
-            f'{pod_video}</div>{chr(10)}{panel_pleylista}{chr(10)}{JS_PLAYERA}')
+    stranica = (f'<div class="pleyer-wrap">'
+                f'<div class="pleyer-shapka">'
+                f'<span class="pleyer-zag" id="pleyer-zag">'
+                f'{myagkie(vopros)}</span>'
+                f'</div>'
+                f'<div class="pleyer-mesto">'
+                f'<div class="pleyer" id="pleyer">{knopka_pleylista}</div>'
+                f'<div class="pleyer-vybor" id="pleyer-vybor" '
+                f'style="display:none">{karta}</div>'
+                f'</div>'
+                f'{pod_video}</div>{chr(10)}{JS_PLAYERA}')
+    return stranica, panel_pleylista
+
+
+def zapisat_css():
+    """Записать оформление пакета отдельным файлом.
+
+    Файл лежит внутри пакета и перезаписывается при каждой сборке: если
+    он отстанет от страниц, страницы молча потеряют вид. Поэтому сборка
+    зовёт это первым делом.
+    """
+    polny = os.path.join(PAKET, *CSS_FAYL.split('/'))
+    os.makedirs(os.path.dirname(polny), exist_ok=True)
+    io.open(polny, 'w', encoding='utf-8').write(CSS)
+    return CSS_FAYL
 
 
 def sobrat(zagolovok, podzagolovok, bloki, fayl, put=None,
            podskazka=None, primechanie=None, indeks=False,
            menyu_spisok=None, menyu_zagolovok='',
-           kniga=None, klassy=None, telo_klass=''):
+           kniga=None, klassy=None, telo_klass='', paneli=''):
     """Собрать страницу пакета и записать её в Проект/.
 
     `fayl` — путь от корня пакета, например
@@ -2071,6 +2220,10 @@ def sobrat(zagolovok, podzagolovok, bloki, fayl, put=None,
     `telo_klass` — класс для тега body: на видеоуроках это
     «pleylist-otkryto», то есть плейлист стоит открытым сразу, а значок
     меню переключает меню и плейлист в одной и той же панели.
+
+    `paneli` — разметка выезжающей панели плейлиста (её отдаёт
+    blok_playera). Она ставится тем же слоем, что и меню, — снаружи
+    контейнера рабочей ширины.
     """
     # На страницах-индексах (выбор класса, предмета, материала) ни
     # заголовка, ни подсказки не нужно: где мы, и так видно по
@@ -2160,7 +2313,9 @@ def sobrat(zagolovok, podzagolovok, bloki, fayl, put=None,
                 .replace('{kniga}', kniga or '')
                 .replace('{vhod}', vhod)
                 .replace('{pin}', pin)
-                .replace('{panel}', panel)
+                # Панель меню стоит не в шапке, а снаружи контейнера
+                # рабочей ширины: см. {paneli} в шаблоне страницы.
+                .replace('{panel}', '')
                 .replace('{nazad}', ikona('назад'))
                 .replace('{vpered}', ikona('вперёд'))
                 .replace('{domoy}', ikona('домой')))
@@ -2175,6 +2330,11 @@ def sobrat(zagolovok, podzagolovok, bloki, fayl, put=None,
 
     niz = f'<p class="niz">{primechanie}</p>' if primechanie else ''
     telo = f' class="{telo_klass}"' if telo_klass else ''
+    # Выезжающие панели — меню и плейлист — стоят одним слоем СНАРУЖИ
+    # контейнера рабочей ширины: внутри него их position:fixed считался
+    # бы от контейнера, а не от окна, и панель уехала бы за край
+    # экрана. `paneli` передаёт страница, у которой есть плейлист.
+    paneli_vse = panel + (chr(10) + paneli if paneli else '')
 
     html = f"""<!DOCTYPE html>
 <html lang="ru">
@@ -2182,15 +2342,18 @@ def sobrat(zagolovok, podzagolovok, bloki, fayl, put=None,
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{zagolovok}</title>
-<style>{CSS}</style>
+<link rel="stylesheet" href="{otnositelno(fayl, CSS_FAYL)}">
 </head>
 <body{telo}>
+<div class="{_razmetka.ZONA_KLASS}">
 <div class="wrap">
 {verh}
 {shapka}
 {chr(10).join(bloki)}
 {niz}
 </div>
+</div>
+{paneli_vse}
 {js}
 </body>
 </html>
@@ -2201,3 +2364,11 @@ def sobrat(zagolovok, podzagolovok, bloki, fayl, put=None,
     with open(polny, 'w', encoding='utf-8') as f:
         f.write(html)
     return polny, len(html)
+
+# Порог «панель во всю ширину» один на всю сборку: он берётся из той же
+# таблицы разметки (Инструменты/разметка.py), что и CSS.
+JS = JS.replace('MENYU-VO-VSYU', str(_razmetka.MENYU_VO_VSYU))
+JS_PLAYERA = JS_PLAYERA.replace('MENYU-VO-VSYU', str(_razmetka.MENYU_VO_VSYU))
+for _imya, _tekst in (('JS', JS), ('JS_PLAYERA', JS_PLAYERA)):
+    assert 'MENYU-VO-VSYU' not in _tekst, \
+        f'в {_imya} остался неподставленный порог ширины меню'

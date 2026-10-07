@@ -9,6 +9,7 @@
 есть         /home/user/Проект/База данных/5 класс.html
 есть         /home/user/Проект/База данных/5 класс/География.html
 есть         /home/user/Проект/База данных/5 класс/География/видеоуроки.html
+есть         /home/user/Проект/База данных/5 класс/География/кино.html
 есть         /home/user/Проект/База данных/5 класс/История.html
 есть         /home/user/Проект/База данных/5 класс/История/ВПР и сборники.html
 есть         /home/user/Проект/База данных/5 класс/История/видеоуроки.html
@@ -91,8 +92,8 @@
 000          https://drops.com/
 200          https://education.yandex.ru/homework/history
 200          https://historyofrussia.mave.digital/
-000          https://igikm.ru
-000          https://igikm.ru/
+200          https://igikm.ru
+200          https://igikm.ru/
 401          https://infourok.ru/kontrolnye-raboty-po-algebre-7-klass-makarychev-za-ves-god-s-resheniyami-4488268.html
 401          https://infourok.ru/magazin-materialov/itogovaya-kontrolnaya-rabota-po-kursu-istoriya-rossii-7-klass-po-uchebniku-medinskogo-2025-goda-1509469
 401          https://infourok.ru/magazin-materialov/itogovyj-test-kontrolnaya-rabota-po-kursu-istoriya-drevnego-mira-istoriya-5-klass-medinskij-urok-itogovogo-povtoreniya-obobsheniya-i-kontrolya-1427282
@@ -179,8 +180,10 @@
 200          https://rutube.ru/video/01230dfb6634d571f6499bd8bd0e608c/
 200          https://rutube.ru/video/014a54c82507d4d29f4d77ed5efd233d/
 200          https://rutube.ru/video/016b7ebb1d3099e461f8df9d00c0c5cf/
+200          https://rutube.ru/video/01ea9178a93e8ee2d43280e395225afc/
 200          https://rutube.ru/video/02339930ea7ffb964c859242a22f9982/
 200          https://rutube.ru/video/025fe7e7589c3f22c5e4053ea03ceaa7/
+200          https://rutube.ru/video/0274664e8e3320347b73b0eefaf474d5/
 200          https://rutube.ru/video/038e570d5e77b490880a272d4a702224/
 200          https://rutube.ru/video/03a7b326f1db8ab6ce2e513c16f899d7/
 200          https://rutube.ru/video/03d750dd166b7b3d86b839af1748588d/
@@ -199,9 +202,12 @@
 200          https://rutube.ru/video/082a3aa4d4388169198b4cbb45ac9eb6/
 200          https://rutube.ru/video/0854c7f1009df1beb06e6053269c0072/
 200          https://rutube.ru/video/087896a8aee769108bf65fd8d0171b0c/
+200          https://rutube.ru/video/08789fd8c7cba3036c140785cb9480f2/
+200          https://rutube.ru/video/08a5a18e10c17edf61906c1d58170aad/
 200          https://rutube.ru/video/08b8aaa68e43870217f639d0c21dc5b3/
 200          https://rutube.ru/video/08ee319cd7a68f2c8dd0774aaee04392/
 200          https://rutube.ru/video/090121ec329288ef505cdd229be3184c/
+200          https://rutube.ru/video/091c349a7ab23afa7a2375821062afed/
 200          https://rutube.ru/video/098dc599fed345f3adecb81fc9824504/
 200          https://rutube.ru/video/0b4ffdaa155e465ccd01b803ac31067a/
 200          https://rutube.ru/video/0b59d50179031d50f1ffe2352416abfd/
@@ -265,6 +271,7 @@
 200          https://rutube.ru/video/2494eecbd855a81776e6dc9d39e11758/
 200          https://rutube.ru/video/253a3f92ed15ce81c67541f640f26c05/
 200          https://rutube.ru/video/25ad9d846d9bf2ee658dee3893b14abb/
+200          https://rutube.ru/video/25ebe670f770447f95d58f620399a2fb/
 200          https://rutube.ru/video/26a45af59db11c61efe18a8b5aecfa26/
 200          https://rutube.ru/video/283a747fb5f519769113c4df8414fc1a/
 200          https://rutube.ru/video/288272a5cb66d76681d80d93b2ce1e05/
@@ -275,8 +282,10 @@
 200          https://rutube.ru/video/2a37b4726b977ba2f7b6321936cd5b0c/
 200          https://rutube.ru/video/2b70728728ddd3e0cd58b03a0f66e644/
 200          https://rutube.ru/video/2ba8edb63ba58c462e3566282089b917/
+200          https://rutube.ru/video/2be338b05238ef66894b9ddebbaf29e3/
 200          https://rutube.ru/video/2c164bd20823f0b843c989912e66a218/
 200          https://rutube.ru/video/2c3ea3f358672da8be507236c3a7a563/
+200          https://rutube.ru/video/2c487e140a46abf5e55c64b00d61ea5c/
 200          https://rutube.ru/video/2cadd1c9fd3ec73a3b9e99b6de549d33/
 200          https://rutube.ru/video/2cecc5989e92024dafb73bbbe2280152/
 200          https://rutube.ru/video/2d8418b42168fe7f0077760b9ea53140/
@@ -289,6 +298,7 @@
 200          https://rutube.ru/video/2f60b430d15b6e9694bdc979df46d2da/
 200          https://rutube.ru/video/30a50af9190efc390946ae95c21e4d75/
 200          https://rutube.ru/video/311c6f4e177ffe1571575d5e1dcfb174/
+200          https://rutube.ru/video/315a71a2eebe1a93b50fb6fe140b26a5/
 200          https://rutube.ru/video/316f623259531861a53f3d34d3303762/
 200          https://rutube.ru/video/32767119d7df44a47afa1c449ca1e8c6/
 200          https://rutube.ru/video/33038b0736e86e6ef4dc8161926c3af2/
@@ -313,7 +323,9 @@
 200          https://rutube.ru/video/3ad193eb51d99b07f1c1374664fbc2b1/
 200          https://rutube.ru/video/3ae172801a5c84f612a598919d11c143/
 200          https://rutube.ru/video/3c0259b2ed8e101fb6af5c21d0573ce6/
+200          https://rutube.ru/video/3c9b4fe63438de025db933d7b4e4e14d/
 200          https://rutube.ru/video/3c9e5af45a36a52688ec1e8fda882cc2/
+200          https://rutube.ru/video/3c9f1d5b213773a4decf80a3a6cb381b/
 200          https://rutube.ru/video/3dc901ed4cee3b5815b7d8f12751549e/
 200          https://rutube.ru/video/3e1f25ef307a8062707cba45b03a671a/
 200          https://rutube.ru/video/3eaa3c109e1f47eab3d800b912ea9303/
@@ -327,6 +339,7 @@
 200          https://rutube.ru/video/424eb1b6e90c0410438ad0cd8148e81c/
 200          https://rutube.ru/video/42cc09a727f27c9b40b52ce4e637ccad/
 200          https://rutube.ru/video/42fa39cecdfbfa4dc6b285f543264285/
+200          https://rutube.ru/video/42fc91a0d8725dc6332765a8a29ffaef/
 200          https://rutube.ru/video/438e6b39bb5ff38c0f0dcecaabc10252/
 200          https://rutube.ru/video/44baa7f1f65688bf4bde166330020496/
 200          https://rutube.ru/video/45c44acf19a60e4af3d1e3c41c424079/
@@ -362,6 +375,7 @@
 200          https://rutube.ru/video/5105a24efe0e4552abcf51e4cf793d78/
 200          https://rutube.ru/video/51349ce721d4032728f33f4d83b5fdfe/
 200          https://rutube.ru/video/5137e1c06a82ac5b45dbb5c8b788ad93/
+200          https://rutube.ru/video/517a03c96cb712b66c3490e8c5460271/
 200          https://rutube.ru/video/51eb10c86860bc118ade094d6b3c8316/
 200          https://rutube.ru/video/52db9988d6fa9337c34e200e28a95d54/
 200          https://rutube.ru/video/53338a73c825550e67b2af68b15ef017/
@@ -373,8 +387,10 @@
 200          https://rutube.ru/video/555525e63d4c0bc8ee6ab0eb8d0cca14/
 200          https://rutube.ru/video/5595057eb623cd41f07d04da6d3b6975/
 200          https://rutube.ru/video/55bd986c1d71c395391f0ef1cac358e7/
+200          https://rutube.ru/video/55dc26daa195dc5642801f0b7ec75fb8/
 200          https://rutube.ru/video/56806fab82096a63af7741238df0140b/
 200          https://rutube.ru/video/575c27725de6d2e5b746121f9df9d83d/
+200          https://rutube.ru/video/5787ba36a77a91590f5892d36e8b9344/
 200          https://rutube.ru/video/57d1da684e4e6e1d35cf406609ed5b73/
 200          https://rutube.ru/video/58784f5c6ff406eb0f97e3570beea3f4/
 200          https://rutube.ru/video/594932e1b67dff85334986e65940f39f/
@@ -427,6 +443,7 @@
 200          https://rutube.ru/video/6d11db9686547a5726f32a64f5d9fe6f/
 200          https://rutube.ru/video/6dc22b67546d96583919c892a2c49d6f/
 200          https://rutube.ru/video/6de972eb98abd96fab9c1764d0bb352f/
+200          https://rutube.ru/video/6de9a0b492fa3365849ff5c390c6b7c8/
 200          https://rutube.ru/video/6e5cc3ebcf80a69df13f6a4ee71a4e85/
 200          https://rutube.ru/video/6e9f860597374b52d42076b971b43c05/
 200          https://rutube.ru/video/6ea1c83e0a0608938021b45cdf1ba2c0/
@@ -440,6 +457,7 @@
 200          https://rutube.ru/video/72ef7dd5b6b4136e84178aa8799282d1/
 200          https://rutube.ru/video/743d1c958e3a45bf0694568a32185748/
 200          https://rutube.ru/video/74a075d7d01debf1c82e1a73d09211b6/
+200          https://rutube.ru/video/74a8a4e0d1d3b4359c889741b005048a/
 200          https://rutube.ru/video/74d7bf98175619ace459a3dd27e11c4c/
 200          https://rutube.ru/video/74d93cc63a1414f49e92aac421f35924/
 200          https://rutube.ru/video/75b7145f81ebf43b8e1a9ffc3c020c2e/
@@ -455,6 +473,7 @@
 200          https://rutube.ru/video/7b03feeee17430124703d3c48d34d220/
 200          https://rutube.ru/video/7b28bddfa3bad5094c907bfcca7732bd/
 200          https://rutube.ru/video/7cc6b1e89b4dff58fad60cfc529e769a/
+200          https://rutube.ru/video/7d11cc746bf508db618b975b14050c62/
 200          https://rutube.ru/video/7da442814e355f41ed09a4bc3ae1c7c0/
 200          https://rutube.ru/video/7dd3adee22f3b2ea011b7b97848be289/
 200          https://rutube.ru/video/7e14cd4d24d6d34e5c44681cea56304c/
@@ -489,13 +508,16 @@
 200          https://rutube.ru/video/893890bf25c398470a2b6458e81582ae/
 200          https://rutube.ru/video/8971fc48ea0227cd52638bf81fa0ca22/
 200          https://rutube.ru/video/89742fbb721a6b1fc53201b6f8121d66/
+200          https://rutube.ru/video/898e9c9a241617a4f8960c9e1e8c9724/
 200          https://rutube.ru/video/89b7145317e78a21e4b79fb873bf3527/
 200          https://rutube.ru/video/8a192a77616e8ced30dcd79767707d21/
+200          https://rutube.ru/video/8a4485aec8c7d67304e3afdc11966182/
 200          https://rutube.ru/video/8acf867c0f06d576ee7bd30363cce72a/
 200          https://rutube.ru/video/8b05a4d46f879e0724ba7764fe3d6d3a/
 200          https://rutube.ru/video/8bdecb240c1edb94fa83ffe440e44ce7/
 200          https://rutube.ru/video/8c5a8d71d7f59fde8b2eb4f45f0b3e14/
 200          https://rutube.ru/video/8cac8691e574a0480b23c088b2e810e4/
+200          https://rutube.ru/video/8cb36d845f4cf110f286e50dcd67017d/
 200          https://rutube.ru/video/8cc64824a601e8354f246776119bf3af/
 200          https://rutube.ru/video/8d1d7aa7eb5dd94b45002d07bdf4de4a/
 200          https://rutube.ru/video/8d63fc58a6df264900b898cf8a9b2ba7/
@@ -509,15 +531,18 @@
 200          https://rutube.ru/video/919d551a0b8e93ba071c4f1fb46894ad/
 200          https://rutube.ru/video/9202965ea5ff31b60f80468689f1bd8a/
 200          https://rutube.ru/video/9221bb3e280a8ebe0059f28fadca00e7/
+200          https://rutube.ru/video/93174b1b03a45ece2077006727deb43c/
 200          https://rutube.ru/video/934c64119768ee891ba0f4dc21650882/
 200          https://rutube.ru/video/935faa55593ecb268c1ea556c88288b0/
 200          https://rutube.ru/video/938d570fe8fc3c5fe6d5ac45e538dc2f/
+200          https://rutube.ru/video/93f3d4012cc56ac055e0de72e81ad21e/
 200          https://rutube.ru/video/93f8de6f4e7bae60ab988ef8938c97f8/
 200          https://rutube.ru/video/943b66127dcf5611821e9188d183789f/
 200          https://rutube.ru/video/944ad99af4495f29ac59a63685bd0ab3/
 200          https://rutube.ru/video/9461a8e29dbeb2e3b4bd6ff4aa1c63a9/
 200          https://rutube.ru/video/9575ed8039138faded3cb23a08583197/
 200          https://rutube.ru/video/95a8f129648be71f1c9df651fe3df822/
+200          https://rutube.ru/video/95c1d8e5f37761e821ae05d1e016a79f/
 200          https://rutube.ru/video/960cdd2d62cd7f08a6fc8554cb67390b/
 200          https://rutube.ru/video/967635abff93d862473b997e54a8de6a/
 200          https://rutube.ru/video/9780a33904bb773296f4971016fa225c/
@@ -527,9 +552,11 @@
 200          https://rutube.ru/video/986c2e6d0a3f385bd38024a619ed415d/
 200          https://rutube.ru/video/990fd3568599e109f4ec835b3552a2f8/
 200          https://rutube.ru/video/9939da17750c58beb30592abc099436c/
+200          https://rutube.ru/video/9b86ddc3ce6976ee7b02475a01ec153a/
 200          https://rutube.ru/video/9c3163878e5b70d39288596615ad8521/
 200          https://rutube.ru/video/9ceec0bf319ae9d17121d57912ff70ba/
 200          https://rutube.ru/video/9d06c356430052b4a8edce2e07e9a6f1/
+200          https://rutube.ru/video/9d4986959e387d1d560c88765111aa63/
 200          https://rutube.ru/video/9d6c3ff7231c916f64fa3837aa1a5b37/
 200          https://rutube.ru/video/9da0e4fb3ea3e475aa515a11fe6435bc/
 200          https://rutube.ru/video/9dd08dd8f9c61946adfb2da548d1bfc8/
@@ -544,6 +571,7 @@
 200          https://rutube.ru/video/a28c937b536688da17658b79a0072fc0/
 200          https://rutube.ru/video/a29ddd16b4f934c62b218c1906ab6347/
 200          https://rutube.ru/video/a2cf88bdde5d76ea19a05ca44a46d12d/
+200          https://rutube.ru/video/a2d2d2bdc86d2a89ba5e3930f04b47c8/
 200          https://rutube.ru/video/a3340249fcf6155111524eac6e224e8f/
 200          https://rutube.ru/video/a3e3b47ec6c9ca194d99d3dc0744aa6d/
 200          https://rutube.ru/video/a4dbb8091bd6f533881c39475510efa7/
@@ -568,6 +596,7 @@
 200          https://rutube.ru/video/ad1679efc3ee722bbd4597aa012ec55d/
 200          https://rutube.ru/video/ad3a23c34d57c0f4806b2047d3a803ea/
 200          https://rutube.ru/video/ad533adfb70165b816c86e74dfca81bf/
+200          https://rutube.ru/video/ad68355cbfd28b4cfddc107caf1c3e28/
 200          https://rutube.ru/video/ad7e559dd3c065a79673bcc46cd2c3b2/
 200          https://rutube.ru/video/ae1de946441cdc57b8b898f79b9fd44c/
 200          https://rutube.ru/video/ae7f909d63c1993b04771b67d4703552/
@@ -621,6 +650,7 @@
 200          https://rutube.ru/video/c0c25c27de0179db3cf64bff2b86004f/
 200          https://rutube.ru/video/c12418a98e21cd23ff9994ea6e69404e/
 200          https://rutube.ru/video/c12ce400782c62c9712503f98b4173e6/
+200          https://rutube.ru/video/c24edcf556139c9e0495277964917e35/
 200          https://rutube.ru/video/c2b93dc5359f42ae582c00263f962c4a/
 200          https://rutube.ru/video/c3572455511cd64445d06235e62d3c58/
 200          https://rutube.ru/video/c3a5cb1bb7238be5fe0062f70d3ac675/
@@ -648,6 +678,7 @@
 200          https://rutube.ru/video/ccaedd7a3ad4546d52e1f712faaa25c2/
 200          https://rutube.ru/video/ccb6e37ac2d325d12f4133b709b1f680/
 200          https://rutube.ru/video/cd17a018440f659cf593146642c2ad29/
+200          https://rutube.ru/video/cd6f0acc5f5587a5dba164de037b416e/
 200          https://rutube.ru/video/ce18bcb17dfe34236e6b2b4fbbb62754/
 200          https://rutube.ru/video/ced1463bfe3a05eebbb1744e35aae927/
 200          https://rutube.ru/video/cf9384de8adf724813d2be058a177a16/
@@ -663,6 +694,7 @@
 200          https://rutube.ru/video/d130fd864cfe5dba3dfca35a61769d7a/
 200          https://rutube.ru/video/d1463fe5d824407540b64d1d4597e068/
 200          https://rutube.ru/video/d17f9e24cdc80b2e54b82e930b571c40/
+200          https://rutube.ru/video/d191d123f52fba9b99e3972b3f378153/
 200          https://rutube.ru/video/d1d81497927ce84e96ec482b107fd0c3/
 200          https://rutube.ru/video/d22017b03020be215aca8a13a2ab90f1/
 200          https://rutube.ru/video/d3b5427debbca617bca3387484d1f50b/
@@ -671,10 +703,12 @@
 200          https://rutube.ru/video/d697560102daa3769a904c696b8ab9c9/
 200          https://rutube.ru/video/d6b022f09e07d641fe1e6d43852224a5/
 200          https://rutube.ru/video/d70872cb3e43dad6eb4ad3bf16eaaa7c/
+200          https://rutube.ru/video/d7647de2f49937d545650b12fba89836/
 200          https://rutube.ru/video/d7954db6f0ae6a5ab2e314de9f522791/
 200          https://rutube.ru/video/d803d7f046aaa8ccb1254b1c5290233d/
 200          https://rutube.ru/video/d843be2fd347823cb67d4ece943addfb/
 200          https://rutube.ru/video/d88d01ba80901128b766cb1779772774/
+200          https://rutube.ru/video/d8be908487c5cee5be7fe8bea0b6ed3b/
 200          https://rutube.ru/video/d910b08234b23f485819c2cc119f52b1/
 200          https://rutube.ru/video/d92e8bc779af6e2905ec751270289e57/
 200          https://rutube.ru/video/d9bdbff89cd29d338513df4959c2fca0/
@@ -703,6 +737,7 @@
 200          https://rutube.ru/video/e2f5ecbd3cb10cf03363fd5a266cccf0/
 200          https://rutube.ru/video/e30f141962a356c904cc18e070a58842/
 200          https://rutube.ru/video/e39b203540be6b34b1c6728b8a73a8c4/
+200          https://rutube.ru/video/e665ff6e06d7d4c450f6fd0ca6d55926/
 200          https://rutube.ru/video/e7aa86befad55e2e24b4df6929673206/
 200          https://rutube.ru/video/e92dccda054fbfc8d1f372d960ea8d21/
 200          https://rutube.ru/video/eab41e22b4f0c30acadabb84f85a69ab/
@@ -719,6 +754,8 @@
 200          https://rutube.ru/video/edfc50733b8edeb68f8049c26963be1f/
 200          https://rutube.ru/video/ee30d3b65b4d9bfc7454717376c2110a/
 200          https://rutube.ru/video/ee665cc5385398de5dae4647d5d6d03d/
+200          https://rutube.ru/video/eec6b4644e4ab188de235dda8f324907/
+200          https://rutube.ru/video/ef87838406d6f9b8916260837393fc64/
 200          https://rutube.ru/video/f04b785ba397d4dc39df26eaf229951e/
 200          https://rutube.ru/video/f0ab1ce15583b1e6d9e012c5ed3a1070/
 200          https://rutube.ru/video/f0affb86c5ceafa32c5559ed7f48f587/
@@ -734,10 +771,12 @@
 200          https://rutube.ru/video/f33915e2c3786e2771ceae7db4bfe60a/
 200          https://rutube.ru/video/f339b04fdb4a5ede888050621a1e3a91/
 200          https://rutube.ru/video/f379f719a9b3cf54b512d9d59e679d41/
+200          https://rutube.ru/video/f3891fbd5e2baca186afa0cfc13742bd/
 200          https://rutube.ru/video/f3bc3f7fa5d09f1937846a35e23bb871/
 200          https://rutube.ru/video/f3f95ae37ff97fcf6f3ce7bfa5519ffb/
 200          https://rutube.ru/video/f4acd02db1210da8f1e787427a4fa8ae/
 200          https://rutube.ru/video/f4c584ff5a09c59529dac76c69f19ea9/
+200          https://rutube.ru/video/f5a25516d3238428780f798ea4ccc713/
 200          https://rutube.ru/video/f61299b2b20f28cb009abe398d29fb19/
 200          https://rutube.ru/video/f63ae81b6171f5565d3b7a14f821bdd8/
 200          https://rutube.ru/video/f65b9067286fe04621fcd8427e9f09f1/
@@ -774,10 +813,10 @@
 200          https://school56.gosuslugi.ru/netcat_files/67/3002/OOP_OOO_2025.pdf
 200          https://skills4u.ru/school/istoriya/
 200          https://smotrim.ru/brand/67400
-200          https://store.steampowered.com/app/775430/Discovery_Tour_by_Assassins_Creed_Ancient_Egypt/?l=russian
-200          https://store.steampowered.com/search/?term=Discovery+Tour&l=russian
-200          https://store.steampowered.com/search/?term=Pharaoh&l=russian
-200          https://store.steampowered.com/search/?term=Zeus+Master+of+Olympus&l=russian
+403          https://store.steampowered.com/app/775430/Discovery_Tour_by_Assassins_Creed_Ancient_Egypt/?l=russian
+403          https://store.steampowered.com/search/?term=Discovery+Tour&l=russian
+403          https://store.steampowered.com/search/?term=Pharaoh&l=russian
+403          https://store.steampowered.com/search/?term=Zeus+Master+of+Olympus&l=russian
 200          https://t.me/+flGQcfm7iqlhMGRi
 200          https://uchi.ru/subjects/algebra
 200          https://uchi.ru/subjects/english

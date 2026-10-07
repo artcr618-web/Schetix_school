@@ -34,6 +34,12 @@ import _tv  # noqa: E402
 DANNYE = os.path.join(VREM, 'naiti.json')
 STRANICA = os.path.join(ROOT, 'Проект', 'Что не нашлось.html')
 
+# Оформление списка — отдельным файлом, как и у страниц пакета: в html
+# остаётся только разметка. Файл лежит рядом с остальными, в «База
+# данных»: страница стоит в корне, а папка «База данных» — её сосед.
+CSS_FAYL = 'База данных/оформление-списка.css'
+CSS_POLNY = os.path.join(ROOT, 'Проект', *CSS_FAYL.split('/'))
+
 CSS = """
 :root{
   --fon:#0e1116; --kart:#1b212b; --ramka:#ffd23f;
@@ -111,6 +117,14 @@ def stroka_html(s):
             f'    </article>')
 
 
+def zapisat_css():
+    """Записать оформление списка отдельным файлом."""
+    os.makedirs(os.path.dirname(CSS_POLNY), exist_ok=True)
+    with open(CSS_POLNY, 'w', encoding='utf-8') as f:
+        f.write(CSS)
+    return CSS_FAYL
+
+
 def sobrat(d):
     gruppy = []
     for g in d['группы']:
@@ -126,7 +140,7 @@ def sobrat(d):
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{d['заголовок']}</title>
-<style>{CSS}</style>
+<link rel="stylesheet" href="{CSS_FAYL}">
 </head>
 <body>
 <main class="listok">
@@ -148,6 +162,7 @@ def main():
         d = json.load(f)
     if 'подзаголовок' not in d and 'podzagolovok' in d:   # следы правки
         d['подзаголовок'] = d.pop('podzagolovok')
+    print('оформление:', zapisat_css())
     html = sobrat(d)
     os.makedirs(os.path.dirname(STRANICA), exist_ok=True)
     with open(STRANICA, 'w', encoding='utf-8') as f:

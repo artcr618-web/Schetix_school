@@ -60,23 +60,27 @@ fs.mkdirSync(kuda, { recursive: true });
   console.log('   шапка после прокрутки:', Math.round(posle.shap), '(прокручено', posle.prokrutka, 'px)');
   console.log('   шапка уехала:', Math.abs(posle.shap - doProkrutki.shap) > 2 ? 'ДА — ЭТО ОШИБКА' : 'нет, стоит на месте');
 
-  // 2. Под кадром: названия плейлистов и их цвет
+  // 2. Под кадром: список плейлистов (уроков там больше нет)
   const pod = await stranica.evaluate(() => {
-    const imena = [...document.querySelectorAll('.pl-vse .pl-imya')];
-    const g = document.querySelector('.pl-vse .trek-gruppa');
+    const stroki = [...document.querySelectorAll('.pl-vse a.pl-plitka')];
+    const urokev = document.querySelectorAll('.pl-vse a.trek').length;
+    const otkr = document.querySelector('.pl-vse a.pl-plitka.tekushchiy');
+    // «в покое» берём НЕ отмеченную строку: у играющей отметка по замыслу
+    const pokoy = document.querySelector('.pl-vse a.pl-plitka:not(.tekushchiy)') || stroki[0];
     return {
-      skolko: imena.length,
-      pervoe: imena[0] && getComputedStyle(imena[0]).color,
-      pervaya_podlozhka: imena[0] && getComputedStyle(imena[0]).backgroundColor,
-      vtoroe: imena[1] && getComputedStyle(imena[1]).color,
-      zagolovok_gruppy: g && getComputedStyle(g).color,
-      otstup: getComputedStyle(document.querySelector('.pl-vse')).paddingLeft,
+      skolko: stroki.length, urokev: urokev,
+      pervyy_tekst: pokoy && pokoy.textContent.trim(),
+      fon: pokoy && getComputedStyle(pokoy).backgroundColor,
+      otkr_fon: otkr && getComputedStyle(otkr).backgroundColor,
+      otkr_polosa: otkr && (getComputedStyle(otkr).borderLeftWidth + ' ' +
+                            getComputedStyle(otkr).borderLeftColor),
     };
   });
   console.log('=== плейлисты под кадром');
-  console.log('   названий:', pod.skolko, '| цвет первого:', pod.pervoe,
-              '| подложка:', pod.pervaya_podlozhka, '| второго:', pod.vtoroe);
-  console.log('   заголовок главы:', pod.zagolovok_gruppy, '| отступ слева:', pod.otstup);
+  console.log('   строк:', pod.skolko, '| уроков в блоке:', pod.urokev,
+              '| первый неотмеченный:', pod.pervyy_tekst);
+  console.log('   в покое:', pod.fon, '| открытый:', pod.otkr_fon,
+              pod.otkr_polosa);
   await stranica.screenshot({ path: `${kuda}/${imya}-под-кадром.png`, fullPage: false });
 
   await brauzer.close();

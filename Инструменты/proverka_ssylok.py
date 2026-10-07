@@ -24,9 +24,19 @@
                      в отдельную группу «проверить вручную».
 
   остальное (404, 410, 5xx) — вот это уже по-настоящему битая.
+
+Сайты не любят, когда к ним бьются очередью: с одного адреса уходит по
+нескольку десятков запросов подряд (у «Контрользнаний» их больше шести-
+десяти), и сервер начинает отвечать 500, а потом и вовсе перестаёт
+пускать. Поэтому:
+
+  * к одному сайту запросы идут с паузой (не чаще одного в 0.7 с);
+  * ответ 5xx или 000 переспрашивается — до трёх раз с растущей паузой.
+    Живая ссылка на повторе отвечает 200, битая так и остаётся битой
+    (404 повторять нечего — это уже ответ).
 """
 import concurrent.futures as futures
-import io, os, re, subprocess, sys
+import io, os, re, subprocess, sys, threading, time
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from _пути import VSE_STRANICY, LOG_SSYLKI, VREM
@@ -61,11 +71,47 @@ def collect():
     return out
 
 
-def check_url(url):
+def _odin_zapros(url):
     r = subprocess.run(['curl', '-s', '-o', '/dev/null', '-w', '%{http_code}',
-                        '-L', '--max-time', '30', '-A', UA, url],
+                        '-L', '--max-time', '20', '--connect-timeout', '8',
+                        '-A', UA, url],
                        capture_output=True, text=True)
     return r.stdout.strip()
+
+
+# Пауза между запросами к одному сайту. Потоки общие, поэтому очередь
+# на сайт общая: кто пришёл, тот и ждёт, пока пройдёт пауза.
+PAUZA_MEZHDU = 0.7          # секунд между запросами к одному сайту
+_zamok = threading.Lock()
+_kogda = {}
+
+
+def _podozhdat(url):
+    from urllib.parse import urlparse
+    host = urlparse(url).netloc
+    while True:
+        with _zamok:
+            teper = time.monotonic()
+            kogda = _kogda.get(host, 0)
+            if teper - kogda >= PAUZA_MEZHDU:
+                _kogda[host] = teper
+                return
+            zhdat = PAUZA_MEZHDU - (teper - kogda)
+        time.sleep(min(zhdat, 0.2))
+
+
+def check_url(url):
+    """Код ответа. 5xx и «не дозвонились» переспрашиваем."""
+    pauzy = [0, 2, 6]
+    kod = '000'
+    for nomer, pauza in enumerate(pauzy):
+        if pauza:
+            time.sleep(pauza)
+        _podozhdat(url)
+        kod = _odin_zapros(url)
+        if kod == '200' or (kod.isdigit() and kod < '500' and kod != '000'):
+            return kod
+    return kod
 
 
 def main():
@@ -74,11 +120,18 @@ def main():
 
     # Внутренние ссылки проверяем сразу: файл либо есть, либо нет.
     vneshnie = []
+    povtory = set()
     for page, href, target in pairs:
         if target in seen:
             continue
         if target.startswith('http'):
-            vneshnie.append((page, href, target))
+            # Один и тот же адрес стоит на многих страницах (учебники,
+            # тренажёры): спрашиваем сайт один раз, а не двадцать. Это и
+            # вежливее к сайту, и вчетверо быстрее: без этого адресов
+            # набиралось 3912 вместо 1727.
+            if target not in povtory:
+                povtory.add(target)
+                vneshnie.append((page, href, target))
         else:
             ok = os.path.exists(target)
             seen[target] = 'есть' if ok else 'НЕТ ФАЙЛА'
@@ -86,10 +139,22 @@ def main():
                 bad.append((page, href, 'нет файла'))
 
     # Внешние — в 12 потоков: по одной ссылке на круг это заняло бы час.
+    # Ход проверки виден: раз в 200 ссылок печатаем, сколько пройдено.
+    sdelano = [0]
+
+    def s_progressom(t):
+        kod = check_url(t[2])
+        with _zamok:
+            sdelano[0] += 1
+            if sdelano[0] % 200 == 0:
+                print(f'  проверено {sdelano[0]} из {len(vneshnie)}', flush=True)
+        return kod
+
     with futures.ThreadPoolExecutor(max_workers=12) as pool:
         for (page, href, target), code in zip(
-                vneshnie, pool.map(lambda t: check_url(t[2]), vneshnie)):
+                vneshnie, pool.map(s_progressom, vneshnie)):
             seen[target] = code
+            povtorov = len(pairs) - len(seen)
             if code in HOROSHO:
                 pass
             elif code in SOFT:
@@ -108,7 +173,7 @@ def main():
         for t, c in sorted(seen.items()):
             f.write(f'{c:<12} {t}\n')
 
-    print(f'Проверено ссылок: {len(seen)}')
+    print(f'Проверено ссылок: {len(seen)} (уникальных адресов)')
     print(f'  рабочих:        {sum(1 for c in seen.values() if c in HOROSHO)}')
     print(f'  битых:          {len(bad)}')
     if soft:
@@ -124,6 +189,13 @@ def main():
         for page, href, code in bad:
             print(f'  {code}  {href}   <- {os.path.basename(page)}')
     print(f'\nЛог: {LOG_SSYLKI}')
+    if bad:
+        print(f'\nСсылки: вердикт — плохо, битых {len(bad)}')
+    else:
+        print(f'\nСсылки: вердикт — хорошо: рабочих {sum(1 for c in seen.values() if c in HOROSHO)}'
+              f'{", с оговоркой " + str(len(soft)) if soft else ""}'
+              f'{", переспросить " + str(len(neizv)) if neizv else ""}. '
+              'Битых нет.')
     return 1 if bad else 0
 
 
