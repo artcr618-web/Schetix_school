@@ -18,10 +18,16 @@ for polny in sorted(VSE_STRANICY):
     if PROEKT not in polny:
         continue
     s = open(polny, encoding='utf-8').read()
+    # Ссылки ищем в разметке без скриптов: движки собирают строки кода,
+    # и склейка вида `href="' + SSYLKA_VIDEO + '#par-'"` читалась бы
+    # битой ссылкой. Остальные проверки смотрят целую страницу: скрипт
+    # домашней страницы и ключ запоминания живут как раз в скрипте.
+    s_razmetka = re.sub(r'<(script|style)\b.*?</\1>', ' ', s,
+                        flags=re.S | re.I)
     papka = os.path.dirname(polny)
     otn = os.path.relpath(polny, PROEKT)
 
-    for m in re.finditer(r'href="([^"#][^"]*)"', s):
+    for m in re.finditer(r'href="([^"#][^"]*)"', s_razmetka):
         h = m.group(1)
         if h.startswith(('http://', 'https://', 'mailto:', 'javascript:')):
             continue
@@ -42,8 +48,7 @@ for polny in sorted(VSE_STRANICY):
         print(f'  НЕТ КЛЮЧА ЗАПОМИНАНИЯ: {otn}')
         oshel += 1
 
-# в корне пакета — главная страница и служебный список «Что не нашлось»,
-# больше ничего (см. §4 правил)
+# в корне пакета — только главная страница, больше ничего (см. §4 правил)
 koren = [f for f in sorted(os.listdir(PROEKT))
          if os.path.isfile(os.path.join(PROEKT, f))]
 domashnyaya = 'Начать учиться.html'

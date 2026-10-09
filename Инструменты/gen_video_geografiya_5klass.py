@@ -18,6 +18,7 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from _пути import DATA_GEO_VIDEO, CSS_ISTOCHNIK, STRAN
+import _tv
 
 OUT = os.path.join(STRAN['5гео'], 'geografiya-5-klass-video.html')
 
@@ -222,6 +223,7 @@ def main():
 </html>
 """
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
+    html = _tv.tire_html(html)   # правило тире: см. _tv.tire
     io.open(OUT, 'w', encoding='utf-8').write(html)
     print(f'Готово: {OUT} ({len(html)} байт)')
 

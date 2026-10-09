@@ -5,9 +5,9 @@
 
 Что делает:
 
-1. Раскладывает материалы по папкам: «База данных» -> класс -> предмет.
-   В корне остаётся ровно один файл — «Начать учиться.html»: его и
-   видит человек, вставив флешку. Дальше он ходит по ссылкам.
+1. Раскладывает материалы по папкам: «База данных» -> HTML -> класс
+   -> предмет. В корне остаётся ровно один файл — «Начать учиться.html»:
+   его и видит человек, вставив флешку. Дальше он ходит по ссылкам.
 
 2. Переделывает каждую страницу материалов в крупную «телевизионную».
    Данных для этого нет (страницы собирались раньше, исходники лежат
@@ -40,8 +40,11 @@ DEREVO = {
         'История': ['видеоуроки', 'кино', 'ВПР и сборники', 'тренажёры'],
     },
     '7 класс': {
-        'История': ['видеоуроки', 'кино', 'контрольные',
-                    'ВПР и сборники', 'тренажёры'],
+        # Контрольные и ВПР — один раздел: это один и тот же конец года.
+        # «Лекций» в списке нет намеренно: у них не плашка, а баннер-знак
+        # (см. LEKCII), и второй вход на ту же страницу был бы лишним.
+        'История': ['видеоуроки', 'кино', 'контрольные', 'тренажёры',
+                    'дополнительные материалы', 'учебные материалы в PDF'],
         'Алгебра': ['видеоуроки', 'тренажёры', 'контрольные',
                     'ВПР и сборники'],
         'Английский': ['тренажёры'],
@@ -57,8 +60,8 @@ DEREVO = {
 которое правится при добавлении предмета.
 
 Раньше здесь лежали готовые имена файлов, но пакет переехал в папки
-(«База данных/8 класс/Геометрия/видеоуроки.html»), поэтому имя файла
-собирается из класса, предмета и материала само.
+(«База данных/HTML/8 класс/Геометрия/видеоуроки.html»), поэтому имя
+файла собирается из класса, предмета и материала само.
 """
 
 FONY = f'{_tv.BAZA}/Фоны'
@@ -77,6 +80,13 @@ FONY_PREDMETOV = {
     'Английский': 'Английский.jpg',
 }
 """Предмет -> файл рисунка в `Проект/База данных/Фоны`."""
+
+FONY_LEKCIY = {
+    ('7 класс', 'История'): 'История-лекции.jpg',
+}
+"""Рисунки знаков на страницы лекций: у них своя картинка, не та, что у
+плашки предмета. Знак — та же плашка, и рисунок ему нужен такой же
+(сюжет вверху справа, пустой нижний левый угол), только про лекции."""
 
 OBLOZHKI = f'{_tv.BAZA}/Обложки'
 """Настоящие обложки учебников, скачанные с «Лабиринта» (издательство
@@ -142,11 +152,19 @@ POYASNENIYA = {
     ('7 класс', 'История', 'кино'):
         ('Кино и документалистика', 'Фильмы по программе'),
     ('7 класс', 'История', 'контрольные'):
-        ('Контрольные работы', 'Готовые разработки по темам'),
-    ('7 класс', 'История', 'ВПР и сборники'):
-        ('ВПР и сборники', 'Варианты и задания, PDF'),
+        ('Контрольные работы',
+         'Годовые, итоговые, самостоятельные, ВПР, ЕГЭ, ОГЭ'),
     ('7 класс', 'История', 'тренажёры'):
-        ('Тренажёры и игры', 'Викторины, даты, проверка'),
+        ('Тренажёры', 'Викторины, даты, проверка'),
+    # Подписи этих двух — в одну строку: длинное название («Дополнительные
+    # материалы» в три строки) и двухстрочная подпись в 16/9 не влезали,
+    # и плашка «вылезала» верхом — поймала проверка сетки на 1200.
+    ('7 класс', 'История', 'дополнительные материалы'):
+        ('Дополнительные материалы', 'Сверх учебника'),
+    ('7 класс', 'История', 'учебные материалы в PDF'):
+        ('Учебные материалы в PDF', 'Учебники и атласы'),
+    ('7 класс', 'История', 'лекции'):
+        ('Лекции', 'Мединский · Лекции по курсу истории за седьмой класс'),
     ('7 класс', 'Английский', 'тренажёры'):
         ('Тренажёры', 'Слова, грамматика, аудирование'),
     ('7 класс', 'Алгебра', 'видеоуроки'):
@@ -197,11 +215,24 @@ ZAGOLOVKI = {
     ('7 класс', 'История', 'кино'):
         ('История, 7 класс: кино', 'Фильмы и документалистика по программе'),
     ('7 класс', 'История', 'контрольные'):
-        ('История, 7 класс: контрольные', 'Готовые разработки по темам года'),
-    ('7 класс', 'История', 'ВПР и сборники'):
-        ('История, 7 класс: ВПР и сборники', 'Варианты для подготовки, PDF'),
+        ('История, 7 класс: контрольные',
+         'Годовые итоговые самостоятельные и ВПР'),
     ('7 класс', 'История', 'тренажёры'):
-        ('История, 7 класс: тренажёры', 'Игры, викторины, проверка дат'),
+        ('История, 7 класс: тренажёры', 'Викторины, даты, проверка'),
+    # Разделы ниже стоят в дереве с первого дня, а материалы к ним ещё
+    # подбираются: страницы у них есть, внутри — карточка «Раздел
+    # готовится» (см. ZAGOTOVKI). Заголовок и подпись скажут о разделе
+    # правду и тогда, когда материалы появятся; подзаголовок страницы
+    # поменяем вместе с наполнением.
+    ('7 класс', 'История', 'дополнительные материалы'):
+        ('История, 7 класс: дополнительные материалы', 'Материалы подбираются'),
+    ('7 класс', 'История', 'учебные материалы в PDF'):
+        ('История, 7 класс: учебные материалы в PDF', 'Материалы подбираются'),
+    # Страница лекций: заголовок окна — её собственный, а не баннера,
+    # поэтому он лежит здесь, а не в файле данных баннера.
+    ('7 класс', 'История', 'лекции'):
+        ('История, 7 класс: лекции',
+         'Мединский · «Рассказы из русской истории»'),
     ('7 класс', 'Английский', 'тренажёры'):
         ('Английский, 7 класс: тренажёры',
          'Слова, грамматика, аудирование'),
@@ -251,10 +282,10 @@ ISTOCHNIKI = {
 
     ('7 класс', 'История', 'видеоуроки'):
         'Архив/7 класс/История/istoriya-7-klass-video.html',
-    ('7 класс', 'История', 'контрольные'):
-        'Архив/7 класс/История/kontrolnye-7-klass-istoriya.html',
-    ('7 класс', 'История', 'ВПР и сборники'):
-        'Архив/7 класс/История/sborniki-i-vpr-7-klass-istoriya.html',
+    # Страница контрольных и ВПР — одна: подробные разработки по темам
+    # и варианты ВПР стоят вместе. Подробная страница ВПР
+    # (sborniki-i-vpr-7-klass-istoriya.html) осталась в «Архиве» целой
+    # и ждёт, когда её содержимое переедет сюда.
     ('7 класс', 'История', 'тренажёры'):
         'Архив/7 класс/История/trenazhery-7-klass-istoriya.html',
     ('7 класс', 'Английский', 'тренажёры'):
@@ -299,8 +330,56 @@ BANNERY = {
 значение — имя файла с подборками в «Временные» и короткое имя автора
 (оно уходит в заголовок окна). Баннер стоит выше всех плиток во всю
 ширину страницы и держит лекции одного курса: это не «кино и
-документалистика», у лекций своё место. Собирает его _tv.banner_lekciy,
-данные пишет «Временные/kino_sborka.py» — так же, как для страниц кино.
+документалистика», у лекций своё место. Данные пишет
+«Временные/kino_sborka.py» — так же, как для страниц кино.
+
+Два вида баннера. У 5 класса (`_tv.banner_lekciy`) он играет лекции сам:
+кадр и списки внутри баннера. У 7 класса (`_tv.banner_ukazatel`) это знак
+на отдельную страницу лекций — если она у курса есть, ключ попал
+в `LEKCII`. Плеера на странице предмета в этом случае нет вовсе.
+"""
+
+LEKCII = {
+    ('7 класс', 'История'): 'лекции',
+}
+
+TRENAZHERY = {
+    ('7 класс', 'История'): 'тренажёры',
+}
+"""Тренажёры, у которых есть своя страница: (класс, предмет) -> материал.
+
+Страница тренажёров собирается не из «Архива», а из своей базы
+(«База данных/Тренажёры/<предмет>, <класс>») — её ведёт генератор
+gen_tv_trenazher. В `ISTOCHNIKI` запись про них остаётся только ради
+хлебных крошек и имени файла; сама страница из архива не берётся.
+"""
+"""Баннеры, у которых есть своя страница: (класс, предмет) -> материал.
+
+Лекции устроены как кино — те же кадр, подборки и панель, только слова
+свои, — поэтому страница собирается тем же генератором (gen_tv_kino),
+а данные берутся из файла баннера: он один и тот же для знака и для
+страницы, и разойтись им нечем. Плитки у такой страницы нет: на неё
+ведёт знак, и второй вход на тот же раздел был бы лишним.
+"""
+
+# Параграфы, по которым записан видеоурок: ключ — «класс, предмет»,
+# значение — номера из плейлиста. Заполняется, пока собирается страница
+# видеоуроков, и нужен тренажёрам: ссылка из отзыва ведёт на урок только
+# там, где урок есть (см. gen_tv_trenazher.S_VIDEO).
+PARAGRAFY_VIDEO = {}
+
+
+ZAGOTOVKI = (
+    ('7 класс', 'История', 'контрольные'),
+    ('7 класс', 'История', 'дополнительные материалы'),
+    ('7 класс', 'История', 'учебные материалы в PDF'),
+)
+"""Разделы, которые стоят в дереве, но ещё не наполнены.
+
+Страница у них собирается с карточкой «Раздел готовится»: плашка,
+ведущая в никуда, — ошибка, а пустой белый лист читается как поломка.
+Как только материалы появятся, раздел переезжает в `ISTOCHNIKI` и
+собирается как все остальные, а запись отсюда убирается.
 """
 
 KINO = {
@@ -516,7 +595,7 @@ def perevesti(href, karta):
     """Внешнюю ссылку оставить, внутреннюю переписать на файл пакета.
 
     Возвращает путь ОТ КОРНЯ ПАКЕТА, например
-    «База данных/8 класс/Геометрия/видеоуроки.html». В относительную
+    «База данных/HTML/8 класс/Геометрия/видеоуроки.html». В относительную
     ссылку для конкретной страницы его превращает _tv.sobrat: только там
     известно, насколько глубоко лежит файл.
     """
@@ -566,12 +645,60 @@ RAZDEL_VIDEO = re.compile(r'^\s*\d+\s*\.\s*(план\s+года|видеокур
 
 
 def nomer_paragrafa(*kuski):
-    """Номер параграфа из текста: «§ 12. Тема» -> «§ 12»."""
+    """Номер параграфа из текста: «§ 12. Тема» -> «§ 12», «§ 10–11. Тема» -> «§ 10–11».
+
+    Диапазон сохраняем целиком: в учебнике 7 класса уроки идут парами
+    («§ 10–11»), и «§ 10» вместо него читалось бы как потерянная половина.
+    """
     for t in kuski:
-        m = re.search(r'§\s*(\d+)', t)
+        m = re.search(r'§\s*(\d+)\s*(?:[-–—]\s*(\d+))?', t)
         if m:
-            return f'§ {m.group(1)}'
+            return (f'§ {m.group(1)}–{m.group(2)}' if m.group(2)
+                    else f'§ {m.group(1)}')
     return ''
+
+
+KOLONKA_SCHET = {'ч', 'шт', 'видео', 'сколько', 'кол-во', 'количество'}
+"""Заголовки первой колонки, где стоит счёт видео, а не номер параграфа.
+
+В таблице истории 7 класса первая колонка — «Ч» (число роликов в строке).
+Раньше её принимали за номер параграфа, и «Введение» получало «§ 1»,
+а раздел в конце учебника — «§ 2». Номер берём только из самой темы.
+"""
+
+
+GLAVA_NACHALO = re.compile(r'^\s*(?:Гл\.|Глава)\s*([IVXLC]+|\d+)\.?\s+(.+)$')
+"""Начало названия главы: «Гл. I. Эпоха …», «Глава III. Страны Азии …»."""
+
+
+def razdelit_glavu(tema):
+    """Отделить главу от параграфа: («Глава I. Эпоха …», «§ 1. Мир …»).
+
+    В исходниках встречается слитная запись — «Гл. I. Эпоха Великих
+    географических открытий — § 1. Мир на заре Нового времени». Глава это
+    не параграф: в плейлисте она становится заголовком группы, а параграф —
+    обычным пунктом. Если главы в теме нет, возвращаем тему как есть.
+    """
+    m = GLAVA_NACHALO.match(tema or '')
+    if not m:
+        return tema, ''
+    chasti = re.split(r'\s+—\s+', m.group(2), maxsplit=1)
+    if len(chasti) != 2:
+        return tema, ''
+    glava = f'Глава {m.group(1)}. {chasti[0].strip()}'
+    return chasti[1].strip(), glava
+
+
+def glava_chistaya(t):
+    """Имя главы без служебного: «Гл.» -> «Глава», время вон.
+
+    «Глава I. Россия в XVI в. — 21 час» — это часы по программе, а не часть
+    названия: в списке они не нужны («время в меню не указываем»).
+    """
+    t = re.sub(r'^\s*Гл\.\s*', 'Глава ', t.strip())
+    t = re.sub(r'\s*[—–-]\s*\d+\s*'
+               r'(?:час(?:а|ов)?|урок(?:а|ов)?|ч)\s*$', '', t)
+    return t.strip()
 
 
 def stroit(put_ishodnika, karta, video=False):
@@ -597,11 +724,19 @@ def stroit(put_ishodnika, karta, video=False):
 
     bloki, videli, ryady = [], set(), []
     razdel = podrazdel = ''
+    # Глава, которая ждёт свой первый пункт, и уже отданные главы. Заголовок
+    # главы встаёт в список только тогда, когда за ним идёт настоящий пункт
+    # с видео: пустой заголовок («Глава III» без уроков) в плейлисте не
+    # нужен — он обещал бы то, чего нет.
+    glava_ozhidanie = ''
+    glavy_otdannye = set()
 
     def v_razdele_video():
         return bool(RAZDEL_VIDEO.search(razdel))
 
     def dobavit(nomer, tema, primech, kn):
+        # Список глав, ждущих свой первый пункт, — тот же на всю таблицу.
+        nonlocal glava_ozhidanie
         kn = [(h, t) for h, t in kn if h not in videli]
         if not kn:
             return 0
@@ -614,6 +749,16 @@ def stroit(put_ishodnika, karta, video=False):
             # из нужного раздела.
             if _tv.id_video(kn[0][0]) and v_razdele_video():
                 videli.add(kn[0][0])
+                # Глава встаёт перед своим первым пунктом. К непойманным
+                # параграфом пунктам («Введение», «Итоговое повторение»)
+                # глава не относится — это разделы вне глав.
+                if glava_ozhidanie and nomer:
+                    g = glava_ozhidanie
+                    glava_ozhidanie = ''
+                    if (g.lower() != (tema or '').strip().lower()
+                            and g not in glavy_otdannye):
+                        ryady.append((None, g, ''))
+                        glavy_otdannye.add(g)
                 ryady.append((nomer or '', tema, kn[0][0]))
                 return 1
             return 0
@@ -659,6 +804,11 @@ def stroit(put_ishodnika, karta, video=False):
             continue
 
         if kusok.startswith('<table'):
+            # О чём первая колонка: «Ч» — счёт видео, «§» или «№» — номер.
+            golovki = [bez_ssylok(c).strip().lower()
+                       for c in re.findall(r'<th[^>]*>(.*?)</th>', kusok, re.S)]
+            schet_vperedi = (bool(golovki) and
+                             golovki[0].strip(' .№') in KOLONKA_SCHET)
             for tr in re.findall(r'<tr[^>]*>.*?</tr>', kusok, re.S):
                 if '<th' in tr:
                     continue
@@ -673,12 +823,14 @@ def stroit(put_ishodnika, karta, video=False):
                             kn.append((nov, txt))
                 if not kn:
                     if video and v_razdele_video() and len(tds) == 1:
-                        # Строка без ссылок внутри курса — название темы
-                        # («Четырёхугольники», «Площадь»): в плейлисте
-                        # она становится заголовком группы.
+                        # Строка без ссылок внутри курса — название главы
+                        # или темы («Глава I. Россия в XVI в. — 21 час»,
+                        # «Четырёхугольники»). В плейлист она попадёт
+                        # заголовком группы — но только если за ней будет
+                        # настоящий пункт (см. `glava_ozhidanie`).
                         z = bez_ssylok(tds[0])
                         if 2 <= len(z) <= 60:
-                            ryady.append((None, z, ''))
+                            glava_ozhidanie = glava_chistaya(z)
                     continue
                 osn, prim = [], []
                 for td in tds:
@@ -688,14 +840,24 @@ def stroit(put_ishodnika, karta, video=False):
                     if b:
                         prim.append(b)
                 nomer = nomer0 = None
-                if (osn and len(osn[0]) <= 14 and len(osn) > 1
-                        and not ssylki(tds[0])):
-                    nomer = nomer0 = osn.pop(0)
+                if osn and len(osn) > 1 and not ssylki(tds[0]):
+                    if schet_vperedi:
+                        # «Ч» — число видео в строке. Выбрасываем, но
+                        # номером параграфа не считаем.
+                        osn.pop(0)
+                    elif len(osn[0]) <= 14:
+                        nomer = nomer0 = osn.pop(0)
                 tema = osn[0] if osn else ''
                 ost = osn[1:] + prim
                 if not tema:
                     continue
                 if video:
+                    # Главу, слитную с параграфом («Гл. I. Эпоха … —
+                    # § 1. Мир …»), отделяем: главе — своё место, пункту
+                    # своё.
+                    tema, glava_iz_temy = razdelit_glavu(tema)
+                    if glava_iz_temy:
+                        glava_ozhidanie = glava_iz_temy
                     # Номер берём из параграфа: в алгебре он написан
                     # прямо в ячейке («§ 1»), в истории 5 там просто
                     # число, а в истории 7 — внутри самой темы.
@@ -959,19 +1121,136 @@ def plitka(ssylka, nazv, poyas=None, skolko=None,
     return f'<a class="{cls}" href="{ssylka}"{stil}>{"".join(ch)}</a>'
 
 
+# Листание полосы «Ещё по курсу» стрелками. Скрипт маленький и живёт при
+# самой полосе: нужен он только там, где полоса есть, а страницам без неё
+# он ничего не весит. Стрелка листает на одну плашку; какая из двух нужна
+# прямо сейчас, видно по data-nach/data-kon («0» — прятать).
+POLOSA_JS = """<script>
+(function(){
+  if(window.shkPolosa){ return; }
+  function kraya(pol){
+    var s = pol.querySelector('.setka');
+    if(!s){ return; }
+    pol.setAttribute('data-nach', s.scrollLeft > 4 ? '1' : '0');
+    pol.setAttribute('data-kon',
+      s.scrollLeft + s.clientWidth < s.scrollWidth - 4 ? '1' : '0');
+  }
+  function shag_polosa(s){
+    var plashka = s.querySelector('a.plitka');
+    var shirina = plashka ? plashka.getBoundingClientRect().width : 0;
+    var gap = parseFloat(window.getComputedStyle(s).columnGap);
+    if(!(gap > 0)){ gap = 24; }
+    return shirina + gap;
+  }
+  window.shkPolosa = function(a, shag){
+    var pol = a && a.closest ? a.closest('.pl-polosa') : null;
+    var s = pol ? pol.querySelector('.setka') : null;
+    if(!s){ return false; }
+    var shagshirina = shag_polosa(s) * (shag || 1);
+    if(s.scrollBy){ s.scrollBy({left: shagshirina, behavior: 'smooth'}); }
+    else { s.scrollLeft = s.scrollLeft + shagshirina; }
+    return false;
+  };
+  function sobrat(){
+    var polosy = document.querySelectorAll('.pl-polosa');
+    for(var i = 0; i < polosy.length; i++){
+      var pol = polosy[i];
+      kraya(pol);
+      var s = pol.querySelector('.setka');
+      if(s && !s.getAttribute('data-shk-polosa')){
+        s.setAttribute('data-shk-polosa', '1');
+        s.addEventListener('scroll', function(){
+          /* Полосу сдвинули — подсказка своё сказала: убираем её на
+             этой странице до конца. */
+          this.parentNode.setAttribute('data-listano', '1');
+          kraya(this.parentNode);
+        });
+      }
+    }
+  }
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', sobrat);
+  } else {
+    sobrat();
+  }
+  window.addEventListener('resize', sobrat);
+  /* Ширины могут поменяться после шрифтов и картинок: один раз проверить
+     край недолго, а стрелка в начале списка не «залипнет» на месте. */
+  window.setTimeout(sobrat, 500);
+})();
+</script>"""
+
+
+def razdelov_setka(klass, predmet, fayl, bez=None, lekcii=False):
+    """Плашки разделов предмета — те же, что на странице выбора материала.
+
+    Собираются они здесь, в одном месте, и вызываются дважды: на самой
+    странице предмета и на страницах материалов (под плеером, ниже
+    списка плейлистов) — чтобы человек мог уйти на контрольную или на
+    кино, не возвращаясь назад. Плашка текущего материала не
+    показывается: она была бы ссылкой на страницу, где мы и стоим.
+
+    `bez` — материал текущей страницы (его плашки в списке не будет).
+
+    `lekcii` — добавить плашку лекций. На странице предмета её НЕТ: там
+    лекции открывает знак, и вторая дверь в тот же раздел не нужна. На
+    страницах материалов знака нет, поэтому лекции идут обычной плашкой.
+    """
+    materialy = list(DEREVO[klass][predmet])
+    for (k, p), material in LEKCII.items():
+        if lekcii and (k, p) == (klass, predmet) and material not in materialy:
+            materialy.append(material)
+    bloki = []
+    for m in materialy:
+        if m == bez:
+            continue
+        nazv, poyas = POYASNENIYA[(klass, predmet, m)]
+        if m == 'видеоуроки':
+            ucheb = ' · '.join(nazvaniya_uchebnikov(klass, predmet))
+            if ucheb:
+                poyas = ucheb
+        ssyl = _tv.otnositelno(fayl, put_materiala(klass, predmet, m))
+        bloki.append(plitka(ssyl, nazv, poyas))
+    if not bloki:
+        return ''
+    # Надпись «Ещё по курсу», а не «Разделы»: это не оглавление раздела,
+    # а выход «посмотреть ещё что-нибудь по этому предмету» — и надпись
+    # говорит ровно то, что делает полоса плашек под ней.
+    #
+    # Полоса идёт во всю ширину экрана и листается стрелками (оформление —
+    # .pl-razdely в _tv.py). Стрелка — обычная ссылка с onclick: так
+    # сделаны и остальные кнопки страницы, и обработчик не приходится
+    # искать в общем скрипте среди чужих.
+    shevron = _tv.ikona('шеврон')
+    strelki = (
+        f'<a class="pl-strelka pl-strelka-nazad" href="#" '
+        f'aria-label="Назад" onclick="return shkPolosa(this,-1)">'
+        f'{shevron}</a>'
+        f'<a class="pl-strelka pl-strelka-vpered" href="#" '
+        f'aria-label="Вперёд" onclick="return shkPolosa(this,1)">'
+        f'{shevron}</a>')
+    return ('<div class="pl-razdely">'
+            '<div class="pl-zagolovok">Ещё по курсу</div>'
+            '<div class="pl-polosa" data-nach="0" data-kon="1">'
+            '<div class="setka">' + ''.join(bloki) + '</div>'
+            '<div class="pl-podskazka" aria-hidden="true">'
+            + _tv.ikona('листать') + '<span>Листайте вбок</span></div>'
+            + strelki + '</div></div>' + POLOSA_JS)
+
+
 def put_materiala(klass, predmet, material):
-    """Путь страницы материала внутри пакета."""
-    return f'{_tv.BAZA}/{klass}/{predmet}/{material}.html'
+    """Путь страницы материала внутри пакета (папка HTML — _tv.HTML)."""
+    return f'{_tv.HTML}/{klass}/{predmet}/{material}.html'
 
 
 def put_predmeta(klass, predmet):
     """Путь страницы предмета (список материалов)."""
-    return f'{_tv.BAZA}/{klass}/{predmet}.html'
+    return f'{_tv.HTML}/{klass}/{predmet}.html'
 
 
 def put_klassa(klass):
     """Путь страницы класса (список предметов)."""
-    return f'{_tv.BAZA}/{klass}.html'
+    return f'{_tv.HTML}/{klass}.html'
 
 
 def oblozhka(klass, predmet):
@@ -1003,13 +1282,17 @@ def nazvaniya_uchebnikov(klass, predmet):
     return nazvaniya
 
 
-def stroka_uchebnika(klass, predmet, fayl):
+def stroka_uchebnika(klass, predmet, fayl, bez_spiska=False):
     """Строка «История Древнего мира. 5 класс» под путём.
 
     Сам текст — каким был. Раскрывается он в карточку учебника: обложка,
     название, авторы, издательство, год. Одна и та же на странице
     предмета и на всех страницах его материалов: куда ни зайди, видно,
     по какому учебнику подобраны материалы.
+
+    `bez_spiska` — оставить только строку, без раскрытия. Так на странице
+    тренажёров: там раскрывать нечего — что за учебник, видно по строке,
+    а подробности о нём есть на странице предмета.
     """
     knigi = UCHEBNIKI.get((klass, predmet), [])
     if not knigi:
@@ -1020,7 +1303,7 @@ def stroka_uchebnika(klass, predmet, fayl):
     for ob, nazv, avtory in knigi:
         oblozhka = _tv.otnositelno(fayl, f'{OBLOZHKI}/{ob}')
         karty.append(_tv.kartochka_uchebnika(oblozhka, nazv, avtory))
-    return _tv.kniga_stroka(tekst, ''.join(karty))
+    return _tv.kniga_stroka(tekst, '' if bez_spiska else ''.join(karty))
 
 
 KLASSY = [(k, put_klassa(k)) for k in DEREVO]
@@ -1059,6 +1342,20 @@ def main():
     nuzhnye = {_tv.VHOD}
     for key in ISTOCHNIKI:
         nuzhnye.add(put_materiala(*key))
+    # В дереве перечислены все материалы раздела, и у каждого есть своя
+    # страница: часть собирается из «Архива», часть — своими генераторами
+    # (кино, лекции, тренажёры, разделы-заглушки). Поэтому «нужными»
+    # объявляем разом всё, что стоит в дереве: иначе автоуборка сочла бы
+    # страницы чужих генераторов лишними и удаляла их при каждой сборке —
+    # а если сборка прервётся на середине, они так и останутся удалёнными.
+    for klass, predmety in DEREVO.items():
+        for predmet, materialy in predmety.items():
+            for material in materialy:
+                nuzhnye.add(put_materiala(klass, predmet, material))
+    # У страницы лекций плитки в дереве нет: на неё ведёт знак. Поэтому
+    # её называем отдельно.
+    for klass, predmet in LEKCII:
+        nuzhnye.add(put_materiala(klass, predmet, LEKCII[(klass, predmet)]))
     for klass, predmety in DEREVO.items():
         nuzhnye.add(put_klassa(klass))
         for predmet in predmety:
@@ -1078,21 +1375,34 @@ def main():
                 import gen_tv_kino as kino
                 fayl_b, avtor = BANNERY[(klass, predmet)]
                 Rb, nb = kino.nabor_iz_dannyh(kino.dannye_est(fayl_b))
-                bann = _tv.banner_lekciy(Rb['заголовок'] % {'avtor': avtor}
-                                         if '%(avtor)' in Rb['заголовок']
-                                         else Rb['заголовок'],
-                                         Rb['подзаголовок'], nb)
-            for m in materialy:
-                nazv, poyas = POYASNENIYA[(klass, predmet, m)]
-                # Под плашкой видеоуроков — учебник, по которому собрана
-                # программа: остальные материалы говорят о себе сами.
-                if m == 'видеоуроки' and ucheb:
-                    poyas = ucheb
-                ssyl = _tv.otnositelno(fayl, put_materiala(klass, predmet, m))
-                bloki.append(plitka(ssyl, nazv, poyas))
+                if (klass, predmet) in LEKCII:
+                    # Знак на страницу лекций: ничего не играет, поэтому
+                    # и плеера страница предмета с собой не несёт.
+                    # Рисунок — тот же, что у плашки предмета: знак
+                    # стоит в одном ряду с плашками и выглядит как они.
+                    bann = _tv.banner_ukazatel(
+                        Rb['заголовок'], Rb['подзаголовок'],
+                        _tv.otnositelno(fayl, put_materiala(
+                            klass, predmet, LEKCII[(klass, predmet)])),
+                        fon=(f'{FONY}/{FONY_LEKCIY[(klass, predmet)]}'
+                             if (klass, predmet) in FONY_LEKCIY
+                             else fon_predmeta(predmet)))
+                else:
+                    bann = _tv.banner_lekciy(Rb['заголовок'] % {'avtor': avtor}
+                                             if '%(avtor)' in Rb['заголовок']
+                                             else Rb['заголовок'],
+                                             Rb['подзаголовок'], nb)
+            # Плашки разделов собирает один помощник: он же ставит их
+            # под плеером на страницах материалов, поэтому вид и порядок
+            # там и здесь не могут разойтись.
             setka = ('<div class="setka' +
                      (' posle-bannera' if bann else '') + '">' +
-                     ''.join(bloki) + '</div>')
+                     ''.join(plitka(_tv.otnositelno(
+                         fayl, put_materiala(klass, predmet, m)),
+                         POYASNENIYA[(klass, predmet, m)][0],
+                         (ucheb if m == 'видеоуроки' and ucheb
+                          else POYASNENIYA[(klass, predmet, m)][1]))
+                         for m in materialy) + '</div>')
             _tv.sobrat(f'{predmet}, {klass}', 'Что открыть',
                        ([bann] if bann else []) + [setka],
                        fayl, put=put, indeks=True,
@@ -1112,8 +1422,7 @@ def main():
             bloki.append(plitka(
                 ssyl, predmet,
                 zamena=' · '.join(nazv) or None,
-                oblozhka=(_tv.otnositelno(fayl, kartinka)
-                          if kartinka else None)))
+                oblozhka=_tv.put_kartinki(kartinka) if kartinka else None))
         _tv.sobrat(klass, 'Выберите предмет',
                    ['<div class="setka">' + ''.join(bloki) + '</div>'],
                    fayl, put=[(klass, None)], indeks=True,
@@ -1140,6 +1449,14 @@ def main():
 
     # --- сами страницы материалов ---
     for key, src in sorted(ISTOCHNIKI.items()):
+        if TRENAZHERY.get(key[:2]) == key[2]:
+            # Своя страница из базы — только у самих тренажёров
+            # (§ TRENAZHERY). Соседние материалы того же предмета
+            # (видеоуроки, кино) собираются из «Архива» как обычно:
+            # раньше условие стояло по одной паре «класс, предмет»,
+            # и вместе с тренажёрами пропускались ВСЕ страницы предмета —
+            # страница 7И видеоуроков молча оставалась от прошлой сборки.
+            continue
         put_ish = os.path.join(ROOT, src)
         video = (key[2] == 'видеоуроки')
         bloki, skolko, ryady = stroit(put_ish, karta, video=video)
@@ -1158,16 +1475,43 @@ def main():
             # На странице видеоуроков нет ничего, кроме строки учебника,
             # плеера и плейлиста: ни заголовка, ни подсказок, ни
             # примечаний — они только отвлекают от видео.
-            imya_glavnogo = ('По темам'
-                             if key in (('8 класс', 'Геометрия', 'видеоуроки'),
-                                        ('7 класс', 'История', 'видеоуроки'))
-                             else 'По параграфам')
+            # Название набора видно и в панели, и плашкой под кадром.
+            # У истории 7 класса список идёт по главам двух учебников
+            # («Глава I. Эпоха…»), поэтому и название — «По главам»;
+            # у геометрии 8 в тех же строках стоят темы («Площадь»), там
+            # «По темам» честнее.
+            if key == ('7 класс', 'История', 'видеоуроки'):
+                imya_glavnogo = 'По главам'
+            elif key == ('8 класс', 'Геометрия', 'видеоуроки'):
+                imya_glavnogo = 'По темам'
+            else:
+                imya_glavnogo = 'По параграфам'
             nabor = [(imya_glavnogo, ryady)]
             nabor += dop_pleylisty(put_ish, karta, key)
-            blok_pleera, panel_pleylista = _tv.blok_playera(nabor)
+            # Под плейлистами — плашки разделов предмета: с этой страницы
+            # можно уйти на контрольную или в кино, не возвращаясь назад.
+            # Плашки те же, что на странице предмета (razdelov_setka),
+            # а своя — не показывается.
+            blok_pleera, panel_pleylista = _tv.blok_playera(
+                nabor, zag_spiska='Плейлисты',
+                niz=razdelov_setka(klass, predmet, fayl, bez=key[2],
+                                   lekcii=True))
             bloki = [blok_pleera] + bloki
+            PARAGRAFY_VIDEO[(klass, predmet)] = [
+                _tv.metka_paragrafa(r[0])
+                for _imya, ryady_v in nabor for r in ryady_v if r and r[0]]
             print('    плейлистов: ' + ', '.join(
                 f'{i} ({len(r)})' for i, r in nabor))
+        else:
+            # Материал без плейлиста (контрольные, ВПР и сборники,
+            # дополнительные материалы): под содержимым — те же плашки
+            # разделов. Страницы предмета и материалов теперь связаны
+            # в обе стороны: с контрольной можно уйти в видеоуроки, а не
+            # возвращаться назад и искать заново.
+            niz = razdelov_setka(klass, predmet, fayl, bez=key[2],
+                                 lekcii=True)
+            if niz:
+                bloki.append(niz)
         f, raz = _tv.sobrat(zag, pod, bloki, fayl, put=put, indeks=video,
                             menyu_spisok=menyu_klassa(klass, fayl),
                             menyu_zagolovok=klass, klassy=KLASSY,
@@ -1176,6 +1520,31 @@ def main():
                                        else '',
                             paneli=panel_pleylista)
         print(f'  {fayl:<46} {skolko:>3} ссылок, {raz:>6} байт')
+
+    # --- разделы, которые стоят в дереве, но ещё не наполнены ---
+    if ZAGOTOVKI:
+        print('--- разделы без материалов ---')
+    for key in ZAGOTOVKI:
+        klass, predmet, material = key
+        fayl = put_materiala(*key)
+        zag, pod = ZAGOLOVKI[key]
+        # На странице нет ничего, кроме карточки: ни заголовка с
+        # подписью, ни подсказок. Заголовок повторял бы плашку, из
+        # которой сюда пришли, а выбирать на странице нечего — подсказка
+        # про кнопку «Назад» говорила бы то же самое. `indeks=True`
+        # и убирает эту шапку (см. _tv.sobrat).
+        _tv.sobrat(zag, pod, [_tv.razdel_gotovitsya(),
+                              razdelov_setka(klass, predmet, fayl,
+                                             bez=material, lekcii=True)],
+                   fayl,
+                   put=[(klass, put_klassa(klass)),
+                        (predmet, put_predmeta(klass, predmet)),
+                        (POYASNENIYA[key][0], None)],
+                   indeks=True,
+                   menyu_spisok=menyu_klassa(klass, fayl),
+                   menyu_zagolovok=klass, klassy=KLASSY,
+                   kniga=stroka_uchebnika(klass, predmet, fayl))
+        print(f'  {fayl:<46} раздел готовится')
 
     # --- кино и документалистика: свои данные, схема как у видеоуроков ---
     import gen_tv_kino as kino
@@ -1191,11 +1560,78 @@ def main():
                   dannye=kino.dannye_est(KINO[sloy]),
                   menyu_spisok=menyu_klassa(klass, fayl),
                   menyu_zagolovok=klass, klassy=KLASSY,
-                  kniga=stroka_uchebnika(klass, predmet, fayl))
+                  kniga=stroka_uchebnika(klass, predmet, fayl),
+                  niz=razdelov_setka(klass, predmet, fayl, bez=key[2],
+                                     lekcii=True),
+                  zag_spiska='Подборки')
+
+    # --- лекции: у баннера своя страница, данные у них общие ---
+    print('--- лекции ---')
+    for (klass, predmet), material in sorted(LEKCII.items()):
+        key = (klass, predmet, material)
+        fayl = put_materiala(*key)
+        fayl_b, _avtor = BANNERY[(klass, predmet)]
+        zag, pod = ZAGOLOVKI[key]
+        kino.main(fayl=fayl,
+                  put=[(klass, put_klassa(klass)),
+                       (predmet, put_predmeta(klass, predmet)),
+                       (POYASNENIYA[key][0], None)],
+                  dannye=kino.dannye_est(fayl_b),
+                  menyu_spisok=menyu_klassa(klass, fayl),
+                  menyu_zagolovok=klass, klassy=KLASSY,
+                  kniga=stroka_uchebnika(klass, predmet, fayl),
+                  niz=razdelov_setka(klass, predmet, fayl, bez=key[2],
+                                     lekcii=True),
+                  zag_spiska='Подборки',
+                  # Заголовок страницы — свой: файл данных у лекций общий
+                  # с баннером, и в нём стоят слова знака («Лекции»,
+                  # «Мединский»), а не заголовок окна.
+                  zagolovok=zag, podzagolovok=pod,
+                  rezhim='лекции', vopros='Какую лекцию посмотрим?',
+                  # Лекции идут сериями в том порядке, в каком записаны
+                  # в данных: номер-то на месте, но это время, а не
+                  # параграф, и сортировать по нему нечего.
+                  kak_v_dannyh=True)
+
+    # --- тренажёры: страница как у видеоуроков, данные — из своей базы ---
+    print('--- тренажёры ---')
+    import gen_tv_trenazher as tren
+    for (klass, predmet), material in sorted(TRENAZHERY.items()):
+        key = (klass, predmet, material)
+        fayl = put_materiala(*key)
+        zag, _pod = ZAGOLOVKI[key]
+        tren.main(fayl=fayl,
+                  put=[(klass, put_klassa(klass)),
+                       (predmet, put_predmeta(klass, predmet)),
+                       (POYASNENIYA[key][0], None)],
+                  dannye=tren.dannye_est(klass, predmet),
+                  menyu_spisok=menyu_klassa(klass, fayl),
+                  menyu_zagolovok=klass, klassy=KLASSY,
+                  # Строка учебника здесь — без раскрытия: на тренажёре
+                  # подробности об учебнике не нужны, они на странице
+                  # предмета.
+                  kniga=stroka_uchebnika(klass, predmet, fayl,
+                                         bez_spiska=True),
+                  # Под полем — те же плашки разделов: с тренажёра тоже
+                  # надо уметь уйти на видеоуроки или на контрольную.
+                  niz=razdelov_setka(klass, predmet, fayl, bez=key[2],
+                                     lekcii=True),
+                  # Отзыв после ответа ведёт на видеоурок по параграфу.
+                  # Если видеоуроков у предмета нет, ссылки не будет.
+                  ssylka_video=(
+                      _tv.otnositelno(fayl, put_materiala(klass, predmet,
+                                                          'видеоуроки'))
+                      if 'видеоуроки' in DEREVO[klass][predmet] else ''),
+                  # Какие параграфы закрыты уроками — знает страница
+                  # видеоуроков: она собиралась выше и записала номера.
+                  s_video=PARAGRAFY_VIDEO.get((klass, predmet), []),
+                  zagolovok=zag)
 
     # --- география: отдельный генератор, там есть данные ---
     print('--- география ---')
     geo.main(fayl=put_materiala(*GEO),
+             niz=razdelov_setka(GEO[0], GEO[1], put_materiala(*GEO),
+                                bez=GEO[2], lekcii=True),
              put=[(GEO[0], put_klassa(GEO[0])),
                   (GEO[1], put_predmeta(GEO[0], GEO[1])),
                   (POYASNENIYA[GEO][0], None)],

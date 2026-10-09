@@ -6,11 +6,11 @@
 // стенд проверяет то, что ребёнок увидит на телевизоре, а не выдумку.
 //
 // Запуск:
-//   node Временные/proverka_pleera.js "Проект/База данных/5 класс/История/видеоуроки.html"
+//   node Временные/proverka_pleera.js "Проект/База данных/HTML/5 класс/История/видеоуроки.html"
 
 const fs = require('fs');
 
-const put = process.argv[2] || 'Проект/База данных/5 класс/История/видеоуроки.html';
+const put = process.argv[2] || 'Проект/База данных/HTML/5 класс/История/видеоуроки.html';
 const path = require('path');
 // Оформление лежит отдельным файлом, поэтому часть проверок смотрит
 // правила, а часть — разметку. Читаем оба и склеиваем: правил в этой
@@ -22,6 +22,12 @@ const css_put = path.resolve(path.dirname(put), ssylka[1]);
 const css = fs.readFileSync(css_put, 'utf8');
 const html = syroy + '\n/* оформление: ' + path.basename(css_put) + ' */\n' + css;
 
+// Страница лекций устроена как страница кино (подпись пункта — тоже
+// время), но слова у неё свои, и говорит она о себе сама — атрибутом
+// на body. Ищем именно тег: то же слово стоит и в скрипте, в примечании,
+// и по нему стенд принимал бы за лекции страницу кино.
+const lekcii = /<body[^>]*data-rezhim="лекции"/.test(syroy);
+
 const skripty = (html.match(/<script>[\s\S]*?<\/script>/g) || [])
   .map(s => s.replace(/<\/?script>/g, ''));
 const skript_pleera = skripty.find(s => s.includes('shkola.urok.'));
@@ -31,10 +37,11 @@ if (!skript_pleera) { console.error('НЕ НАЙДЕН скрипт плеера
 // ---------- настоящие плейлисты из разметки ----------
 function razor(blok) {
   const treki = [];
-  const re = /<a class="trek"[^>]*data-video="([^"]*)"[^>]*data-zag="([^"]*)"[^>]*data-nomer="([^"]*)"[^>]*data-tema="([^"]*)"[^>]*>/g;
+  const re = /<a class="trek"[^>]*data-video="([^"]*)"[^>]*data-zag="([^"]*)"[^>]*data-nomer="([^"]*)"[^>]*data-tema="([^"]*)"[^>]*data-glava="([^"]*)"[^>]*>(<span class="trek-nomer[^"]*")?/g;
   let m;
   while ((m = re.exec(blok))) {
-    treki.push({ video: m[1], zag: m[2], nomer: m[3], tema: m[4] });
+    treki.push({ video: m[1], zag: m[2], nomer: m[3], tema: m[4],
+                 glava: m[5], kolco: (m[6] || '').includes('trek-kolco') });
   }
   return treki;
 }
@@ -91,7 +98,7 @@ function pleylist(kusok) {
   u.attrs['data-imya'] = kusok.imya || '';
   u.treks = kusok.treki.map(t => uzel('a', {
     class: 'trek', 'data-video': t.video, 'data-zag': t.zag,
-    'data-nomer': t.nomer, 'data-tema': t.tema,
+    'data-nomer': t.nomer, 'data-tema': t.tema, 'data-glava': t.glava,
   }));
   u.querySelector = sel => (sel === '.trek' ? (u.treks[0] || null) : null);
   u.querySelectorAll = sel => (sel === '.trek' ? u.treks : []);
@@ -114,8 +121,9 @@ const knopki_uzly = knopki.map(k => {
 });
 
 const elId = {};
-['pleyer', 'pleyer-zag', 'pleyer-vybor', 'vybor-tekst', 'vybor-glavnaya',
- 'vybor-vtoraya', 'pleylist-panel', 'pl-zag'].forEach(i => { elId[i] = uzel('div', {}); });
+['pleyer', 'pleyer-zag', 'pleyer-podzag', 'pleyer-vybor', 'vybor-tekst',
+ 'vybor-glavnaya', 'vybor-vtoraya', 'pleylist-panel', 'pl-zag']
+  .forEach(i => { elId[i] = uzel('div', {}); });
 if (html.includes('id="pl-zag"')) {
   elId['pl-zag'].textContent = (html.match(/id="pl-zag">\s*([^<]*)/) || [])[1] || '';
 }
@@ -129,7 +137,10 @@ const ruki_uzly = ruki.map(k => {
 // панель умеет искать внутри себя — это делает общий скрипт страницы
 elId['pleylist-panel'].querySelector = () => spiski[0].treks[0] || null;
 
-const telo = uzel('body', {});
+// body страницы: класс (плейлист открыт) и признак страницы лекций.
+// Второй берём из самой страницы, из тега body, — по нему скрипт плеера
+// выбирает слова («Следующая лекция» вместо «Следующий фильм»).
+const telo = uzel('body', lekcii ? { 'data-rezhim': 'лекции' } : {});
 const klassy_tela = new Set();
 telo.classList = {
   add: c => klassy_tela.add(c),
@@ -256,6 +267,22 @@ proverka('адрес без автозапуска',
 proverka('шапка — название урока',
          elId['pleyer-zag'].textContent === pervyi_pleylist[1].attrs['data-zag'],
          elId['pleyer-zag'].textContent);
+// Над заголовком — глава пункта: её приносит плейлист (data-glava),
+// и стоит она только тогда, когда у пункта она есть.
+proverka('над шапкой — глава пункта из плейлиста',
+         elId['pleyer-podzag'].textContent ===
+           (pervyi_pleylist[1].attrs['data-glava'] || '') &&
+         (elId['pleyer-podzag'].hidden ===
+            !pervyi_pleylist[1].attrs['data-glava']),
+         { v_shapke: elId['pleyer-podzag'].textContent,
+           v_pleyliste: pervyi_pleylist[1].attrs['data-glava'],
+           skryt: !!elId['pleyer-podzag'].hidden });
+// Глава — не часть пункта: в подписи пункта её быть не должно вовсе
+// («Гл. I. … — § 1. …» больше не встречается).
+const kusok_pervogo = kuski[0];
+proverka('у пункта глава — не сам пункт: в подписи нет слова «Глава»',
+         !kusok_pervogo.treki.some(x => /^Гл\.|^Глава\b/.test(x.zag)),
+         kusok_pervogo.treki.filter(x => /^Гл\.|^Глава\b/.test(x.zag)).map(x => x.zag));
 proverka('подсвечен один пункт', pervyi_pleylist.filter(t => t.className.includes('aktiven')).length === 1,
          pervyi_pleylist.map(t => t.className));
 
@@ -274,12 +301,13 @@ elId.ramka.otpravleno.length = 0;
 soobshchenie({ type: 'player:changeState', data: { state: 'paused' } });
 proverka('запрос времени', elId.ramka.otpravleno.some(m => m.type === 'player:currentTime'));
 
-// Страница кино говорит иначе, чем страница уроков: у фильмов подпись
-// пункта — время («1 ч 20 мин»), у уроков — «§ 12». Стенд повторяет это
-// же правило, иначе он ругался бы на правильную страницу.
+// Страница кино и страница лекций говорят иначе, чем страница уроков:
+// там подпись пункта — время («1 ч 20 мин»), у уроков — «§ 12». Стенд
+// повторяет это же правило, иначе он ругался бы на правильную страницу.
 const podpis_mesta = (pervyi_pleylist[1].attrs['data-nomer'] || '').trim();
 const kino = !!podpis_mesta && podpis_mesta[0] !== '§';
-const sledSlovo = kino ? 'Следующий фильм' : 'Следующий параграф';
+const sledSlovo = lekcii ? 'Следующая лекция'
+                         : (kino ? 'Следующий фильм' : 'Следующий параграф');
 
 console.log('=== 5. новая загрузка страницы: урок на паузе и карточка');
 perezagruzka();
@@ -327,7 +355,8 @@ proverka(kino ? 'текст «посмотрели»' : 'текст «закон
                : /закончен$/.test(elId['vybor-tekst'].textContent)),
          elId['vybor-tekst'].textContent);
 proverka('главная кнопка — следующий',
-         kino ? /Следующий фильм|Посмотреть снова|Повторить/.test(knopka('vybor-glavnaya'))
+         kino ? /Следующ(ий фильм|ая лекция)|Посмотреть снова|Повторить/
+                  .test(knopka('vybor-glavnaya'))
               : /Начать|Следующий|Повторить/.test(knopka('vybor-glavnaya')),
          knopka('vybor-glavnaya'));
 
@@ -446,25 +475,25 @@ console.log('=== 14. стандарт списков: текст, а играю�
 // Строка списка — простой текст: подложки нет, рамок нет. Но место под
 // жёлтую чёрточку оставлено у каждой строки (прозрачная полоса 6 px),
 // иначе играющий пункт сдвигал бы соседей. Играющий пункт — подложка,
-// жёлтая чёрточка слева и жёлтый номер параграфа. У панели плейлиста
-// вид свой, прежний: плашка, полоса, жёлтый номер у всех строк.
+// жёлтая чёрточка слева и жёлтый номер параграфа. Стандарт один на все
+// списки: и под кадром, и в боковом меню, и в панели плейлиста.
 const blok = (ot) => {
   const i = html.indexOf(ot);
   return i < 0 ? '' : html.slice(i, html.indexOf('}', i) + 1);
 };
 const plytka = blok('a.panel-plitka{');
 const trek = blok('a.trek{');
-const panel = blok('#pleylist-panel a.trek{');
-const nomer = blok('#pleylist-panel .trek-nomer{');
 proverka('у пункта меню в покое нет подложки',
          !!plytka && !/\n\s*background:#/.test(plytka.split(':hover')[0]),
          plytka);
-proverka('у пункта меню место под чёрточку 6 px, полоса прозрачная',
-         !!plytka && /border-left:6px solid transparent/.test(plytka), plytka);
+proverka('у пункта меню рамка прозрачная, номер не липнет к кромке (28 px)',
+         !!plytka && /border:3px solid transparent/.test(plytka) &&
+         /padding:8px 14px 8px 28px/.test(plytka), plytka);
 proverka('у пункта под кадром в покое нет подложки',
          !!trek && !/\n\s*background:#/.test(trek.split(':hover')[0]), trek);
-proverka('у пункта под кадром место под чёрточку 6 px, полоса прозрачная',
-         !!trek && /border-left:6px solid transparent/.test(trek), trek);
+proverka('у пункта под кадром тот же отступ слева (28 px)',
+         !!trek && /border:3px solid transparent/.test(trek) &&
+         /padding:8px 14px 8px 28px/.test(trek), trek);
 // Строка плейлиста под кадром — тот же класс, что пункт бокового меню:
 // отдельных правил у неё нет, поэтому вид буквально один и тот же.
 proverka('строка плейлиста под кадром — тем же классом, что пункт меню',
@@ -472,42 +501,200 @@ proverka('строка плейлиста под кадром — тем же к
          (html.match(/class="panel-plitka pl-plitka[^"]*"/) || [])[0] || 'нет');
 proverka('под кадром нет раскрывающихся списков уроков',
          !/\.pl-telo|summary\.pl-imya|class="pl-blok/.test(html));
-const akt = blok('a.trek.aktiven{');
-proverka('играющий пункт — серая подложка и жёлтая чёрточка',
-         !!akt && /background:#232c38/.test(akt) &&
-         /border-left-color:#ffd23f/.test(akt), akt);
-proverka('чёрточка со скруглением, как у строки в панели',
-         !!trek && /border-radius:12px/.test(trek), trek);
+// Отметка активной строки — общее правило: те же подложка и полоса у
+// пункта списка, у строки настроек тренажёра и у плашки меню.
+const akt = blok('a.trek.aktiven, a.nastr-stroka.aktiven, a.panel-plitka.tekushchiy{');
+proverka('играющий пункт — серая подложка под жёлтой полосой',
+         !!akt && /--fon-stroki:linear-gradient\(#232c38, #232c38\)/.test(akt) &&
+         !/border-color:#ffd23f/.test(akt), akt);
+// Играющий пункт — как плашка предмета: жёлтая полоса во всю высоту
+// строки у левого края и подложка потемнее. Короткой чёрточки посреди
+// строки больше нет (её просили заменить на полосу).
+proverka('у играющего пункта — жёлтая полоса слева во всю высоту, как у плашки',
+         /a\.trek\.aktiven, a\.nastr-stroka\.aktiven, a\.panel-plitka\.tekushchiy\{[\s\S]{0,900}?--polosa-stroki:8px[\s\S]{0,900}?background-image:linear-gradient\(#ffd23f, #ffd23f\)[\s\S]{0,900}?background-size:var\(--polosa-stroki\) 100%/.test(html));
+proverka('чёрточки-флажка посреди строки не осталось',
+         !/a\.trek\.aktiven::before/.test(html));
+proverka('скругление строки списка — 10 px',
+         !!trek && /border-radius:10px/.test(trek), trek);
 proverka('у играющего пункта жёлтый номер параграфа',
-         /a\.trek\.aktiven \.trek-nomer\{color:#ffd23f\}/.test(html));
+         /a\.trek\.aktiven \.trek-nomer, a\.nastr-stroka\.aktiven \.nastr-schet\{[\s\S]{0,80}?color:#ffd23f/.test(html),
+         (html.match(/a\.trek\.aktiven \.trek-nomer[^}]*\}/) || [])[0]);
+// Рамка в списках одинарная: под курсором и на клавиатурном фокусе.
+// Двойная рамка — это плашки (жёлтая плюс свечение), у строк её нет.
+proverka('рамку строка списка получает под курсором и на фокусе, одинарную',
+         /a\.trek:hover, a\.trek:focus-visible\{border-color:#ffd23f\}/.test(html) &&
+         !/a\.trek[^{]*\{[^}]*box-shadow/.test(html));
 const akt_menu = blok('a.panel-plitka.tekushchiy{');
-proverka('текущий пункт меню — та же отметка: подложка и чёрточка',
-         !!akt_menu && /background:#232c38/.test(akt_menu) &&
-         /border-left-color:#ffd23f/.test(akt_menu), akt_menu);
-proverka('в панели у пункта плашка, как и было',
-         !!panel && /background:#1b212b/.test(panel), panel);
-proverka('в панели у пункта жёлтая полоса слева, как и было',
-         !!panel && /border-left:6px solid #ffd23f/.test(panel), panel);
-proverka('в панели номер параграфа жёлтый, как и было',
-         !!nomer && /#ffd23f/.test(nomer), nomer);
+proverka('текущий пункт меню — та же отметка: подложка и жёлтая полоса',
+         !!akt_menu && /--polosa-stroki:8px/.test(akt_menu) &&
+         /background-size:var\(--polosa-stroki\) 100%/.test(akt_menu),
+         akt_menu);
+// Размеры списков набраны по эталону YouTube/Rutube: строка 24 px,
+// заголовок главы 21 px, номер в колонке 58 px с зазором 12 px.
+proverka('строка списка — 24 px, заголовок главы — 21 px',
+         /\.trek-tema\{[^}]*font-size:24px/.test(html) &&
+         /\.trek-gruppa\{[\s\S]{0,140}?font-size:21px/.test(html));
+// Колонка номера — ФИКСИРОВАННОЙ ширины, 58 px по самому широкому номеру
+// («§ 45» — 50 px, «§ 10,» — 58 px при 24 px), до темы 10 px: раньше стоял
+// min-width:50px, и «§ 10–11» (93 px) раздвигала колонку — темы начинали
+// строки на разном месте.
+proverka('номер стоит по левому краю колонки 58 px, до темы 10 px',
+         /\.trek-nomer\{[\s\S]{0,400}?flex:0 0 58px[\s\S]{0,120}?text-align:left/
+           .test(html) &&
+         /a\.trek\{[\s\S]{0,220}?gap:10px/.test(html));
+// Сдвоенный параграф — двумя строками: «§ 10,» и «11». Так и единичный,
+// и парный номер занимают одну колонку, а не растягивают её.
+proverka('сдвоенный параграф в колонке — двумя строками («§ 10,» / «11»)',
+         /<span class="trek-nomer">§ \d+,<br>\d+<\/span>/.test(html),
+         (html.match(/<span class="trek-nomer">[^<]*<br>[^<]*<\/span>/) || [])[0] || 'нет');
+proverka('тире в колонке номера не осталось',
+         !/<span class="trek-nomer">[^<]*[–—][^<]*<\/span>/.test(html),
+         (html.match(/<span class="trek-nomer">[^<]*[–—][^<]*<\/span>/) || [])[0] || 'нет');
+// Пункт без параграфа («Введение», «Итоговое повторение»): в колонке
+// номера — кольцо с точкой, размером с цифру.
+const est_kolco = html.includes('class="trek-nomer trek-kolco"');
+proverka('у пункта без параграфа — кольцо с точкой вместо номера',
+         (!est_kolco && !html.match(/data-nomer=""/)) ||
+         (/\.trek-kolco\{[\s\S]{0,180}?align-self:flex-start/.test(html) &&
+          /\.trek-kolco svg\{[\s\S]{0,80}?width:22px/.test(html) &&
+          /class="trek-nomer trek-kolco"[\s\S]{0,400}?<circle cx="12" cy="12" r="8\.6"/.test(html)),
+         est_kolco ? 'кольцо есть' : 'пунктов без номера на странице нет');
+// «Введение» — это не параграф: ни «§ 1» в подписи пункта, ни номера
+// в данных. То же у «Итогового повторения» и «Итогов главы».
+// Разметка строки: data-zag (подпись для шапки), data-nomer, data-tema.
+const bez_nomera = [...html.matchAll(/<a class="trek"[^>]*?data-zag="([^"]*)"[^>]*?data-nomer="([^"]*)"[^>]*?data-tema="([^"]*)"/g)]
+  .map(m => ({ zag: m[1], nomer: m[2], tema: m[3] }));
+const bez_nom = bez_nomera.filter(m => !m.nomer);
+const s_nomerom = bez_nomera.filter(m => m.nomer);
+proverka('у пункта без номера подпись — без «§» (просто тема)',
+         bez_nom.every(m => m.zag === m.tema),
+         bez_nom.filter(m => m.zag !== m.tema).slice(0, 3));
+// У кино и лекций в колонке номера стоит время проигрывания, и точка
+// после него не нужна: «§ 1. Тема» — для параграфов, «1 ч 20 мин Тема» —
+// для фильмов.
+const paragrafy = s_nomerom.filter(m => m.nomer.startsWith('§'));
+// В подписи сдвоенный параграф разворачивается без тире: «§ 10–11. Тема»
+// становится «§ 10, 11. Тема» — как в колонке, только в строку.
+const nomer_v_tekste = n => n.replace(/^(§\s*\d+)\s*[–—-]\s*(\d+)$/, '$1, $2');
+proverka('у параграфа подпись — «§ N. Тема», как в учебнике',
+         paragrafy.every(m => m.zag === nomer_v_tekste(m.nomer) + '. ' + m.tema),
+         paragrafy.filter(m => m.zag !== nomer_v_tekste(m.nomer) + '. ' + m.tema)
+           .slice(0, 3));
+proverka('у пункта со временем проигрывания подпись — время и тема',
+         s_nomerom.filter(m => !m.nomer.startsWith('§'))
+           .every(m => m.zag === m.nomer + ' ' + m.tema));
+// Глава — отдельная строка, а не часть пункта: ни «Гл. I. … — § 1. …»
+// в теме пункта, ни времени проигрывания в заголовке группы.
+proverka('глава не склеена с пунктом',
+         !bez_nomera.some(m => /^Гл\.|^Глава\b/.test(m.tema) && m.tema.includes('§')),
+         bez_nomera.filter(m => /^Гл\.|^Глава\b/.test(m.tema) && m.tema.includes('§')).slice(0, 2));
+const gruppy = [...html.matchAll(/<div class="trek-gruppa">([^<]*)<\/div>/g)]
+  .map(m => m[1]);
+proverka('в заголовках групп нет времени проигрывания',
+         !gruppy.some(g => /\d+\s*(час|урок)/i.test(g)),
+         gruppy.filter(g => /\d+\s*(час|урок)/i.test(g)));
+proverka('«Гл.» в заголовке группы развёрнуто в «Глава»',
+         !gruppy.some(g => /^\s*Гл\./.test(g)),
+         gruppy.filter(g => /^\s*Гл\./.test(g)));
+// Под кадром: глава — подзаголовком, под ней линия, надпись и список
+// плейлистов, а ниже — плашки разделов предмета. Над кадром остаётся
+// только название урока.
+proverka('глава — под кадром (#pleyer-podzag внутри .pleyer-niz)',
+         /<div class="pleyer-niz">[\s\S]{0,400}?id="pleyer-podzag"/.test(html) &&
+         /\.pleyer-podzag\{[\s\S]{0,200}?color:#8b95a5/.test(html));
+proverka('под кадром есть разделительная линия, как в шапке панели',
+         /<div class="pl-razd">/.test(html) &&
+         /\.pl-razd\{[\s\S]{0,120}?border-top:2px solid #2a3340/.test(html));
+proverka('над списком плейлистов стоит надпись «Плейлисты»',
+         /<div class="pl-zagolovok">Плейлисты<\/div>/.test(html) &&
+         /\.pl-zagolovok\{[\s\S]{0,160}?font-size:21px/.test(html));
+const por = html.match(/<div class="pleyer-niz">[\s\S]*?<\/div><\/div>/);
+// Порядок в разметке: кадр → глава → линия → «Плейлисты» → строки.
+const i_kadr = html.indexOf('<div class="pleyer-mesto">');
+const i_glava = html.indexOf('id="pleyer-podzag"');
+const i_lin = html.indexOf('<div class="pl-razd">');
+const i_zag = html.indexOf('<div class="pl-zagolovok">');
+const i_spis = html.indexOf('<div class="pl-vse">');
+proverka('порядок под кадром: кадр, глава, линия, надпись, список',
+         i_kadr >= 0 && i_kadr < i_glava && i_glava < i_lin &&
+         i_lin < i_zag && i_zag < i_spis,
+         { kadr: i_kadr, glava: i_glava, liniya: i_lin, zag: i_zag, spis: i_spis });
+// Плашки разделов: те же, что на странице предмета, а плашка текущего
+// материала не показывается — она вела бы на страницу, где мы и стоим.
+const est_razdely = /<div class="pl-razdely">[\s\S]{0,200}?pl-zagolovok">Ещё по курсу</.test(html);
+// Подсказка о прокрутке: надпись с рукой посреди полосы. Показывается
+// только там, где листают пальцем, и только пока полосу не сдвинули.
+if (est_razdely) {
+  proverka('в полосе есть подсказка «Листайте вбок» с рукой',
+           /<div class="pl-podskazka" aria-hidden="true">[\s\S]{0,900}?<span>Листайте вбок<\/span><\/div>/.test(html));
+  proverka('подсказка показывается только пальцем и прячется после сдвига',
+           /\.pl-podskazka\{display:none\}/.test(html) &&
+           /\(hover:none\) and \(pointer:coarse\)/.test(html) &&
+           /\.pl-polosa\[data-kon="1"\]:not\(\[data-listano\]\) \.pl-podskazka/.test(html) &&
+           /data-listano/.test(html));
+}
+proverka('под плейлистами — блок «Ещё по курсу» с плашками',
+         est_razdely || !/<a class="plitka/.test(html),
+         est_razdely ? 'есть' : 'на этой странице плашек разделов нет');
+if (est_razdely) {
+  const blok = html.slice(html.indexOf('<div class="pl-razdely">'));
+  const imena_plitok = [...blok.matchAll(/<a class="plitka[^"]*"[^>]*>[\s\S]*?<span class="nazv">([^<]*)/g)]
+    .map(m => m[1]);
+  proverka('плашек разделов не меньше двух', imena_plitok.length >= 2, imena_plitok);
+  const svoih = imena_plitok.filter(n => n.includes('Видеоуроки'));
+  proverka('плашка текущего раздела скрыта',
+           svoih.length === 0, imena_plitok);
+}
+proverka('шапка собрана в столбик: глава над заголовком',
+         /\.pleyer-shapka\{[\s\S]{0,220}?flex-direction:column/.test(html));
+proverka('списки в панели начинаются от кромки: отступа у всего списка нет',
+         !/\.panel-telo \.pleylist\{margin-left/.test(html));
+// Панель не закрывается сама — состояние живёт в браузере.
+proverka('панель помнит, что открыта (ключ shkola.panel-otkryt)',
+         /shkola\.panel-otkryt/.test(html));
+proverka('открытие запоминается, закрытие стирается',
+         /localStorage\.setItem\(KP, chto\)/.test(html) &&
+         /panel_pomnit\('menu'\)/.test(html) &&
+         /panel_pomnit\(''\)/.test(html));
+proverka('на новой странице панель возвращается открытой',
+         /localStorage\.getItem\(KP\)/.test(html));
+// Панель плейлиста — тем же простым текстом, что и остальные списки:
+// своих правил у её строк нет (отменено 8 октября — плашка и жёлтая
+// полоса были у каждого пункта, и список выглядел как сплошь активный).
+proverka('у панели плейлиста строки — по общим правилам, без своего вида',
+         !/#pleylist-panel a\.trek/.test(html) &&
+         !/#pleylist-panel \.trek-nomer/.test(html),
+         (html.match(/#pleylist-panel [^{]*\{/g) || []).join(' | ') || 'нет');
+// Окно побольше: у правила теперь длинный пояснительный комментарий.
+proverka('номер обычной строки серый, как у прочих строк списка',
+         /\.trek-nomer\{[\s\S]{0,700}color:#8b95a5/.test(html));
+// Время проигрывания (кино, лекции) длиннее колонки номера: таким строкам
+// колонка — по содержимому, без переноса на три строки.
+proverka('время проигрывания стоит одной строкой, колонку не ломает',
+         /\.trek-nomer\.trek-vremya\{[\s\S]{0,200}?white-space:nowrap/.test(html) &&
+         /<span class="trek-nomer trek-vremya">\d+\s*ч\s*\d+\s*мин<\/span>/.test(html) ||
+         !/<span class="trek-nomer[^"]*">\d+ ч/.test(html),
+         (html.match(/<span class="trek-nomer trek-vremya">[^<]*<\/span>/) || [])[0] || 'нет');
 proverka('синим ничего не подсвечиваем',
          !/#[0-9a-f]*[0-9a-f]*(a0c|07c|1a4f7a|3b82f6)/i.test(html));
 proverka('у заголовков глав в панели нет жёлтого',
          /\.trek-gruppa\{[\s\S]{0,220}color:#8b95a5/.test(html));
 proverka('в боковом меню не осталось задвоенного разделителя',
          !/class="panel-razd"/.test(html));
-// На пульте указателя нет: где стоит пульт, видно по жёлтой обводке
-// на фокусе — как у плашек. Мышью обводки не видно (focus-visible).
+// На пульте указателя нет: где стоит пульт, видно по жёлтой рамке
+// на фокусе — как у плашек. Обычная браузерная обводка снята.
 proverka('в покое у пунктов меню обводки нет',
          /a\.panel-plitka:focus, a\.panel-plitka:hover,[^{]*\{[^}]*outline:none/
            .test(html));
-proverka('на фокусе у пунктов меню жёлтая обводка',
-         /a\.panel-plitka:focus-visible\{outline:3px solid #ffd23f/.test(html));
+proverka('на фокусе у пунктов меню жёлтая рамка',
+         /a\.panel-plitka:hover, a\.panel-plitka:focus-visible\{border-color:#ffd23f\}/
+           .test(html));
 proverka('в покое у пунктов под кадром обводки нет',
          /a\.trek:hover, a\.trek:focus, a\.trek:focus-visible\{[^}]*outline:none/
            .test(html));
-proverka('на фокусе у пунктов под кадром жёлтая обводка',
-         /a\.trek:focus-visible\{outline:3px solid #ffd23f/.test(html));
+proverka('на фокусе у пунктов под кадром жёлтая рамка',
+         /a\.trek:hover, a\.trek:focus-visible\{border-color:#ffd23f\}/
+           .test(html));
 proverka('на уведомлении крестик закрытия, а не слово «Закрыть»',
          /id="vybor-zakryt"[^>]*aria-label="Закрыть"/.test(html) &&
          !/vybor-tretiya/.test(html) &&

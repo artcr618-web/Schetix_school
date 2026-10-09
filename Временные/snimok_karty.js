@@ -5,7 +5,7 @@ const path = require('path');
 (async () => {
   const b = await chromium.launch();
   const p = await b.newPage({ viewport: { width: 1440, height: 1000 } });
-  const put = 'Проект/База данных/5 класс/История/кино.html';
+  const put = 'Проект/База данных/HTML/5 класс/История/кино.html';
   await p.goto('file://' + path.resolve(put), { waitUntil: 'load' });
   await p.waitForTimeout(1500);
   await p.evaluate(() => window.shkIgrat(document.querySelectorAll('.trek')[0]));

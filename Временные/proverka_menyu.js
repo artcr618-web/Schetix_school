@@ -6,13 +6,13 @@
 // «Закрыть» на уведомлении. Не «печатаем замеры», а сравниваем с тем,
 // как должно быть, и в конце считаем ошибки.
 //
-//   node Временные/proverka_menyu.js "Проект/База данных/5 класс/История/видеоуроки.html"
+//   node Временные/proverka_menyu.js "Проект/База данных/HTML/5 класс/История/видеоуроки.html"
 const fs = require('fs');
 const path = require('path');
 const { chromium } = require('./плейрайт.js');
 
 const put = process.argv[2] ||
-  'Проект/База данных/5 класс/История/видеоуроки.html';
+  'Проект/База данных/HTML/5 класс/История/видеоуроки.html';
 const kuda = 'Временные/снимки';
 fs.mkdirSync(kuda, { recursive: true });
 
@@ -30,24 +30,41 @@ const ne_siniy = t => {
 
 // Полноширинные линии: разделители панели. Рамки кнопок и крестика
 // сюда не попадают — они шириной со кнопку, а не с панель.
+// Прозрачные рамки строк списков тоже не считаем: у каждой строки своя
+// рамка 3 px (место под жёлтую), но в покое она прозрачная — линии нет,
+// а разделитель — это линия, которую видно.
 async function linii(p, panel) {
   return p.evaluate((sel) => {
     const kor = document.querySelector(sel);
     if (!kor) return null;
     const shirina = kor.getBoundingClientRect().width;
     const naideno = [];
+    const vidno = c => c && c !== 'transparent' &&
+                      !/rgba\(\s*0,\s*0,\s*0,\s*0\s*\)/.test(c);
     kor.querySelectorAll('*').forEach(el => {
       const s = getComputedStyle(el);
       const w = el.getBoundingClientRect().width;
       if (w < shirina * 0.7) return;
-      if (parseFloat(s.borderBottomWidth) > 0 && s.borderBottomStyle !== 'none')
+      // Разделитель — это линия шириной с панель: рамка сверху или
+      // снизу. У строк списков рамка идёт по всему краю (видна и
+      // слева, и справа) — это не линия, а обводка строки: её не
+      // считаем. Стиль рамки проверяем: браузер отдаёт цвет рамки
+      // даже там, где рамки нет вовсе (color = currentColor).
+      const stor = (w, st, c) => parseFloat(w) > 0 && st !== 'none' && vidno(c);
+      const po_krugu = stor(s.borderLeftWidth, s.borderLeftStyle, s.borderLeftColor) &&
+                       stor(s.borderRightWidth, s.borderRightStyle, s.borderRightColor);
+      if (po_krugu) return;
+      if (parseFloat(s.borderBottomWidth) > 0 &&
+          s.borderBottomStyle !== 'none' && vidno(s.borderBottomColor))
         naideno.push(el.className || el.tagName);
-      if (parseFloat(s.borderTopWidth) > 0 && s.borderTopStyle !== 'none')
+      if (parseFloat(s.borderTopWidth) > 0 &&
+          s.borderTopStyle !== 'none' && vidno(s.borderTopColor))
         naideno.push(el.className || el.tagName);
     });
     return naideno;
   }, panel);
 }
+
 
 async function krestik(p, panel) {
   return p.evaluate((sel) => {
@@ -69,6 +86,7 @@ async function stil_stroki(p, selektor) {
       fon: s.backgroundColor,
       ramki: [s.borderTopWidth, s.borderRightWidth, s.borderBottomWidth,
               s.borderLeftWidth].join(' '),
+      polosa: s.borderLeftColor,
       obvodka: s.outlineStyle + ' ' + s.outlineWidth,
       kraska: s.color,
     };
@@ -149,6 +167,63 @@ const stroka_chistaya = s => s &&
            rgb(menu_naveden.fon)[0] > 20, menu_naveden);
   await p.mouse.move(4, 4);
   await p.waitForTimeout(200);
+
+  // --- шапка панели: название класса одной строкой с крестиком
+  // Просили: крупные заголовки меню — тем же шрифтом, что мелкие подписи
+  // («Путь», «История России»), они не должны выглядеть активными, и
+  // стоять в одну строку с крестиком. Списка классов здесь больше нет:
+  // класс выбирают плитками на его странице (см. proverka_knopok.js),
+  // поэтому у названия ни стрелки, ни самого списка.
+  console.log('=== шапка меню');
+  const shapka = await p.evaluate(() => {
+    const verh = document.querySelector('#panel .panel-verh');
+    const s = verh && verh.querySelector('.klass-imya');
+    if (!s) return null;
+    const tekst = s;
+    const krest = verh.querySelector('.panel-zakryt');
+    const st = getComputedStyle(s);
+    const sverhu = verh.getBoundingClientRect();
+    const rtekst = tekst.getBoundingClientRect();
+    const rkrest = krest.getBoundingClientRect();
+    const rp = document.querySelector('#panel').getBoundingClientRect();
+    const tsentr = r => Math.round(r.top + r.height / 2 - sverhu.top);
+    return {
+      // Крестик — у правого края панели, название — у левого: меряем
+      // зазоры до кромок самой панели, а не до соседа.
+      do_pravoy: Math.round(rp.right - rkrest.right),
+      ot_levoy: Math.round(rtekst.left - rp.left),
+      razmer: parseInt(st.fontSize, 10),
+      tolshchina: st.fontWeight,
+      kraska: st.color,
+      fon: st.backgroundColor,
+      zazor_do_krestika: Math.round(rkrest.left - rtekst.right),
+      tsentr_zag: tsentr(rtekst),
+      tsentr_krest: tsentr(rkrest),
+      strok: Math.round(rtekst.height / (parseFloat(st.lineHeight) || 1)),
+      spiskov: document.querySelectorAll('#panel .klass-spisok, ' +
+        '#panel .vybor-klassa').length,
+      strelok: verh.querySelectorAll('.strela').length,
+    };
+  });
+  if (shapka) {
+    proverka('заголовок класса — 23px, обычного начертания, без подложки',
+             shapka.razmer === 23 &&
+             /^(400|normal)$/.test(String(shapka.tolshchina)) &&
+             (shapka.fon === 'rgba(0, 0, 0, 0)' || shapka.fon === 'transparent'),
+             shapka);
+    proverka('заголовок класса приглушённого цвета, как мелкие подписи',
+             rgb(shapka.kraska)[0] < 190 && ne_siniy(shapka.kraska),
+             shapka.kraska);
+    proverka('заголовок и крестик стоят по одной середине',
+             Math.abs(shapka.tsentr_zag - shapka.tsentr_krest) <= 10,
+             [shapka.tsentr_zag, shapka.tsentr_krest]);
+    proverka('списка классов в меню нет — ни строки, ни стрелки',
+             shapka.spiskov === 0 && shapka.strelok === 0, shapka);
+    proverka('название класса стоит слева, крестик — у правого края',
+             shapka.do_pravoy <= 22 && shapka.ot_levoy <= 46, shapka);
+  } else {
+    console.log('     (эта страница без меню)');
+  }
   await p.screenshot({ path: path.join(kuda, 'меню-боковое.png') });
 
   // --- панель плейлиста (её нет на страницах без плеера)
@@ -161,6 +236,27 @@ const stroka_chistaya = s => s &&
     const pl_linii = await linii(p, '#pleylist-panel');
     proverka('в панели плейлиста одна разделительная линия',
              pl_linii && pl_linii.length === 1, pl_linii);
+    const pl_shapka = await p.evaluate(() => {
+      const verh = document.querySelector('#pleylist-panel .panel-verh');
+      const z = verh.querySelector('.panel-zag');
+      const krest = verh.querySelector('.panel-zakryt');
+      const st = getComputedStyle(z);
+      const sverhu = verh.getBoundingClientRect();
+      const rz = z.getBoundingClientRect(), rk = krest.getBoundingClientRect();
+      const tsentr = r => Math.round(r.top + r.height / 2 - sverhu.top);
+      return { zag: z.textContent.trim(), razmer: parseInt(st.fontSize, 10),
+               tolshchina: st.fontWeight, kraska: st.color,
+               odna_stroka: st.whiteSpace === 'nowrap',
+               tsentr_zag: tsentr(rz), tsentr_krest: tsentr(rk) };
+    });
+    proverka('заголовок панели — 23px, обычного начертания, серый, в одну строку',
+             pl_shapka.razmer === 23 &&
+             /^(400|normal)$/.test(String(pl_shapka.tolshchina)) &&
+             pl_shapka.odna_stroka === true &&
+             rgb(pl_shapka.kraska)[0] < 190, pl_shapka);
+    proverka('заголовок панели и крестик — по одной середине',
+             Math.abs(pl_shapka.tsentr_zag - pl_shapka.tsentr_krest) <= 10,
+             [pl_shapka.tsentr_zag, pl_shapka.tsentr_krest]);
     await p.mouse.move(4, 4);
     await p.waitForTimeout(200);
     const pl_bez = await krestik(p, '#pleylist-panel');
@@ -182,7 +278,7 @@ const stroka_chistaya = s => s &&
   console.log('=== строки списков');
   const stroki = [
     ['заголовок главы в панели', '#pleylist-panel .trek-gruppa'],
-    ['класс в меню', '#panel summary.klass-knopka'],
+    ['название класса в меню', '#panel .klass-imya'],
   ];
   for (const [imya, sel] of stroki) {
     const s = await stil_stroki(p, sel);
@@ -200,7 +296,8 @@ const stroka_chistaya = s => s &&
     proverka('строка плейлиста под кадром — текст, как пункт меню',
              (stroka_plitka.fon === 'rgba(0, 0, 0, 0)' ||
               stroka_plitka.fon === 'transparent') &&
-             /^0px 0px 0px 6px$/.test(stroka_plitka.ramki) &&
+             /^3px 3px 3px 3px$/.test(stroka_plitka.ramki) &&
+             stroka_plitka.polosa === 'rgba(0, 0, 0, 0)' &&
              /^(none|0px)/.test(stroka_plitka.obvodka) &&
              ne_siniy(stroka_plitka.kraska), stroka_plitka);
   } else {
@@ -238,34 +335,42 @@ const stroka_chistaya = s => s &&
     return { menu: mertva(a), trek: mertva(t) };
   });
   if (obychnye.menu) {
-    proverka('предмет в меню в покое — текст, без подложки и рамок',
+    proverka('предмет в меню в покое — текст, рамка прозрачная, подложки нет',
              (obychnye.menu.fon === 'rgba(0, 0, 0, 0)' ||
               obychnye.menu.fon === 'transparent') &&
-             /^0px 0px 0px 6px$/.test(obychnye.menu.ramki) &&
+             /^3px 3px 3px 3px$/.test(obychnye.menu.ramki) &&
              obychnye.menu.polosa === 'rgba(0, 0, 0, 0)' &&
              !/^solid/.test(obychnye.menu.obvodka) &&
              ne_siniy(obychnye.menu.kraska), obychnye.menu);
   }
   const tek = await p.evaluate(() => {
-    const a = document.querySelector('#panel .panel-telo a.panel-plitka.tekushchiy')
-           || document.querySelector('#panel .klass-spisok a.panel-plitka.tekushchiy');
+    const a = document.querySelector(
+      '#panel .panel-telo a.panel-plitka.tekushchiy');
     if (!a) return null;
     const s = getComputedStyle(a);
-    return { tekst: a.textContent.trim(), fon: s.backgroundColor,
-             polosa: s.borderLeftWidth + ' ' + s.borderLeftColor,
+    return { tekst: a.textContent.trim(),
+             sloi: s.backgroundImage,
+             razmery: s.backgroundSize,
+             ramka: s.borderTopWidth + ' ' + s.borderTopColor,
              radius: s.borderTopLeftRadius, kraska: s.color };
   });
   if (tek) {
-    proverka('текущий пункт меню: серая подложка и жёлтая чёрточка со скруглением',
-             tek.fon === 'rgb(35, 44, 56)' &&
-             tek.polosa === '6px rgb(255, 210, 63)' && tek.radius === '12px',
+    // Отметка текущего пункта — как у плашки: жёлтая полоса во всю
+    // высоту у левого края, под нею серая подложка. Короткой чёрточки
+    // посреди строки больше нет (просили заменить на полосу).
+    proverka('текущий пункт меню: подложка, рамка и жёлтая полоса слева',
+             /linear-gradient\(rgb\(255, 210, 63\), rgb\(255, 210, 63\)\)/.test(tek.sloi) &&
+             /linear-gradient\(rgb\(35, 44, 56\), rgb\(35, 44, 56\)\)/.test(tek.sloi) &&
+             /^8px 100%, 100% 100%$/.test(tek.razmery) &&
+             tek.ramka === '3px rgb(255, 210, 63)' &&
+             tek.radius === '10px',
              tek);
   }
-  // У панели плейлиста вид свой, прежний: плашка, жёлтая полоса слева,
-  // жёлтый номер параграфа. Правка «просто текст» её не касалась —
-  // простой текст это список под кадром и боковое меню.
+  // Панель плейлиста — тот же вид, что и все списки: у обычного пункта
+  // ни подложки, ни полосы, ни жёлтого номера. Выделяется только
+  // играющий — плашкой и жёлтой чёрточкой (класс .aktiven).
   // Меряем спокойное состояние: снимаем фокус и уводим курсор, иначе
-  // строка под ним считается наведённой и плашка у неё светлее.
+  // строка под ним считается наведённой.
   await p.evaluate(() => {
     if (document.activeElement && document.activeElement.blur) {
       document.activeElement.blur();
@@ -275,7 +380,7 @@ const stroka_chistaya = s => s &&
   await p.waitForTimeout(250);
   const v_paneli = await p.evaluate(() => {
     const vse = [...document.querySelectorAll('#pleylist-panel a.trek')];
-    // Берём строку с номером и не играющую: у играющей плашка светлее,
+    // Берём строку с номером и не играющую: у играющей отметка есть,
     // а у первой строки курса номера может не быть вовсе («Введение»).
     const a = vse.find(x => x.querySelector('.trek-nomer') &&
                             !x.className.includes('aktiven')) ||
@@ -283,21 +388,21 @@ const stroka_chistaya = s => s &&
     if (!a) return null;
     const s = getComputedStyle(a);
     const sn = getComputedStyle(a.querySelector('.trek-nomer'));
-    return { fon: s.backgroundColor, polosa: s.borderLeftWidth + ' ' +
-             s.borderLeftColor, ramka: s.borderTopWidth,
-             nomer: sn.color, igraet: a.className.includes('aktiven'),
-             kraska: s.color };
+    return { fon: s.backgroundColor,
+             ramki: [s.borderTopWidth, s.borderRightWidth,
+                     s.borderBottomWidth, s.borderLeftWidth].join(' '),
+             polosa: s.borderLeftColor,
+             nomer: sn.color, kraska: s.color };
   });
   if (v_paneli) {
-    proverka('в панели у пункта плашка, как и было',
-             v_paneli.fon === 'rgb(27, 33, 43)' ||
-             (v_paneli.igraet && v_paneli.fon === 'rgb(35, 44, 56)'), v_paneli);
-    proverka('в панели жёлтая полоса слева, как и было',
-             v_paneli.polosa === '6px rgb(255, 210, 63)', v_paneli);
-    proverka('в панели номер параграфа жёлтый, как и было',
-             v_paneli.nomer === 'rgb(255, 210, 63)', v_paneli);
-    proverka('в панели плашка без рамки вокруг',
-             v_paneli.ramka === '0px', v_paneli);
+    proverka('в панели у обычного пункта подложки нет',
+             v_paneli.fon === 'rgba(0, 0, 0, 0)' ||
+             v_paneli.fon === 'transparent', v_paneli);
+    proverka('в панели у обычного пункта рамка прозрачная, лишнего нет',
+             /^3px 3px 3px 3px$/.test(v_paneli.ramki) &&
+             v_paneli.polosa === 'rgba(0, 0, 0, 0)', v_paneli);
+    proverka('в панели номер обычного пункта серый, как у прочих строк',
+             v_paneli.nomer === 'rgb(139, 149, 165)', v_paneli);
   }
   // наведение делает строку чуть ярче и не синим
   const pered = await p.evaluate(() => {
@@ -331,8 +436,8 @@ const stroka_chistaya = s => s &&
                fon: getComputedStyle(a).backgroundColor };
     });
     proverka('курсор на строке плейлиста', posle.sverkhu, posle);
-    // Строка в панели стоит на плашке: при наведении чуть ярче становится
-    // и текст, и плашка. Синим не подсвечиваем.
+    // Строка в панели — простой текст: при наведении появляется серая
+    // подложка, текст становится ярче. Синим не подсвечиваем.
     proverka('наведение делает строку ярче и не синим',
              (posle.kraska !== pered.kraska || posle.fon !== pered.fon) &&
              ne_siniy(posle.kraska) && ne_siniy(posle.fon),
@@ -345,7 +450,11 @@ const stroka_chistaya = s => s &&
 
   // --- список плейлистов под кадром (только там, где есть плеер)
   const est_pleer = await p.evaluate(() => !!document.querySelector('#pleyer'));
-  if (est_pleer) {
+  // Страница тренажёров устроена как страница видео (то же поле, та же
+  // панель), но списка плейлистов под кадром у неё нет: там свои пункты.
+  // Поэтому проверки про плейлисты идут только там, где он есть.
+  const est_plitok = await p.evaluate(() => !!document.querySelector('.pl-vse'));
+  if (est_pleer && est_plitok) {
     console.log('=== список плейлистов под кадром');
     await p.evaluate(() => window.shkPleylist(false));
     await p.waitForTimeout(400);
@@ -370,9 +479,9 @@ const stroka_chistaya = s => s &&
                polosa: s.borderLeftColor, kraska: s.color, razmer: s.fontSize };
     });
     if (pod) {
-      proverka('строка плейлиста в покое — текст, подложки и рамок нет',
+      proverka('строка плейлиста в покое — текст, рамка прозрачная, подложки нет',
                (pod.fon === 'rgba(0, 0, 0, 0)' || pod.fon === 'transparent') &&
-               /^0px 0px 0px 6px$/.test(pod.ramki) &&
+               /^3px 3px 3px 3px$/.test(pod.ramki) &&
                pod.polosa === 'rgba(0, 0, 0, 0)' && ne_siniy(pod.kraska), pod);
     } else {
       // Плейлист на странице один: он же и играет, и отмечен. Покоя,
@@ -383,15 +492,16 @@ const stroka_chistaya = s => s &&
       const a = document.querySelector('.pl-vse a.pl-plitka.tekushchiy');
       if (!a) return null;
       const s = getComputedStyle(a);
-      return { fon: s.backgroundColor,
-               polosa: s.borderLeftWidth + ' ' + s.borderLeftColor,
+      return { sloi: s.backgroundImage, razmery: s.backgroundSize,
+               ramka: s.borderTopWidth + ' ' + s.borderTopColor,
                radius: s.borderTopLeftRadius, kraska: s.color };
     });
     if (aktiv) {
-      proverka('открытый плейлист: подложка и жёлтая чёрточка со скруглением',
-               aktiv.fon === 'rgb(35, 44, 56)' &&
-               aktiv.polosa === '6px rgb(255, 210, 63)' &&
-               aktiv.radius === '12px', aktiv);
+      proverka('открытый плейлист: подложка, прозрачная рамка и жёлтая полоса слева',
+               /linear-gradient\(rgb\(255, 210, 63\), rgb\(255, 210, 63\)\)/.test(aktiv.sloi) &&
+               /^8px 100%, 100% 100%$/.test(aktiv.razmery) &&
+               aktiv.ramka === '3px rgba(0, 0, 0, 0)' &&
+               aktiv.radius === '10px', aktiv);
     }
     // Реакция на наведение — как у пункта меню: та же серая подложка.
     // Наводим настоящей мышью: подделанное правило проиграло бы
@@ -412,9 +522,10 @@ const stroka_chistaya = s => s &&
                do_navedeniya === 'rgba(0, 0, 0, 0)',
                [do_navedeniya, posle_navedeniya]);
     }
-    // Отступ от номера параграфа до текста в панели: зазор задан, и он
-    // одинаков во всех строках — это и просили убрать («слишком большой
-    // отступ от номера до текста»).
+    // Отступ от номера параграфа до текста в панели: один зазор на все
+    // строки. Был 12 px — просили сократить примерно на треть, стало
+    // 10 px; колонка номера сжалась с 58 до 50 px (по самому длинному
+    // «§ 45»), чтобы между «§ 1» и текстом не оставалось пустоты.
     const zazor = await p.evaluate(() => {
       // Только видимые строки: у скрытых плейлистов прямоугольники
       // нулевые, и замер показал бы зазор 0 вместо настоящего.
@@ -428,24 +539,48 @@ const stroka_chistaya = s => s &&
                           n.getBoundingClientRect().right));
       });
       if (!z.length) return null;
+      // О чём колонка: «§ 1» — номер параграфа, «1 ч 22 мин» — время
+      // проигрывания (кино и лекции). От неё и ширина колонки.
+      const nadpis = ryady[0].textContent.trim();
       return { strok: z.length, min: Math.min(...z), maks: Math.max(...z),
                kolonka: Math.round(ryady[0].getBoundingClientRect().width),
-               za: getComputedStyle(ryady[0]).textAlign };
+               za: getComputedStyle(ryady[0]).textAlign,
+               vid: /^§|^\d+$/.test(nadpis) ? 'параграфы' : 'время' };
     });
     if (zazor) {
-      proverka('от номера до текста ровно один зазор, одинаковый во всех строках',
-               zazor.min === zazor.maks && zazor.min <= 20,
+      proverka('от номера до текста ровно один зазор (10 px), как во всех строках',
+               zazor.min === zazor.maks && zazor.min === 10,
                zazor);
-      proverka('номер прижат вправо в своей колонке',
-               zazor.za === 'right', zazor.za);
+      // У кино и лекций в колонке стоит время («1 ч 22 мин» — 132 px),
+      // и колонка шире: это не пустота, а сама подпись.
+      proverka('номер прижат к левому краю колонки — ближе к кромке панели',
+               zazor.za === 'left' &&
+               (zazor.kolonka <= 50 || /время/.test(zazor.vid || '')),
+               [zazor.za, zazor.kolonka, zazor.vid || 'параграфы']);
+      // Номер не липнет к левой кромке строки: отступ 28 px — иначе
+      // «§ 1» упирался бы в край, а у играющего пункта ещё и в полосу.
+      const otstup = await p.evaluate(() => {
+        const a = document.querySelector('#pleylist-panel a.trek');
+        const n = a && a.querySelector('.trek-nomer');
+        if (!n) return null;
+        const ra = a.getBoundingClientRect(), rn = n.getBoundingClientRect();
+        return { ot: Math.round(rn.left - ra.left),
+                 v_pravilah: getComputedStyle(a).paddingLeft };
+      });
+      if (otstup) {
+        proverka('номер не липнет к левой кромке строки (28 px)',
+                 otstup.ot >= 25 && otstup.v_pravilah === '28px', otstup);
+      }
     }
     await p.screenshot({ path: path.join(kuda, 'меню-под-кадром.png'),
                          fullPage: true });
   }
 
-  // --- крестик на уведомлении (уведомление бывает только с плеером).
+  // --- крестик на уведомлении.
   // Слова «Закрыть» на карточке нет: в правом верхнем углу иконка.
-  if (est_pleer) {
+  // Карточка возврата — только у видеоуроков: у тренажёров своё поле,
+  // и крестика в нём нет.
+  if (est_pleer && est_plitok) {
     const krestik = await p.evaluate(() => {
       const a = document.getElementById('vybor-zakryt');
       const k = document.querySelector('#vybor-karta');
@@ -482,6 +617,64 @@ const stroka_chistaya = s => s &&
     }
   } else {
     console.log('=== плеера на этой странице нет — уведомления тоже');
+  }
+
+  // --- панель не закрывается сама: открыл — и она остаётся открытой,
+  // даже когда уходишь на другую страницу; закрывает только человек
+  // (крестик или Escape). Проверяем по-настоящему: кликаем пункт меню,
+  // браузер уходит на другую страницу, и там смотрим на панель.
+  console.log('=== панель не закрывается сама');
+  await p.evaluate(() => {
+    try { localStorage.removeItem('shkola.panel-otkryt'); } catch (e) {}
+  });
+  await p.evaluate(() => window.shkPanel(true));
+  const klyuch_otkryli = await p.evaluate(() => {
+    try { return localStorage.getItem('shkola.panel-otkryt'); } catch (e) { return 'нет доступа'; }
+  });
+  proverka('открыли меню — оно запомнено в браузере',
+           klyuch_otkryli === 'menu', klyuch_otkryli);
+
+  const ssylka = await p.evaluate(() => {
+    const a = [...document.querySelectorAll('#panel .panel-telo a.panel-plitka')]
+      .find(x => x.href && /\.html$/.test(x.pathname) &&
+                 !x.className.includes('tekushchiy'));
+    if (!a) return null;
+    a.setAttribute('data-proverka-perehod', '1');
+    return a.getAttribute('href');
+  });
+  if (ssylka) {
+    await Promise.all([
+      p.waitForNavigation({ waitUntil: 'load' }),
+      p.click('[data-proverka-perehod]'),
+    ]);
+    await p.waitForTimeout(400);
+    const posle = await p.evaluate(() => ({
+      stranica: location.pathname.split('/').slice(-2).join('/'),
+      otkryto: document.body.classList.contains('menu-otkryto'),
+      klyuch: (() => { try { return localStorage.getItem('shkola.panel-otkryt'); }
+                       catch (e) { return null; } })(),
+    }));
+    proverka('после перехода по пункту меню панель осталась открытой',
+             posle.otkryto && posle.klyuch === 'menu', posle);
+
+    // Теперь крестик: только он закрывает — и это тоже запоминается.
+    await p.click('#panel .panel-zakryt');
+    await p.waitForTimeout(300);
+    const zakryto = await p.evaluate(() => ({
+      otkryto: document.body.classList.contains('menu-otkryto'),
+      klyuch: (() => { try { return localStorage.getItem('shkola.panel-otkryt'); }
+                       catch (e) { return null; } })(),
+    }));
+    proverka('крестик закрывает панель — и это тоже запоминается',
+             !zakryto.otkryto && zakryto.klyuch === '', zakryto);
+    await p.reload({ waitUntil: 'load' });
+    await p.waitForTimeout(300);
+    const posle_perezagruzki = await p.evaluate(() =>
+      document.body.classList.contains('menu-otkryto'));
+    proverka('новая страница помнит, что панель закрыта',
+             posle_perezagruzki === false, posle_perezagruzki);
+  } else {
+    console.log('     (пунктов-переходов в меню нет — переход пропускаем)');
   }
 
   console.log('\nИтог: ошибок ' + oshibki);

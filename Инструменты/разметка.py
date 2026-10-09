@@ -117,6 +117,26 @@ POLOSY = (
          otstup='22px 24px 22px calc(var(--polosa) + 26px)'),
 )
 
+# Высота знака-баннера (вход на страницу лекций) в долях от высоты
+# плашки той же полосы. Знак — та же плашка, только во всю ширину и
+# выше: сперва его подняли на 30 % от прежней высоты (0.8 × 1.3 = 1.04),
+# а после попросили сделать в полтора раза выше плашки. Отсюда 1.04 × 1.5
+# = 1.56 — «полторы высоты плашки». Числа берутся те же, что у плашек
+# (сколько в ряд, зазор, кадр), поэтому если полоса поедет, знак поедет
+# за ней.
+ZNAK_DOLYA = 1.56
+# Прежние высоты знака — для справки и для тех, кто помнит «на 20 % ниже»
+# и «выше плашки на 30 %».
+ZNAK_NIZHE = 1 - 0.8
+ZNAK_BYLO = 0.8 * 1.3
+
+# Предел ширины самой страницы: на очень широком экране текст не
+# растягивается дальше (см. `.wrap` в _tv.CSS — число подставляется
+# оттуда же, из этой константы). Нужен и в счёте высоты знака: выше
+# предела страница уже не растёт, а формула по одной рабочей ширине
+# продолжала бы растить знак.
+SHIRINA_STRANICY = 1500
+
 # Поля страницы по краям: на широком экране 44 px, на телефоне 20 px.
 # Плашка занимает всю строку, и на телефоне лишние поля съедали бы
 # четверть кадра. Считаются по рабочей ширине (cqw — ширина контейнера),
@@ -147,14 +167,40 @@ def _blok(p, otstup, baza=False, edinica='vw', prefiks=''):
     osnova = 'display:grid; margin-top:26px; ' if baza else ''
     # `prefiks` — что подставить перед селектором: в контейнерных
     # ступенях ничего, в запасных по атрибуту — имя полосы.
+    #
+    # Знак-баннер держим на 20 % ниже плашки этой же полосы. Высоту
+    # считаем тем же счётом, каким её получает плашка: ширину страницы
+    # (100cqw по рабочей ширине или 100vw по окну) минус поля по краям
+    # минус зазоры между плашками, делим на число плашек в ряду — это
+    # ширина плашки, — и умножаем на долю кадра (9/16, 2/3, 3/4).
+    # Селектор знака — с двумя классами (a.banner-znak.s-kartinkoy
+    # нарисован так же), поэтому ступени перебивают базовое правило
+    # знака независимо от порядка в файле.
+    ch, zn = (float(x) for x in p['kadr'].replace(' ', '').split('/'))
+    dolya = ZNAK_DOLYA
+    polya = POLYA.replace('cqw', edinica)
+    shirina = f'min(100{edinica}, {SHIRINA_STRANICY}px)'
+    vysota = (f'calc(({shirina} - 2*{polya} - '
+              f'{(p["v_ryadu"] - 1) * p["gap"]}px) / {p["v_ryadu"]} * '
+              f'{zn / ch:g} * {dolya:g})')
     return (
         f'{otstup}{prefiks}.setka{{{osnova}grid-template-columns:{kolonki}; '
         f'gap:{p["gap"]}px; '
         f'--polosa:{p["polosa"]}px; --radius:{p["radius"]}px}}\n'
         f'{otstup}{prefiks}a.plitka{{aspect-ratio:{p["kadr"]}; '
         f'padding:{p["otstup"]}}}\n'
-        f'{otstup}{prefiks}a.plitka .nazv{{font-size:{p["nazv"]}px}}\n'
-        f'{otstup}{prefiks}a.plitka .poyas{{font-size:{p["poyas"]}px}}\n'
+        # Знак — та же плашка: те же поля, полоса и скругление, те же
+        # размеры шрифта. Отличий два: он во всю ширину и выше плашки
+        # (ZNAK_DOLYA), поэтому высота считается, а не берётся из кадра.
+        f'{otstup}{prefiks}a.banner-znak{{--polosa:{p["polosa"]}px; '
+        f'--radius:{p["radius"]}px; height:{vysota}; '
+        f'padding:{p["otstup"]}}}\n'
+        f'{otstup}{prefiks}a.plitka .nazv, '
+        f'{otstup}{prefiks}a.banner-znak .nazv'
+        f'{{font-size:{p["nazv"]}px}}\n'
+        f'{otstup}{prefiks}a.plitka .poyas, '
+        f'{otstup}{prefiks}a.banner-znak .poyas'
+        f'{{font-size:{p["poyas"]}px}}\n'
         f'{otstup}{prefiks}a.plitka.klass .nazv .chislo'
         f'{{font-size:{p["chislo"].replace("vw", edinica)}}}')
 
@@ -262,6 +308,9 @@ def zapisat():
                    for p in POLOSY],
         # Рабочая ширина: раскладка считается по контейнеру, поэтому
         # проверке нужно знать его имя и границу «меню во всю ширину».
+        # Насколько знак лекций выше плашки: проверке это число нужно,
+        # чтобы поймать именно 1.04, а не «примерно».
+        'znak_dolya': ZNAK_DOLYA,
         'konteyner': KONTEYNER,
         'zona_klass': ZONA_KLASS,
         'menyu_vo_vsyu': MENYU_VO_VSYU,

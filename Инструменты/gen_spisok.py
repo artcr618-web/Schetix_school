@@ -11,7 +11,7 @@
     python3 Инструменты/gen_spisok.py
 
 Данные: Временные/naiti.json
-Страница: Проект/Что не нашлось.html
+Страница: Документация/Что не нашлось.html
 
 У каждой записи такие поля:
 
@@ -32,13 +32,13 @@ from _пути import ROOT, VREM  # noqa: E402
 import _tv  # noqa: E402
 
 DANNYE = os.path.join(VREM, 'naiti.json')
-STRANICA = os.path.join(ROOT, 'Проект', 'Что не нашлось.html')
+STRANICA = os.path.join(ROOT, 'Документация', 'Что не нашлось.html')
 
 # Оформление списка — отдельным файлом, как и у страниц пакета: в html
-# остаётся только разметка. Файл лежит рядом с остальными, в «База
-# данных»: страница стоит в корне, а папка «База данных» — её сосед.
-CSS_FAYL = 'База данных/оформление-списка.css'
-CSS_POLNY = os.path.join(ROOT, 'Проект', *CSS_FAYL.split('/'))
+# остаётся только разметка. Файл лежит рядом со страницей — в
+# «Документации» (см. §4 правил).
+CSS_FAYL = 'оформление-списка.css'
+CSS_POLNY = os.path.join(ROOT, 'Документация', CSS_FAYL)
 
 CSS = """
 :root{
@@ -163,7 +163,7 @@ def main():
     if 'подзаголовок' not in d and 'podzagolovok' in d:   # следы правки
         d['подзаголовок'] = d.pop('podzagolovok')
     print('оформление:', zapisat_css())
-    html = sobrat(d)
+    html = _tv.tire_html(sobrat(d))   # правило тире: см. _tv.tire
     os.makedirs(os.path.dirname(STRANICA), exist_ok=True)
     with open(STRANICA, 'w', encoding='utf-8') as f:
         f.write(html)

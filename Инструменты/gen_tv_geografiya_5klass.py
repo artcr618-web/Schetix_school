@@ -46,11 +46,14 @@ BLOKI = [
 
 
 def main(fayl, put, menyu_spisok=None, menyu_zagolovok='', kniga=None,
-         klassy=None):
+         klassy=None, niz=''):
     """Собрать страницу. `fayl` и `put` — пути от корня пакета.
 
     `kniga` — готовая полоса учебника (её собирает gen_tv_paket: она
     одна и та же на всех страницах предмета).
+
+    `niz` — готовая разметка блока «Разделы» (плашки материалов
+    предмета): он идёт под списком плейлистов.
     """
     R = json.load(io.open(DATA_GEO_VIDEO, encoding='utf-8'))
 
@@ -81,7 +84,8 @@ def main(fayl, put, menyu_spisok=None, menyu_zagolovok='', kniga=None,
     # На странице одни уроки: тематические подборки переехали на
     # страницу кино, чтобы ребёнок не искал фильмы среди параграфов.
     nabor = [('По параграфам', ryady)]
-    blok_pleera, panel_pleylista = _tv.blok_playera(nabor)
+    blok_pleera, panel_pleylista = _tv.blok_playera(
+        nabor, zag_spiska='Плейлисты', niz=niz)
     bloki = [blok_pleera]
     put_fayla, razmer = _tv.sobrat(ZAGOLOVOK, POD, bloki, fayl,
                                    put=put, indeks=True,

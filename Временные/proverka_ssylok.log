@@ -1,46 +1,49 @@
 Проверка ссылок
 200 — хорошо; 202/403/401/307 — живая, но не для curl; 000 — проверить не удалось
 ======================================================================
-есть         /home/user/Архив/5 класс/История/istoriya-5-klass-sborniki-vpr.html
-есть         /home/user/Архив/5 класс/История/istoriya-5-klass-trenazhery.html
-есть         /home/user/Архив/5 класс/История/istoriya-5-klass-video.html
-есть         /home/user/Архив/5 класс/История/kino-5-klass-istoriya.html
-есть         /home/user/Архив/7 класс/История/sborniki-i-vpr-7-klass-istoriya.html
-есть         /home/user/Проект/База данных/5 класс.html
-есть         /home/user/Проект/База данных/5 класс/География.html
-есть         /home/user/Проект/База данных/5 класс/География/видеоуроки.html
-есть         /home/user/Проект/База данных/5 класс/География/кино.html
-есть         /home/user/Проект/База данных/5 класс/История.html
-есть         /home/user/Проект/База данных/5 класс/История/ВПР и сборники.html
-есть         /home/user/Проект/База данных/5 класс/История/видеоуроки.html
-есть         /home/user/Проект/База данных/5 класс/История/кино.html
-есть         /home/user/Проект/База данных/5 класс/История/тренажёры.html
-есть         /home/user/Проект/База данных/7 класс.html
-есть         /home/user/Проект/База данных/7 класс/Алгебра.html
-есть         /home/user/Проект/База данных/7 класс/Алгебра/ВПР и сборники.html
-есть         /home/user/Проект/База данных/7 класс/Алгебра/видеоуроки.html
-есть         /home/user/Проект/База данных/7 класс/Алгебра/контрольные.html
-есть         /home/user/Проект/База данных/7 класс/Алгебра/тренажёры.html
-есть         /home/user/Проект/База данных/7 класс/Английский.html
-есть         /home/user/Проект/База данных/7 класс/Английский/тренажёры.html
-есть         /home/user/Проект/База данных/7 класс/История.html
-есть         /home/user/Проект/База данных/7 класс/История/ВПР и сборники.html
-есть         /home/user/Проект/База данных/7 класс/История/видеоуроки.html
-есть         /home/user/Проект/База данных/7 класс/История/кино.html
-есть         /home/user/Проект/База данных/7 класс/История/контрольные.html
-есть         /home/user/Проект/База данных/7 класс/История/тренажёры.html
-есть         /home/user/Проект/База данных/8 класс.html
-есть         /home/user/Проект/База данных/8 класс/Алгебра.html
-есть         /home/user/Проект/База данных/8 класс/Алгебра/ВПР и сборники.html
-есть         /home/user/Проект/База данных/8 класс/Алгебра/видеоуроки.html
-есть         /home/user/Проект/База данных/8 класс/Алгебра/контрольные.html
-есть         /home/user/Проект/База данных/8 класс/Алгебра/тренажёры.html
-есть         /home/user/Проект/База данных/8 класс/Геометрия.html
-есть         /home/user/Проект/База данных/8 класс/Геометрия/видеоуроки.html
-есть         /home/user/Проект/База данных/8 класс/Геометрия/итоговые и сборники.html
-есть         /home/user/Проект/База данных/8 класс/Геометрия/контрольные.html
-есть         /home/user/Проект/База данных/8 класс/Геометрия/тренажёры.html
-есть         /home/user/Проект/Начать учиться.html
+есть         /home/user/Schetix_school/Архив/5 класс/История/istoriya-5-klass-sborniki-vpr.html
+есть         /home/user/Schetix_school/Архив/5 класс/История/istoriya-5-klass-trenazhery.html
+есть         /home/user/Schetix_school/Архив/5 класс/История/istoriya-5-klass-video.html
+есть         /home/user/Schetix_school/Архив/5 класс/История/kino-5-klass-istoriya.html
+есть         /home/user/Schetix_school/Архив/7 класс/История/sborniki-i-vpr-7-klass-istoriya.html
+есть         /home/user/Schetix_school/Проект/База данных/HTML/5 класс.html
+есть         /home/user/Schetix_school/Проект/База данных/HTML/5 класс/География.html
+есть         /home/user/Schetix_school/Проект/База данных/HTML/5 класс/География/видеоуроки.html
+есть         /home/user/Schetix_school/Проект/База данных/HTML/5 класс/География/кино.html
+есть         /home/user/Schetix_school/Проект/База данных/HTML/5 класс/История.html
+есть         /home/user/Schetix_school/Проект/База данных/HTML/5 класс/История/ВПР и сборники.html
+есть         /home/user/Schetix_school/Проект/База данных/HTML/5 класс/История/видеоуроки.html
+есть         /home/user/Schetix_school/Проект/База данных/HTML/5 класс/История/кино.html
+есть         /home/user/Schetix_school/Проект/База данных/HTML/5 класс/История/тренажёры.html
+есть         /home/user/Schetix_school/Проект/База данных/HTML/7 класс.html
+есть         /home/user/Schetix_school/Проект/База данных/HTML/7 класс/Алгебра.html
+есть         /home/user/Schetix_school/Проект/База данных/HTML/7 класс/Алгебра/ВПР и сборники.html
+есть         /home/user/Schetix_school/Проект/База данных/HTML/7 класс/Алгебра/видеоуроки.html
+есть         /home/user/Schetix_school/Проект/База данных/HTML/7 класс/Алгебра/контрольные.html
+есть         /home/user/Schetix_school/Проект/База данных/HTML/7 класс/Алгебра/тренажёры.html
+есть         /home/user/Schetix_school/Проект/База данных/HTML/7 класс/Английский.html
+есть         /home/user/Schetix_school/Проект/База данных/HTML/7 класс/Английский/тренажёры.html
+есть         /home/user/Schetix_school/Проект/База данных/HTML/7 класс/История.html
+есть         /home/user/Schetix_school/Проект/База данных/HTML/7 класс/История/видеоуроки.html
+есть         /home/user/Schetix_school/Проект/База данных/HTML/7 класс/История/дополнительные материалы.html
+есть         /home/user/Schetix_school/Проект/База данных/HTML/7 класс/История/кино.html
+есть         /home/user/Schetix_school/Проект/База данных/HTML/7 класс/История/контрольные.html
+есть         /home/user/Schetix_school/Проект/База данных/HTML/7 класс/История/лекции.html
+есть         /home/user/Schetix_school/Проект/База данных/HTML/7 класс/История/тренажёры.html
+есть         /home/user/Schetix_school/Проект/База данных/HTML/7 класс/История/учебные материалы в PDF.html
+есть         /home/user/Schetix_school/Проект/База данных/HTML/8 класс.html
+есть         /home/user/Schetix_school/Проект/База данных/HTML/8 класс/Алгебра.html
+есть         /home/user/Schetix_school/Проект/База данных/HTML/8 класс/Алгебра/ВПР и сборники.html
+есть         /home/user/Schetix_school/Проект/База данных/HTML/8 класс/Алгебра/видеоуроки.html
+есть         /home/user/Schetix_school/Проект/База данных/HTML/8 класс/Алгебра/контрольные.html
+есть         /home/user/Schetix_school/Проект/База данных/HTML/8 класс/Алгебра/тренажёры.html
+есть         /home/user/Schetix_school/Проект/База данных/HTML/8 класс/Геометрия.html
+есть         /home/user/Schetix_school/Проект/База данных/HTML/8 класс/Геометрия/видеоуроки.html
+есть         /home/user/Schetix_school/Проект/База данных/HTML/8 класс/Геометрия/итоговые и сборники.html
+есть         /home/user/Schetix_school/Проект/База данных/HTML/8 класс/Геометрия/контрольные.html
+есть         /home/user/Schetix_school/Проект/База данных/HTML/8 класс/Геометрия/тренажёры.html
+есть         /home/user/Schetix_school/Проект/База данных/оформление.css
+есть         /home/user/Schetix_school/Проект/Начать учиться.html
 200          http://xn--8-8sb3ae5aa.xn--p1ai/algebra-8-makarychev-testy-dudnicyn/
 200          https://100ballnik.com/%D0%B4%D0%B5%D0%BC%D0%BE%D0%B2%D0%B5%D1%80%D1%81%D0%B8%D1%8F-%D0%B2%D0%BF%D1%80-2026-%D0%BF%D0%BE-%D0%B8%D1%81%D1%82%D0%BE%D1%80%D0%B8%D0%B8-7-%D0%BA%D0%BB%D0%B0%D1%81%D1%81-%D0%B2%D0%B0%D1%80%D0%B8/
 200          https://100ballnik.com/wp-content/uploads/2022/03/istoria_7klass_vpr2022_variant10_otveti.pdf
@@ -87,18 +90,18 @@
 200          https://apps.apple.com/ru/app/%D1%82%D1%80%D0%B5%D0%BD%D0%B0%D0%B6%D0%B5%D1%80-%D0%BF%D0%BE-%D0%B8%D1%81%D1%82%D0%BE%D1%80%D0%B8%D0%B8/id6469094146
 200          https://ar.culture.ru/ru/museum/ivanovskiy-gosudarstvennyy-istoriko-kraevedcheskiy-muzey-imeni-dg-burylina
 200          https://artsandculture.google.com/
-200          https://arzamas.academy/
-200          https://arzamas.academy/courses
+000          https://arzamas.academy/
+000          https://arzamas.academy/courses
 000          https://drops.com/
 200          https://education.yandex.ru/homework/history
 200          https://historyofrussia.mave.digital/
 200          https://igikm.ru
 200          https://igikm.ru/
-401          https://infourok.ru/kontrolnye-raboty-po-algebre-7-klass-makarychev-za-ves-god-s-resheniyami-4488268.html
-401          https://infourok.ru/magazin-materialov/itogovaya-kontrolnaya-rabota-po-kursu-istoriya-rossii-7-klass-po-uchebniku-medinskogo-2025-goda-1509469
-401          https://infourok.ru/magazin-materialov/itogovyj-test-kontrolnaya-rabota-po-kursu-istoriya-drevnego-mira-istoriya-5-klass-medinskij-urok-itogovogo-povtoreniya-obobsheniya-i-kontrolya-1427282
-401          https://infourok.ru/magazin-materialov/kontrolnaya-rabota-po-istorii-7-klass-rossiya-v-xvi-xvii-vekah-1253077
-401          https://infourok.ru/magazin-materialov/kontrolnaya-rabota-po-istorii-rossii-glava-3-rossiya-pri-pervyh-romanovyh-7-klass-medinskij-1294959
+200          https://infourok.ru/kontrolnye-raboty-po-algebre-7-klass-makarychev-za-ves-god-s-resheniyami-4488268.html
+200          https://infourok.ru/magazin-materialov/itogovaya-kontrolnaya-rabota-po-kursu-istoriya-rossii-7-klass-po-uchebniku-medinskogo-2025-goda-1509469
+200          https://infourok.ru/magazin-materialov/itogovyj-test-kontrolnaya-rabota-po-kursu-istoriya-drevnego-mira-istoriya-5-klass-medinskij-urok-itogovogo-povtoreniya-obobsheniya-i-kontrolya-1427282
+200          https://infourok.ru/magazin-materialov/kontrolnaya-rabota-po-istorii-7-klass-rossiya-v-xvi-xvii-vekah-1253077
+200          https://infourok.ru/magazin-materialov/kontrolnaya-rabota-po-istorii-rossii-glava-3-rossiya-pri-pervyh-romanovyh-7-klass-medinskij-1294959
 200          https://kahoot.com/
 000          https://kino-history.net/russkaya-smuta-istoriya-bolezni
 200          https://kion.ru/serial/sobirateli-zemli-russkoj
@@ -135,12 +138,12 @@
 200          https://onlineschool-1.ru/encyclopedia/7-klass/istoriya/
 200          https://onlineschool-1.ru/encyclopedia/7-klass/istoriya/indiya-kitaj-i-yaponiya-tradici/article/
 200          https://onlineschool-1.ru/encyclopedia/7-klass/istoriya/mir-hudozhestvennoj-kultury-vo/video/
-200          https://onlinetestpad.com/ru/tests/algebra/7class
-200          https://onlinetestpad.com/ru/tests/algebra/8class
-200          https://onlinetestpad.com/ru/tests/geometry/8class
-200          https://onlinetestpad.com/ru/tests/history/7class
-200          https://onlinetestpad.com/ru/testview/3652062-istoriya-istoriya-rossii-konec-xvi-xvii-v-7-klass-edinyj-uchebnik-glava-i-r
-200          https://onlinetestpad.com/ru/testview/401064-istoriya-rossii-7-klass-itogovaya-kontrolnaya-rabota-po-istorii-rossii-xvi
+502          https://onlinetestpad.com/ru/tests/algebra/7class
+502          https://onlinetestpad.com/ru/tests/algebra/8class
+502          https://onlinetestpad.com/ru/tests/geometry/8class
+502          https://onlinetestpad.com/ru/tests/history/7class
+502          https://onlinetestpad.com/ru/testview/3652062-istoriya-istoriya-rossii-konec-xvi-xvii-v-7-klass-edinyj-uchebnik-glava-i-r
+502          https://onlinetestpad.com/ru/testview/401064-istoriya-rossii-7-klass-itogovaya-kontrolnaya-rabota-po-istorii-rossii-xvi
 200          https://play.google.com/store/apps/details?id=com.livur.englishtrainer&amp;hl=ru
 200          https://play.google.com/store/apps/details?id=ru.zengalt.simpler&amp;hl=ru
 200          https://prosv.ru/
@@ -813,10 +816,10 @@
 200          https://school56.gosuslugi.ru/netcat_files/67/3002/OOP_OOO_2025.pdf
 200          https://skills4u.ru/school/istoriya/
 200          https://smotrim.ru/brand/67400
-403          https://store.steampowered.com/app/775430/Discovery_Tour_by_Assassins_Creed_Ancient_Egypt/?l=russian
-403          https://store.steampowered.com/search/?term=Discovery+Tour&l=russian
-403          https://store.steampowered.com/search/?term=Pharaoh&l=russian
-403          https://store.steampowered.com/search/?term=Zeus+Master+of+Olympus&l=russian
+200          https://store.steampowered.com/app/775430/Discovery_Tour_by_Assassins_Creed_Ancient_Egypt/?l=russian
+200          https://store.steampowered.com/search/?term=Discovery+Tour&l=russian
+200          https://store.steampowered.com/search/?term=Pharaoh&l=russian
+200          https://store.steampowered.com/search/?term=Zeus+Master+of+Olympus&l=russian
 200          https://t.me/+flGQcfm7iqlhMGRi
 200          https://uchi.ru/subjects/algebra
 200          https://uchi.ru/subjects/english
@@ -1601,8 +1604,8 @@
 200          https://www.kinopoisk.ru/index.php?kp_query=%D0%91%D0%B5%D0%BD-%D0%93%D1%83%D1%80%201959
 200          https://www.kinopoisk.ru/index.php?kp_query=%D0%93%D0%B5%D1%80%D0%BA%D1%83%D0%BB%D0%B5%D1%81%201997%20%D0%BC%D1%83%D0%BB%D1%8C%D1%82%D1%84%D0%B8%D0%BB%D1%8C%D0%BC
 200          https://www.knoword.org/
-200          https://www.labirint.ru/books/624324/
-200          https://www.labirint.ru/books/753868/
+000          https://www.labirint.ru/books/624324/
+000          https://www.labirint.ru/books/753868/
 200          https://www.labirint.ru/search/%D0%B7%D0%B8%D0%B2%20%D0%BC%D0%B5%D0%B9%D0%BB%D0%B5%D1%80%20%D0%B3%D0%B5%D0%BE%D0%BC%D0%B5%D1%82%D1%80%D0%B8%D1%8F%208/
 200          https://www.louvre.fr/en/online-tours
 200          https://www.memrise.com/

@@ -46,9 +46,9 @@ iframe: по file:// браузеры запрещают заглядывать 
 прячется, а страницы работают как раньше.
 
 ПУТИ. Все функции принимают пути от корня пакета (например
-«База данных/8 класс/Геометрия/видеоуроки.html»). Относительные ссылки
-для каждой страницы считаются здесь же, поэтому при переезде файлов
-править html не нужно.
+«База данных/HTML/8 класс/Геометрия/видеоуроки.html»). Относительные
+ссылки для каждой страницы считаются здесь же, поэтому при переезде
+файлов править html не нужно.
 """
 import io
 import os
@@ -66,7 +66,16 @@ PAKET = os.path.join(ROOT, 'Проект')
 """
 
 BAZA = 'База данных'
-"""Папка со всеми страницами. Имена папок и файлов — по-русски."""
+"""Папка со всем содержимым пакета, кроме главной страницы. Имена
+папок и файлов — по-русски."""
+
+HTML = BAZA + '/HTML'
+"""Папка со страницами: класс -> предмет -> материал.
+
+Единственное имя латиницей в пакете — так его прочитает любое
+устройство, а имена страниц внутри остаются русскими. Путь каждой
+страницы собирается в gen_tv_paket (put_klassa, put_predmeta,
+put_materiala) — там эта папка и подставляется."""
 
 VHOD = 'Начать учиться.html'
 
@@ -87,6 +96,19 @@ def otnositelno(otkuda, kuda):
     papka = posixpath.dirname(otkuda)
     put = posixpath.relpath(kuda, papka) if papka else kuda
     return put
+
+
+def put_kartinki(kartinka):
+    """Путь к рисунку для `--kartinka` — от файла оформления, а не от страницы.
+
+    `url()` внутри своего свойства разворачивается от того файла, где
+    значение объявлено, а у нас это «База данных/оформление.css».
+    Поэтому «Фоны/История.jpg» — верно, а «../Фоны/История.jpg» уезжает
+    на уровень выше, в «Проект/Фоны», и рисунок не находится: плашки
+    классов оставались без фонов. Считать путь от страницы, как для
+    ссылок, здесь нельзя — пути разные.
+    """
+    return otnositelno(CSS_FAYL, kartinka)
 
 
 def perevesti_puti(html, fayl):
@@ -127,8 +149,8 @@ def podgotovit_paket(nuzhnye):
     nuzhnye = {n.replace(os.sep, '/') for n in nuzhnye}
     os.makedirs(PAKET, exist_ok=True)
     # Служебные файлы пакета в списке страниц не значатся, но и удалять
-    # их нельзя: «Что не нашлось.html» стоит в корне рядом с главной
-    # страницей и собирается своим скриптом (Инструменты/gen_spisok.py).
+    # их нельзя. Сейчас таких в пакете нет: список «Что не нашлось»
+    # переехал в «Документацию» (собирает Инструменты/gen_spisok.py).
     sluzhebnye = {'Что не нашлось.html'}
     for papka, podpapki, fayly in os.walk(PAKET):
         for imya in sorted(fayly):
@@ -139,6 +161,16 @@ def podgotovit_paket(nuzhnye):
             if otn not in nuzhnye:
                 os.remove(polny)
                 print(f'  удалён устаревший файл: {otn}')
+    # За файлами убираем и осиротевшие папки: после переезда страниц
+    # в «HTML» на флешке не должно остаться пустых следов прежней
+    # раскладки. Удаляем только пустые — где что-то лежит, не трогаем.
+    for papka, podpapki, fayly in os.walk(PAKET, topdown=False):
+        if papka == PAKET:
+            continue
+        try:
+            os.rmdir(papka)
+        except OSError:
+            pass
 
 
 CSS = """
@@ -178,13 +210,27 @@ body.menu-otkryto{padding-right:var(--panel-shirina)}
    Панели (меню и плейлист) стоят СНАРУЖИ контейнера: внутри него
    position:fixed считался бы от него, а не от окна. */
 .ZONA-KLASS{container-type:inline-size; container-name:KONTEYNER-IMYA}
-.wrap{max-width:1500px; margin:0 auto}
+.wrap{max-width:SHIRINA-STRANICYpx; margin:0 auto}
 /* ПОЛЯ-СТРАНИЦЫ */
 
 /* ---- шапка, одинаковая на всех страницах ---- */
 nav.verh{
+  position:relative;
   display:flex; align-items:center; gap:14px; flex-wrap:wrap;
   background:#16202b; border-radius:18px; padding:12px 18px; margin-bottom:26px;
+}
+/* Имя ребёнка — по середине шапки, там, где у сайтов стоит логотип.
+   Оно из памяти браузера: то же, что написано на главном экране.
+   Пустое — строки нет. На узких экранах имени нет: оно наехало бы
+   на кнопки. */
+.verh-imya{
+  position:absolute; left:50%; transform:translateX(-50%);
+  max-width:38%; overflow:hidden; text-overflow:ellipsis;
+  white-space:nowrap; font-size:26px; font-weight:600; color:#f3f5f9;
+}
+.verh-imya[hidden]{display:none}
+@container stranica (max-width:959px){
+  .verh-imya{display:none}
 }
 a.tumbler{
   display:inline-block; background:#2b3543; color:#f3f5f9; text-decoration:none;
@@ -358,9 +404,11 @@ details.kniga-stroka[open] .strela{transform:rotate(180deg)}
    картинка видна, к нижнему левому углу уходит в тень, где стоит
    название. Надписи с самой обложки мы не читаем — она нужна как
    картинка, поэтому текст наш, поверх затемнения. */
-a.plitka.s-kartinkoy{
+a.plitka.s-kartinkoy, a.banner-znak.s-kartinkoy{
   /* Рисунок сам тёмный, сюжет вверху справа, поэтому затемнение
-     слабое: свет гасим только там, где стоит текст — внизу слева. */
+     слабое: свет гасим только там, где стоит текст — внизу слева.
+     Знак-баннер с рисунком живёт по этому же правилу: селектор с двумя
+     классами перебивает базовое правило знака, где слоёв три. */
   --sloi:
     linear-gradient(200deg,
       rgba(10,13,18,.10) 0%, rgba(10,13,18,.42) 46%,
@@ -379,9 +427,20 @@ a.plitka.s-kartinkoy{
    текст не липнул к видео. */
 .pleyer-wrap{margin-top:46px}
 .pleyer-shapka{
-  display:flex; align-items:center; gap:26px; margin-bottom:28px;
-  min-height:56px;
+  /* Заголовок страницы встаёт в столбик: над ним — глава (подзаголовок). */
+  display:flex; flex-direction:column; align-items:flex-start;
+  gap:8px; margin-bottom:28px; min-height:56px;
 }
+/* Глава — ПОД кадром: «Глава I. Эпоха Великих географических
+   открытий». Над кадром остаётся название урока («§ 3. …»), а глава
+   стоит подписью к списку плейлистов, который идёт за ней: она
+   отвечает на вопрос «что в этих плейлистах». Появляется вместе с
+   пунктом (её приносит плейлист), до выбора урока строки нет. */
+.pleyer-podzag{
+  max-width:88ch; font-size:26px; color:#8b95a5; line-height:1.3;
+  hyphens:manual; overflow-wrap:break-word;
+}
+.pleyer-podzag[hidden]{display:none}
 .pleyer-zag{
   flex:1 1 auto; min-width:0; font-size:40px; font-weight:600;
   line-height:1.2; color:#f3f5f9;
@@ -412,9 +471,139 @@ a.plitka.s-kartinkoy{
    открытый плейлист отмечен подложкой и жёлтой скруглённой полосой
    слева. Строки идут тем же классом, поэтому вид у них буквально один
    и тот же — отдельных правил под кадром нет. */
-.pl-vse{margin-top:26px}
+/* ---- под кадром: глава, разделительная линия, плейлисты, разделы ----
+   Порядок такой: кадр, глава (подзаголовок), линия-разделитель, надпись
+   «Плейлисты», строки плейлистов, надпись «Разделы» и плашки разделов —
+   те же, что на странице выбора материала. Линия такая же, как под
+   шапкой панели (2 px, #2a3340): она отделяет кадр от списков. */
+.pleyer-niz{margin-top:20px}
+.pl-razd{height:0; border-top:2px solid #2a3340; margin:24px 0 0}
+/* Надпись стоит на левом краю, как «Пройдено …» под полем и как сами
+   плашки ниже: раньше у неё было своё поле слева, и она уходила вправо
+   от всего остального. */
+.pl-zagolovok{
+  font-size:21px; color:#8b95a5; margin:22px 0 12px;
+  hyphens:manual; overflow-wrap:break-word;
+}
+.pl-vse{margin-top:0}
 .pl-plitka{margin-bottom:2px}
-.panel-telo .pleylist{margin-left:14px}
+/* Плашки разделов под плейлистами: те же плитки, что на странице
+   предмета, поэтому и вид, и размер — оттуда. Отступ сверху — тот же,
+   что от надписи над кадром до текста выше неё (46 px): блок отделён
+   от статистики так же, как шапка страницы от строки учебника. */
+.pl-razdely{margin-top:46px}
+.pl-razdely > .pl-polosa{position:relative; margin-top:14px}
+/* Сколько полоса выходит за поля страницы: ровно до краёв окна. Это поля
+   страницы (те же, что у .wrap) плюс пустое место вокруг блока, если окно
+   шире его. Считается от ширины рабочей зоны (100cqw), а не окна: открытая
+   панель отнимает место справа, и полоса не должна уезжать под неё. В
+   браузере без контейнерных запросов — только поля, до края блока.
+   Один пиксель справа не отдаём: дробные доли при вылете во всю ширину
+   давали бы странице горизонтальную полосу прокрутки. */
+:root{--pl-vydvizhenie:calc(clamp(20px, 4cqw, 44px) +
+        max(0px, (100cqw - SHIRINA-STRANICYpx) / 2))}
+@supports not (width:1cqw){
+  :root{--pl-vydvizhenie:clamp(20px, 4vw, 44px)}
+}
+/* Плашки идут ПОЛОСОЙ в один ряд с прокруткой, а не сеткой: разделов
+   бывает пять-шесть, и сеткой они уводили бы низ страницы далеко вниз,
+   хотя это выход «на всякий случай», а не главное на странице. Видно
+   две с половиной плашки — половина третьей говорит, что за краем ещё
+   есть. На телефоне то же самое, но видна одна плашка и половина
+   следующей: так делают подборки в YouTube, и это понятно без подписи.
+   Полоса идёт во всю ширину экрана, а не обрывается по ширине блока: за
+   краем видно обрезанную плашку, и обрезка приходится на край экрана, как
+   в подборках YouTube, Rutube и Canva. Внутренним полем того же размера
+   первая плашка возвращается на место надписи «Ещё по курсу». Полосы
+   прокрутки нет: листают пальцем и стрелками. */
+.pl-razdely .setka{
+  display:flex; align-items:stretch; gap:24px;
+  overflow-x:auto; overscroll-behavior-x:contain;
+  scroll-snap-type:x proximity; scroll-behavior:smooth;
+  /* Прилипание — к тому же месту, где плашки стоят в покое (к полю
+     страницы), иначе браузер подтянул бы первую плашку к самому краю
+     экрана и она разошлась бы с надписью. */
+  scroll-padding-inline:var(--pl-vydvizhenie);
+  margin:0 calc(1px - var(--pl-vydvizhenie)) 0 calc(-1 * var(--pl-vydvizhenie));
+  padding:0 var(--pl-vydvizhenie);
+  scrollbar-width:none;
+}
+.pl-razdely .setka::-webkit-scrollbar{display:none}
+.pl-razdely .setka > a.plitka{
+  flex:0 0 auto; width:calc((100% - 48px) / 2.5); scroll-snap-align:start;
+}
+/* Сколько плашек видно, считаем от ширины РАБОЧЕЙ ЗОНЫ, а не от блока:
+   полоса идёт во всю ширину, и «две с половиной» остаются теми же на
+   любой ширине — иначе за полями страницы вылезала бы четвёртая
+   (в браузерах без контейнерных запросов остаётся счёт от блока —
+   там полоса и не выходит за него). */
+@supports (width:1cqw){
+  .pl-razdely .setka > a.plitka{width:calc((100cqw - 48px) / 2.5)}
+}
+/* Подсказка о прокрутке: надпись с рукой посреди полосы. Показывается
+   только там, где листают пальцем, — на устройствах с мышью полоса
+   листается стрелками и колесом, и подсказка там лишняя; и только пока
+   список не сдвинули: сдвинули — дальше понятно без слов. Как в Tilda,
+   рука ходит влево-вправо: движение и есть подсказка. */
+.pl-podskazka{display:none}
+@media (hover:none) and (pointer:coarse){
+  .pl-polosa[data-kon="1"]:not([data-listano]) .pl-podskazka{
+    display:flex; position:absolute; left:50%; top:50%; z-index:3;
+    transform:translate(-50%,-50%); align-items:center; gap:9px;
+    /* Ширина по надписи: надпись короткая, и переносить её на две
+       строки не за чем. */
+    width:max-content; max-width:88%;
+    padding:9px 17px; border-radius:999px; pointer-events:none;
+    background:rgba(10,13,18,.82); color:#f3f5f9; font-size:16px;
+    box-shadow:0 6px 20px rgba(0,0,0,.35);
+  }
+  .pl-podskazka svg{
+    width:24px; height:24px; display:block;
+    animation:pl-rukoy 1.7s ease-in-out infinite alternate;
+  }
+}
+@keyframes pl-rukoy{
+  from{transform:translateX(-7px)}
+  to{transform:translateX(7px)}
+}
+
+/* Стрелки листания — полупрозрачные круги поверх полосы, у самых краёв
+   экрана: слева и справа, как в подборках YouTube, Rutube и Canva. Видно
+   только ту, за которой есть ещё: в начале нет левой, в конце нет правой
+   (что показывать, ставит скрипт сборки — см. gen_tv_paket.razdelov_setka). */
+a.pl-strelka{
+  position:absolute; top:50%; margin-top:-24px; z-index:2;
+  width:48px; height:48px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  background:rgba(10,13,18,.55); color:#f3f5f9;
+  opacity:.6; text-decoration:none;
+  transition:opacity .15s, background-color .15s;
+}
+a.pl-strelka svg{width:26px; height:26px; display:block}
+a.pl-strelka:hover, a.pl-strelka:focus{opacity:1; background:rgba(10,13,18,.9)}
+a.pl-strelka-nazad{left:calc(6px - var(--pl-vydvizhenie))}
+a.pl-strelka-nazad svg{transform:rotate(90deg)}
+a.pl-strelka-vpered{right:calc(6px - var(--pl-vydvizhenie))}
+a.pl-strelka-vpered svg{transform:rotate(-90deg)}
+.pl-polosa[data-nach="0"] a.pl-strelka-nazad,
+.pl-polosa[data-kon="0"] a.pl-strelka-vpered{opacity:0; visibility:hidden}
+@container stranica (max-width:639px){
+  /* Телефон: одна плашка и половина другой — видно, что есть ещё.
+     Стрелки меньше и бледнее: листают здесь пальцем, а круг — подсказка,
+     что за краем есть ещё. */
+  .pl-razdely .setka{gap:16px}
+  .pl-razdely .setka > a.plitka{width:62%}
+  .pl-razdely .setka > a.plitka .nazv{font-size:26px}
+  .pl-razdely .setka > a.plitka .poyas,
+  .pl-razdely .setka > a.plitka .skolko{font-size:17px}
+  a.pl-strelka{width:40px; height:40px; margin-top:-20px; opacity:.5}
+  a.pl-strelka svg{width:22px; height:22px}
+}
+
+/* Отступа у всего списка больше нет: строки панели и строки под кадром
+   стоят на одном месте — от края панели их отделяет ровно внутреннее
+   поле строки (18 px, из них 6 px — под флажок). Так номер параграфа
+   и текст стоят ближе к кромке, как в списках YouTube. */
 
 /* Плейлист — такая же выезжающая панель, как меню, и в тех же
    границах: та же ширина, тот же выезд, тот же крестик. Открывается
@@ -430,7 +619,6 @@ body.pleylist-otkryto{padding-right:calc(var(--panel-shirina) + 10px)}
 body.pleylist-otkryto #pleylist-panel{transform:none; visibility:visible;
   transition:transform .32s ease, visibility 0s linear 0s}
 .pleylist{margin:0; padding:0}
-.panel-zag{flex:1 1 auto; font-size:30px; color:#f3f5f9; font-weight:600}
 
 /* Пока урок не выбран, в кадре пусто — но не чёрное: тёмная подложка,
    вопрос стоит в шапке над кадром. Когда урок уже смотрели, в кадре
@@ -533,93 +721,900 @@ a.vybor-knopka:focus, a.vybor-knopka:hover{
   box-shadow:0 0 0 6px rgba(255,210,63,.28);
 }
 /* Пункт плейлиста — просто текст, как и название плейлиста над ним.
-   Ни подложки, ни жёлтой полосы слева, ни рамки: это строка списка,
+   Ни подложки, ни жёлтой чёрточки слева в покое: это строка списка,
    а не кнопка. Синим не делаем никогда: цвет наш, серый.
-   Место под жёлтую чёрточку оставлено у КАЖДОЙ строки (прозрачная
-   полоса слева), поэтому играющий пункт встаёт на своё место и список
+   Размер строки — 24 px: набрано по эталону YouTube и Rutube, где
+   строка списка заметно компактнее заголовка. Место под флажок
+   оставлено у КАЖДОЙ строки (отступ слева 18 px, из них 6 px — под
+   чёрточку), поэтому играющий пункт встаёт на своё место и список
    от него не сдвигается ни на пиксель. */
 a.trek{
-  display:flex; align-items:baseline; gap:14px; text-decoration:none;
+  display:flex; position:relative; align-items:baseline; gap:10px;
+  text-decoration:none;
   color:#c9d2df; background:none;
-  border:0; border-left:6px solid transparent; border-radius:12px;
-  padding:11px 16px;
+  border:3px solid transparent; border-radius:10px;
+  /* Отступ слева 28 px: номер параграфа не липнет к кромке строки —
+     у играющего пункта там ещё и жёлтая полоса. */
+  padding:8px 14px 8px 28px;
   hyphens:manual; overflow-wrap:break-word;
 }
-/* Наведение и фокус — серая подложка, как в прежнем проекте: строка
-   заметно отзывается, но слабее играющей. */
+/* Наведение и фокус — серая подложка и жёлтая рамка. Рамка одинарная;
+   у плашек при наведении рамка двойная (жёлтая плюс свечение), здесь
+   свечения нет. Обычный фокус (клик мышью) — только подложка. */
 a.trek:hover, a.trek:focus, a.trek:focus-visible{
-  background:#1b212b; outline:none; color:#f3f5f9;
+  background-color:#1b212b; outline:none; color:#f3f5f9;
 }
-/* На пульте указателя нет: там «где я» показывает фокус. У него жёлтая
-   обводка — как у плашек и кнопок. Мышью обводки не видно.
-   Играющий пункт от фокуса отличается: у него жёлтая чёрточка. */
-a.trek:focus-visible{outline:3px solid #ffd23f; outline-offset:0}
+a.trek:hover, a.trek:focus-visible{border-color:#ffd23f}
+/* Колонка номера: ширина по самому длинному номеру («§ 45» — 50 px при
+   24 px), номер прижат ВЛЕВО, к самому краю строки: тогда «§» у всех
+   строк стоит на одном месте, а до темы ровно один зазор (10 px).
+   Так «§ 1» и «§ 45» начинают тему на одном месте, а пустоты между
+   номером и текстом нет (было 58 px и 12 px — от номера до темы
+   оставалась широкая дыра). Диапазон («§ 10–11») колонку растягивает
+   сам — так и в учебнике. */
 .trek-nomer{
-  flex:0 0 auto; min-width:70px; text-align:right;
-  font-size:28px; color:#8b95a5; line-height:1.25;
+  /* Колонка ФИКСИРОВАННОЙ ширины: 58 px — по самому широкому номеру
+     («§ 45» — 50 px, «§ 10,» — 58 px при 24 px). Парные параграфы стоят
+     двумя строками (см. nomer_stolbikom), поэтому номер больше не
+     растягивает колонку и темы во всех строках начинаются на одном
+     месте. Было `min-width:50px` — «§ 10–11» (93 px) раздвигала свою
+     строку, и список выглядел порванным. */
+  flex:0 0 58px; width:58px; text-align:left;
+  font-size:24px; color:#8b95a5; line-height:1.3;
 }
-.trek-tema{flex:1 1 auto; min-width:0; font-size:28px; line-height:1.25}
-/* ИГРАЮЩИЙ пункт — единственная строка, которая выглядит плашкой:
-   серая подложка, жёлтый номер параграфа и жёлтая чёрточка слева
-   (полоса 6 px, скругление 12 px — как у строки в панели плейлиста).
-   Остальные строки остаются простым текстом. */
-a.trek.aktiven{
-  background:#232c38; border-left-color:#ffd23f; color:#f3f5f9;
+/* У кино и лекций в колонке не номер, а время проигрывания
+   («1 ч 21 мин» — 78 px при 24 px). Фиксированная колонка его не
+   вмещает, и время ломается на три строки, поэтому таким строкам колонку
+   даём по содержимому, а перенос запрещаем. */
+.trek-nomer.trek-vremya{flex:0 0 auto; width:auto; min-width:58px;
+  white-space:nowrap}
+/* Пункт без параграфа («Введение», «Итоговое повторение»): в колонке
+   номера — кольцо с точкой, размером с цифру. По высоте оно стоит на
+   первой строке темы, а не по центру всего пункта. */
+.trek-kolco{display:flex; align-items:center; justify-content:flex-start;
+  align-self:flex-start; height:1.3em}
+.trek-kolco svg{width:22px; height:22px; display:block}
+.trek-tema{flex:1 1 auto; min-width:0; font-size:24px; line-height:1.3}
+/* ИГРАЮЩИЙ пункт — единственная строка с отметкой, и отметка эта такая
+   же, как у плашки предмета (см. a.plitka): жёлтая полоса во всю высоту
+   строки у левого края и подложка потемнее. Рамки в покое нет — у плашек
+   её тоже нет, жёлтая появляется под курсором и на фокусе. Раньше здесь
+   была короткая чёрточка посреди строки: она читалась как случайная
+   метка, а не как выделение. */
+a.trek.aktiven, a.nastr-stroka.aktiven, a.panel-plitka.tekushchiy{
+  --polosa-stroki:8px;
+  --fon-stroki:linear-gradient(#232c38, #232c38);
+  background-image:linear-gradient(#ffd23f, #ffd23f), var(--fon-stroki);
+  background-repeat:no-repeat, no-repeat;
+  background-position:left center, left center;
+  background-size:var(--polosa-stroki) 100%, 100% 100%;
+  background-origin:border-box, border-box;
+  background-clip:border-box, border-box;
+  border-color:transparent;
+  color:#f3f5f9;
 }
-a.trek.aktiven .trek-nomer{color:#ffd23f}
+/* У плашек меню (текущая страница, открытый плейлист под кадром) жёлтая
+   рамка остаётся: плашка и в покое отмечена рамочкой, а полоса — та же,
+   что у играющего пункта. У строк списка рамки нет — там в покое рамок
+   не бывает ни у одной строки. */
+a.panel-plitka.tekushchiy{border-color:#ffd23f}
+/* Активная вкладка плейлиста под видеокадром — это именно пункт
+   плейлиста, не активная страница: поэтому она повторяет .trek.aktiven
+   из панели и не получает отдельной жёлтой рамки. */
+a.pl-plitka.tekushchiy{border-color:transparent}
+a.trek.aktiven .trek-nomer, a.nastr-stroka.aktiven .nastr-schet{
+  color:#ffd23f;
+}
 /* Заголовок группы («Глава I. Первобытное общество») — подпись к идущим
    за ним пунктам. Он серый, как название учебника: его видно, но он не
-   спорит с пунктами и не сбивает с ориентировки. От текста до верхней
-   плашки 24 px, до нижней — 20 px. */
+   спорит с пунктами и не сбивает с ориентировки. Отступ слева 21 px —
+   ровно там начинается колонка номеров, поэтому заголовок стоит над
+   номерами, а не левее их. */
 .trek-gruppa{
-  /* Отступ тот же, что у текста строк: 6 px прозрачной полосы + 16 px
-     внутреннего поля. Заголовок главы стоит ровно над темами. */
-  font-size:24px; color:#8b95a5; margin:24px 0 20px; padding-left:22px;
+  font-size:21px; color:#8b95a5; margin:20px 0 14px; padding-left:31px;
   hyphens:manual; overflow-wrap:break-word;
 }
 .trek-gruppa:first-child{margin-top:0}
 
-/* ---- Строка списка В ПАНЕЛИ ПЛЕЙЛИСТА — прежнее оформление ----
-   У панели справа свой вид, и он остаётся: у каждого пункта плашка,
-   жёлтый номер параграфа и жёлтая полоса слева. Простой текст — это
-   список ПОД КАДРОМ и боковое меню (правило выше), панели оно не
-   касается: так и было решено. */
-#pleylist-panel a.trek{
-  gap:14px;
-  background:#1b212b;
-  border-left:6px solid #ffd23f;
-  border-radius:12px;
-  padding:13px 18px;
-  margin:0 0 11px;
-  color:#f3f5f9;
+
+/* ---- ТРЕНАЖЁРЫ ----
+   Страница устроена как видеоуроки: то же поле, та же выезжающая панель
+   справа, та же пояснительная строка внизу. Своё у тренажёра только
+   содержимое поля. Порядок в нём такой: верхняя строка (где мы в заходе,
+   собранные кристаллы, «на весь экран»), вопрос на треть высоты, ответы
+   в один столбик, подсказка «Подробнее» и строка управления. Поле держим
+   тех же пропорций 16:9, что и кадр: страница не «прыгает» при смене
+   тренажёра. */
+/* Поле — сетка из двух рядов: верхняя строка и всё остальное. Сетка
+   (а не flex) нужна ради высоты: она у ряда известна, и потому «треть
+   поля» у вопроса считается от неё, а не от собственного текста. */
+.trener-karta{
+  position:relative; z-index:5; flex:1 1 auto; min-width:0;
+  display:flex; flex-direction:column;
+  gap:14px; padding:3.5% 5%;
 }
-/* Наведение и фокус — плашка чуть светлее, текст белее. Синим не
-   подсвечиваем и здесь. */
-#pleylist-panel a.trek:hover, #pleylist-panel a.trek:focus,
-#pleylist-panel a.trek:focus-visible{
-  background:#232c38; outline:none; color:#ffffff;
+.trener-telo{flex:1 1 auto; display:flex; flex-direction:column;
+  min-height:0; min-width:0}
+/* Заголовка в карточке нет: на пустом экране — только кнопка «Начать
+   тренировку», а что решаем, видно в надписи над кадром. */
+/* Верхняя строка поля: слева — где мы в заходе, справа — собранные
+   кристаллы и «на весь экран». Счёт вопроса стоит здесь, а не внизу:
+   это подпись ко всему кадру, а не кнопка. Вне захода он пустой и места
+   не занимает, но строка остаётся — иначе кристаллы прыгали бы вниз. */
+/* Строка переносится, если счёт и награды не влезают в одну: иначе
+   она растянула бы собой всё поле шире кадра. */
+.trener-verh{display:flex; align-items:center; flex-wrap:wrap;
+  gap:8px 14px; flex:0 0 auto; min-width:0;
+  /* Все элементы верхней строки центрируются по кнопке полного экрана.
+     Ряд поднимается из внутреннего отступа поля к той же линии, что и
+     кнопка плейлиста на видеокадре: 16 px от верхнего края экрана. */
+  margin-top:calc(-3.5% + 16px);
+  /* Строка знаков стоит над пустым экраном: на пустом экране кнопка —
+     всё поле, и значки должны остаться нажимаемыми поверх неё. */
+  position:static; z-index:2}
+.trener-schet-za{font-size:20px; color:#8b95a5; margin-right:14px;
+  white-space:nowrap}
+.trener-schet-za b{color:#dbe3ee; font-weight:600}
+.trener-schet-za[hidden]{display:none}
+/* Счёт ошибок — рядом с кристаллом: красный крестик и число, и число
+   тоже красное: это один знак, а не подпись к нему. Крестик нарисован
+   как кристалл — тот же размер и тот же штрих (см. знак «ошибка»):
+   знаки стоят рядом в одной строке и читаются парой. */
+.trener-oshibki-schet{
+  display:flex; align-items:center; gap:6px;
+  font-size:20px; color:#ff6b6b; white-space:nowrap;
+  /* От кристаллов счёт отодвинут вдвое против прочих знаков строки:
+     это два разных счёта — ошибки и кристаллы, — и вплотную они
+     читались одним знаком. */
+  margin-right:8px;
 }
-#pleylist-panel a.trek:focus-visible{outline:3px solid #ffd23f}
-/* Играющий пункт — плашка светлее остальных. */
-#pleylist-panel a.trek.aktiven{background:#232c38}
-/* Колонка номера. Была 100 px — и от «§ 1» до темы оставалось 74 px
-   пустоты: колонка шире самого широкого номера почти вдвое. Теперь
-   колонка по самому длинному номеру («§ 45» — 67 px), а номер в ней
-   прижат ВПРАВО: тогда до текста ровно один зазор (14 px) в каждой
-   строке, и тема начинается на одном и том же месте. Длинная подпись
-   («1 ч 22 мин» шире колонки) растягивает её сама. */
-#pleylist-panel .trek-nomer{
-  min-width:70px; text-align:right;
-  font-size:30px; font-weight:700; line-height:1.3;
-  color:#ffd23f;
+.trener-oshibki-schet[hidden]{display:none}
+.trener-oshibki-schet .trener-krestik{display:flex; color:#ff6b6b}
+.trener-oshibki-schet .trener-krestik svg{width:26px; height:26px;
+  display:block}
+.trener-oshibki-schet b{color:#ff6b6b; font-weight:600}
+/* Кристаллы — награда за верные ответы. Кристалл один, а рядом число:
+   сколько их собрано. Ряд из пяти гнёзд показывал счёт хуже — по числу
+   видно точно, и место оно занимает одно. Счёт тот же, что у «Верно»
+   под полем, — числа не должны расходиться. */
+.trener-nagrady{display:flex; align-items:center; gap:9px; flex:0 0 auto}
+/* Настройка прохождения стоит без заголовка: отделяем её от списка
+   учебников тем же отступом, что был у снятого заголовка, — иначе
+   строка прилипала к «Всеобщей истории» и читалась вместе с ней. */
+#nastr-avto{margin-top:26px}
+/* Настройка прохождения — серой строкой, как надписи разделов («Выбор
+   учебника»): это настройка, а не действие, и цветом она читается
+   быстрее слов. */
+#nastr-avto .nastr-tekst{color:#8b95a5; font-size:21px}
+
+/* Пока не собран ни один кристалл, счётчика нет вовсе: серый кристалл
+   с нулём выглядел поломкой. Скрытое — спрятано: у блока выше свой
+   `display`, и без этого правила `hidden` его не гасит. */
+.trener-nagrady[hidden]{display:none}
+.trener-kristally{display:flex; align-items:center}
+.trener-kristally svg{width:26px; height:26px; display:block; color:#39424f}
+.trener-kristally svg.vzyt{
+  color:#8fd8ff; filter:drop-shadow(0 0 7px rgba(143,216,255,.45));
 }
-#pleylist-panel .trek-tema{font-size:28px; line-height:1.3}
-#pleylist-panel .trek-gruppa{padding-left:23px}
+.trener-chislo{font-size:22px; color:#8fd8ff; font-weight:600}
+
+/* Стрелки листания по вопросам — кнопки со значком: назад и вперёд.
+   Оформлены теми же кнопками, что и всё на странице (см.
+   a.knopka-malaya): та же подложка, та же жёлтая рамка при наведении,
+   только вместо надписи — значок. За стрелкой без хода (первый вопрос,
+   ответ ещё не дан) — серая надпись, не ссылка. Стоят они в нижней
+   строке поля, у правого нижнего угла (см. .trener-upravlenie).
+   Задание — вопрос и ответы — идёт одной колонкой во всю ширину поля. */
+.trener-forma{
+  flex:1 1 auto; min-height:0; min-width:0;
+  display:flex; flex-direction:column; gap:12px;
+}
+a.trener-strelka, span.trener-strelka{
+  display:inline-flex; font-size:19px; padding:7px 13px; line-height:0;
+  border:3px solid transparent; border-radius:12px; text-decoration:none;
+  background:#232a35; color:#dbe3ee;
+}
+a.trener-strelka svg, span.trener-strelka svg{width:26px; height:26px; display:block}
+a.trener-strelka:hover, a.trener-strelka:focus{
+  border-color:#ffd23f; background:#2b3440; color:#f3f5f9; outline:none;
+}
+span.trener-strelka.tuskly{color:#6f7887; background:#1c222c; cursor:default}
+/* Значки поля — тот же вид, что у кнопки поверх кадра видео («Открыть
+   плейлист»): полупрозрачная тёмная подложка, значок 34×34, тонкая
+   рамка, которая при наведении загорается жёлтым. Раньше здесь были
+   крупные плашки 36×36 с серой подложкой — на кадре они читались
+   заплатками, а эталон у нас страница видео. */
+.trener-znachki{display:block; flex:0 0 auto; margin:0; padding:0}
+/* Вопрос стоит вплотную к полноэкранной кнопке: 8 px между двумя
+   одинаковыми 60-пиксельными полями. Обе координаты считаются от поля,
+   как у кнопки плейлиста на видеокадре. */
+#trener-podskazka-znak{position:absolute; top:16px; right:84px}
+a.trener-znachok, span.trener-znachok{
+  display:inline-flex; padding:10px; line-height:0;
+  border:3px solid transparent; border-radius:12px;
+  background:rgba(10,13,18,.72); color:#f3f5f9; text-decoration:none;
+}
+a.trener-znachok svg, span.trener-znachok svg{width:34px; height:34px; display:block}
+/* Разворот — ровно тот же знак, что вызов плейлиста поверх видеокадра:
+   16 px от верхнего и правого края поля, поле 10 px, знак 34 px. Он
+   не участвует в промежутках счётов, а занимает своё место у угла. */
+a#trener-vo-ves-ekran{position:absolute; top:16px; right:16px;
+  background:rgba(10,13,18,.72); border-color:transparent}
+a#trener-vo-ves-ekran:hover, a#trener-vo-ves-ekran:focus{
+  background:rgba(10,13,18,.92); border-color:#ffd23f}
+a.trener-znachok:hover, a.trener-znachok:focus{
+  border-color:#ffd23f; background:rgba(10,13,18,.92); outline:none;
+}
+/* Пока подсказывать нечего (ответа ещё нет), значок вопроса немой:
+   подложка та же, что у живого, а значок приглушён — как у немой
+   стрелки. */
+span.trener-znachok.tuskly{
+  background:rgba(10,13,18,.72); color:#6f7887; cursor:default;
+}
+/* Спрятанное — спрятано: у значка свой `display`, и без этого правила
+   `hidden` его не гасит (знак вопроса на пустом экране). */
+span.trener-znachok[hidden], a.trener-znachok[hidden]{display:none}
+/* Знак вопроса — жёлтый: это приглашение заглянуть в подсказку.
+   Подложки под ним нет: он и так читается, а тёмный квадрат рядом
+   с ответами выглядел ещё одной кнопкой. */
+a.trener-znachok.vopros, span.trener-znachok.vopros{
+  color:#ffd23f; background:none;
+}
+span.trener-znachok.vopros.tuskly{color:#7d8695}
+/* Живой значок вопроса нажимается — он и есть кнопка. */
+span.trener-znachok.vopros:not(.tuskly){cursor:pointer}
+span.trener-znachok.vopros:not(.tuskly):hover,
+span.trener-znachok.vopros:not(.tuskly):focus{
+  border-color:#ffd23f; background:none; outline:none;
+}
+
+/* Низ панели настроек: сброс результатов. Лежит вне области списка
+   (та прокручивается), поэтому всегда у самого нижнего края экрана —
+   сколько бы настроек ни набралось. Кнопка во всю ширину: в панели
+   строки тоже идут во всю ширину, и так она читается отдельным делом,
+   а не случайной кнопкой. */
+.panel-niz{
+  /* Линия раздела над кнопкой сброса стоит вдвое выше прежнего: между
+     ней и кнопкой было 12 px, и кнопка читалась приклеенной к линии. */
+  flex:0 0 auto; padding:24px 14px 16px;
+  background:#141a22; border-top:2px solid #2a3340;
+}
+.panel-niz #trener-sbros{
+  display:block; width:100%; text-align:center; white-space:normal;
+}
+/* Карточка-приглашение стоит в поле до первого захода: что решаем,
+   сколько вопросов и кнопка «Начать». Как только заход начался, её
+   место занимает вопрос — та же рамка поля. */
+/* Пустой экран — сама кнопка. Отдельной плашки в нём нет: поле пустует,
+   и нажимается всё поле. Приглашение лежит поверх поля (`absolute`),
+   поэтому поле растёт не от него, а от правила ниже — иначе на телефоне
+   пустой экран схлопнулся бы в одну строку знаков. Пояснений и числа
+   вопросов здесь нет: как идут вопросы, видно с первого же вопроса. */
+.trener-karta.pusto .trener-telo{min-height:min(44vh, 470px)}
+.trener-priglashenie{
+  position:absolute; inset:12px; display:flex; align-items:center;
+  justify-content:center; text-align:center;
+}
+/* «Начать тренировку» — белый контур во всё поле, по его ширине, и
+   крупная белая надпись по центру. Так экран и читается кнопкой: целиться
+   не во что, мишень — всё поле. */
+a.trener-nachat{
+  display:flex; align-items:center; justify-content:center;
+  width:100%; height:100%; box-sizing:border-box;
+  padding:16px; border:0; border-radius:16px;
+  color:#ffffff; font-size:clamp(28px, 4.4cqw, 52px); font-weight:600;
+  line-height:1.2; text-decoration:none; white-space:normal;
+  background:transparent;
+}
+a.trener-nachat:hover, a.trener-nachat:focus, a.trener-nachat:active{
+  outline:none; border:0; color:#ffffff;
+  background:rgba(255,255,255,.06);
+}
+
+/* У тренажёра поле — не кадр 16:9, а рабочий экран: он растёт по высоте
+   того, что в нём стоит (четыре ответа в два ряда, раскрытый рассказ),
+   и ничего не прокручивает внутри себя — прокручивается страница.
+   Пропорции кадра оставлены только плееру с видео. */
+.pleyer.trener-pleyer{aspect-ratio:auto; display:flex; min-height:min(50vh, 560px);
+  overflow:visible}
+/* Всплывающие подписи тренажёра должны лежать поверх рабочего поля,
+   а не обрезаться границей `.pleyer`. */
+.trener-pleyer .trener-verh{z-index:20}
+.trener-pleyer .trener-znachki,
+.trener-pleyer .trener-schet-za,
+.trener-pleyer .trener-oshibki-schet,
+.trener-pleyer .trener-nagrady{align-self:center}
+@container stranica (max-width:639px){
+  .pleyer.trener-pleyer{min-height:0}
+}
+
+/* ---- ДВИЖОК ТРЕНАЖЁРА: вопрос, варианты, подсказка ----
+   В поле встаёт вопрос захода: сам вопрос крупно по центру трети поля,
+   ниже — четыре варианта ответа во всю ширину (по одному в строке:
+   в две колонки длинные определения не влезали и обрезались), потом
+   строка управления. Отзыва-плашки нет: верный вариант виден по зелёной
+   рамке, а рассказ о событии прячется под ссылкой «Подробнее» — иначе
+   слова заслоняли ответы. Никаких окон и переходов: всё в той же рамке
+   16:9, где стояла карточка. Цвета ответа — единственное место в
+   проекте, где есть зелёный и красный: они и значат «верно» и «неверно»
+   без слов. */
+.trener-igra{
+  flex:1 1 auto; min-height:0; min-width:0; display:none;
+  flex-direction:column; gap:12px;
+}
+.trener-igra.vidna{display:flex}
+/* Итог захода — короткий: ставим его по середине поля, как приглашение. */
+.trener-igra.itog{justify-content:center}
+.trener-schet{
+  display:flex; justify-content:space-between; gap:20px;
+  font-size:21px; color:#8b95a5;
+}
+.trener-schet b{color:#dbe3ee; font-weight:600}
+/* Вопрос — двумя строками: сверху заголовок, что это за вопрос («Дата»,
+   «Определение»), под ним подзаголовком сам вопрос. Так у всякого
+   вопроса видно, о чём он, ещё до чтения, и вопросы разных видов
+   выглядят одинаково. */
+.trener-vopros-blok{
+  flex:0 0 auto; display:flex; flex-direction:column;
+  align-items:center; justify-content:center; gap:10px;
+  text-align:center;
+  /* Отступы до верхней строки и до ответов — постоянные. Они сняты
+     с задания в три строки: короткий вопрос воздуха не оттягивает,
+     а длинный в те же отступы и упирается. Раньше блок занимал треть
+     поля, и на коротком вопросе вокруг него зияла пустота. */
+  padding:26px 0 30px;
+}
+.trener-vopros-zag{
+  font-size:40px; font-weight:600; line-height:1.2; color:#f3f5f9;
+  hyphens:manual; overflow-wrap:break-word;
+}
+.trener-vopros-pod{
+  margin:0; font-size:26px; line-height:1.35; color:#98a2b3;
+  max-width:70ch; hyphens:manual; overflow-wrap:break-word;
+}
+/* Варианты стоят по ширине поля: короткие (годы, термины) — плашками
+   в два столбца, не больше: четыре ответа ложатся двумя ровными рядами
+   по два. Ряды сверху и снизу всегда одинаковые — столбцов чётное
+   число. Длинные ответы (значения определений) идут в один столбец.
+   Что именно перед нами, решает страница по длине текста (классы
+   v-ryad и v-stolbik), а на телефоне любой набор становится одним
+   столбцом: две колонки на узком экране — это уже не плашки, а щели. */
+.trener-otvety{
+  display:grid; grid-template-columns:minmax(0, 1fr);
+  gap:10px; width:100%;
+}
+.trener-otvety.v-korotkie{grid-template-columns:repeat(2, minmax(0, 1fr))}
+.trener-otvety.v-ryad{grid-template-columns:repeat(2, minmax(0, 1fr))}
+@container stranica (max-width:639px){
+  .trener-otvety.v-ryad{grid-template-columns:minmax(0, 1fr)}
+  /* А совсем короткие (годы, короткие термины) и на телефоне стоят
+     двумя столбцами: в один они вытянули бы поле на три экрана, а сами
+     занимают полторы строки. */
+  .trener-otvety.v-korotkie{grid-template-columns:repeat(2, minmax(0, 1fr))}
+}
+a.trener-otvet{
+  display:flex; align-items:flex-start; gap:12px;
+  padding:9px 15px; border:3px solid #2a3340; border-radius:14px;
+  background:#1a212b; color:#e8edf5; text-decoration:none;
+  font-size:20px; line-height:1.35;
+}
+a.trener-otvet .trener-nomerok{
+  flex:0 0 auto; min-width:30px; color:#8b95a5; font-weight:600;
+}
+a.trener-otvet .trener-tekst-otveta{
+  flex:1 1 auto; min-width:0; overflow-wrap:break-word;
+}
+a.trener-otvet:hover, a.trener-otvet:focus, a.trener-otvet:focus-visible{
+  border-color:#ffd23f; background:#212a36; outline:none;
+}
+a.trener-otvet.verno{border-color:#3ecf8e; background:rgba(62,207,142,.10)}
+a.trener-otvet.pokazat{border-color:#3ecf8e}
+a.trener-otvet.neverno{border-color:#ff6b6b; background:rgba(255,107,107,.10)}
+/* Место под галочку зарезервировано заранее. Иначе после выбора
+   галочка отнимает ширину у текста, однострочный ответ переносится,
+   и ячейка внезапно становится выше. Невидимая галочка места не
+   занимает визуально, но сохраняет одинаковую геометрию до и после.
+   Появляется только у выбранного/показанного ответа. */
+a.trener-otvet .trener-galka{display:flex; visibility:hidden;
+  flex:0 0 26px; color:#3ecf8e}
+a.trener-otvet .trener-galka svg{width:26px; height:26px; display:block}
+a.trener-otvet.verno .trener-galka,
+a.trener-otvet.pokazat .trener-galka{visibility:visible}
+/* Подсказка живёт в окне (см. окно подсказки выше): под вопросом
+   и под ответами её больше нет — там она оттесняла ответы и прыгала
+   при раскрытии. Слова «Верно!» и повтор выбранного ответа тоже
+   убраны — их работу делает зелёная рамка. */
+.trener-podrobno{
+  display:flex; flex-wrap:wrap; align-items:center; gap:8px 18px;
+  font-size:20px; color:#98a2b3;
+}
+a.trener-video{
+  color:#ffd23f; text-decoration:none;
+  border-bottom:2px solid rgba(255,210,63,.5);
+}
+a.trener-video:hover, a.trener-video:focus{border-bottom-color:#ffd23f}
+/* ---- окно подсказки ----
+   Рассказ о нынешнем вопросе открывается во всплывающем окне: оно встаёт
+   на то же место и того же размера, что экран теста (координаты считает
+   страница, см. shkPodskazka), а на телефоне — во всю ширину экрана.
+   Внутри — только подсказка: рассказ целиком, учебник, страница и ссылка
+   на видеоурок. Закрыть — крестик, Esc или нажатие по подложке. */
+.trener-okno-podskazki{
+  position:fixed; inset:0; z-index:130; display:none;
+  background:rgba(8,11,15,.66);
+}
+.trener-okno-podskazki.vidno{display:block}
+.trener-okno-karta{
+  position:absolute; display:flex; flex-direction:column;
+  background:#131a23; border:3px solid #2a3340; border-radius:18px;
+  box-shadow:0 24px 60px rgba(0,0,0,.5);
+}
+.trener-okno-verh{
+  display:flex; align-items:center; gap:16px; flex:0 0 auto;
+  padding:16px 22px; border-bottom:2px solid #2a3340;
+}
+.trener-okno-zag{font-size:24px; color:#8b95a5; flex:1 1 auto; min-width:0}
+a.trener-okno-zakryt{
+  flex:0 0 auto; display:inline-flex; padding:7px 10px; line-height:0;
+  border:4px solid transparent; border-radius:14px; color:#f3f5f9;
+}
+a.trener-okno-zakryt svg{width:30px; height:30px; display:block}
+a.trener-okno-zakryt:hover, a.trener-okno-zakryt:focus{
+  border-color:#ffd23f; background:#2b3443; outline:none;
+}
+.trener-okno-telo{
+  flex:1 1 auto; min-height:0; overflow-y:auto; overscroll-behavior:contain;
+  padding:22px 26px; scrollbar-width:thin;
+  scrollbar-color:#3a4452 transparent;
+}
+.trener-okno-telo::-webkit-scrollbar{width:8px}
+.trener-okno-telo::-webkit-scrollbar-thumb{background:#3a4452; border-radius:4px}
+.trener-okno-telo .trener-poln{font-size:24px; line-height:1.5; color:#e8edf5;
+  margin:0 0 16px}
+.trener-okno-telo .trener-podrobno{font-size:21px; color:#98a2b3}
+.trener-okno-telo a.trener-video{font-size:21px}
+@container stranica (max-width:639px){
+  .trener-okno-karta{border-radius:0; border:0}
+  .trener-okno-verh{padding:14px 18px}
+  .trener-okno-telo{padding:16px 18px}
+  .trener-okno-telo .trener-poln{font-size:19px}
+  .trener-okno-telo .trener-podrobno,
+  .trener-okno-telo a.trener-video{font-size:17px}
+}
+
+/* Кнопка «Работа над ошибками» — одной рукой в двух местах: на
+   странице под полем, во всю его ширину, а в полном экране — в нижней
+   строке поля, в один ряд со стрелками. Вид один: та же рамка, то же
+   скругление и тот же рост, что у однострочной плашки ответа; фон
+   не залит, как у невыбранного ответа, — это ход в сторону, а не
+   главное дело. Надпись — по середине, и без числа: счёт и так стоит
+   в верхней строке поля. */
+.trener-oshibki-knopka{
+  display:flex; align-items:center; justify-content:center;
+  width:100%; box-sizing:border-box; min-height:0; padding:8px 14px;
+  border:3px solid #ff6b6b; border-radius:12px;
+  background:#232a35;
+  color:#dbe3ee; font-size:24px; line-height:1.2; text-align:center;
+  text-decoration:none;
+}
+.trener-oshibki-knopka:hover, .trener-oshibki-knopka:focus{
+  border-color:#ff6b6b; background:#2b3440; color:#f3f5f9; outline:none;
+}
+.trener-oshibki-knopka.net-oshibok{
+  border-color:#2a3340; background:#232a35; color:#dbe3ee;
+}
+.trener-oshibki-knopka.net-oshibok:hover,
+.trener-oshibki-knopka.net-oshibok:focus{
+  border-color:#596575; background:#2b3440; color:#f3f5f9;
+}
+/* Сброс — кнопка, а не активный пункт: жёлтая отметка не используется.
+   Высота и кегль остаются как у активного пункта меню. */
+a#trener-sbros{
+  display:flex; align-items:center; justify-content:center;
+  width:100%; box-sizing:border-box; min-height:0; padding:8px 14px;
+  border:3px solid transparent; border-radius:12px;
+  background:#232a35; color:#dbe3ee;
+  font-size:21px; line-height:1.2; text-align:center;
+}
+a#trener-sbros:hover, a#trener-sbros:focus{
+  border-color:#3ecf8e; background:#2b3440; color:#f3f5f9;
+  outline:none;
+}
+a#trener-sbros.sbros-preduprezhdenie,
+a#trener-sbros.sbros-preduprezhdenie:hover,
+a#trener-sbros.sbros-preduprezhdenie:focus{
+  border-color:#ff6b6b; background:#232a35; color:#f3f5f9;
+}
+/* Под полем: от поля — 24 px, дальше вниз — обычный отступ страницы
+   (46 px у плашек «Ещё по курсу»). */
+.trener-oshibki-pod{margin:24px 5% 0}
+.trener-oshibki-pod:empty{display:none}
+/* ---- нижняя строка поля ----
+   В ней счёт ошибок (только в полном экране) и стрелки листания —
+   в один ряд: кнопка слева, стрелки справа, у правого нижнего угла.
+   Пока ошибок нет, в строке одни стрелки (см. oshibki_knopka).
+   От ответов строку отделяет большой отступ: вплотную к вариантам она
+   читалась вместе с ними. «Дальше» отдельной кнопкой нет — вперёд ведёт
+   стрелка; «Завершить» тоже нет: брошенное решение ничего не теряет. */
+.trener-upravlenie{
+  margin-top:auto; margin-bottom:calc(-3.5% + 16px);
+  display:flex; align-items:center; gap:14px;
+  padding-top:34px;
+}
+.trener-upravlenie .trener-vremya,
+.trener-upravlenie .trener-strelka{
+  height:46px; box-sizing:border-box; align-items:center;
+}
+.trener-upravlenie .trener-oshibki-v-pole{flex:1 1 auto; min-width:0;
+  display:flex}
+.trener-upravlenie .trener-oshibki-v-pole:empty{display:none}
+/* Полоса времени — у нижнего края поля, в одной строке со стрелками:
+   длинная тонкая дорожка во всю оставшуюся ширину, и жёлтая полоса
+   наполняет её ровно за минуту, а когда минута прошла — начинает
+   заново (см. vremya_* в движке тренажёра). Это не счёт и не скорость:
+   по полосе видно, сколько идёт нынешняя минута. */
+.trener-vremya{
+  flex:0 0 auto; min-width:92px; height:46px; display:flex;
+  align-items:center; justify-content:center;
+  background:transparent; overflow:visible;
+}
+.trener-vremya-podpis{
+  display:block; color:#8b95a5; font-size:18px; line-height:1;
+  text-align:center; white-space:nowrap;
+}
+/* Стрелки — у правого нижнего угла окна. */
+.trener-strelki{display:flex; align-items:center; gap:10px;
+  justify-content:flex-end; flex:0 0 auto; margin-left:auto}
+a.knopka-malaya, span.knopka-malaya{
+  display:inline-block; font-size:19px; line-height:1.2; padding:7px 13px;
+  border:3px solid transparent; border-radius:12px; text-decoration:none;
+  background:#232a35; color:#dbe3ee;
+}
+a.knopka-malaya:hover, a.knopka-malaya:focus{
+  border-color:#ffd23f; background:#2b3440; outline:none;
+}
+a.knopka-malaya.glavnaya{border-color:#ffd23f; color:#f3f5f9}
+/* Немая кнопка — не ссылка вовсе: «Работа над ошибками», пока ошибок нет,
+   и «Предыдущий вопрос» на первом вопросе — обычные серые надписи. */
+span.knopka-malaya.tuskly, a.knopka-malaya.tuskly{
+  color:#6f7887; background:#1c222c; cursor:default;
+}
+a.knopka-malaya.tuskly:hover{border-color:transparent}
+/* Полный экран — разворот самого поля. Делаем его своим, а не браузерным
+   (`requestFullscreen`): на компьютере и телевизоре он то есть, то нет,
+   а в предпросмотре и во вложенном окне его и вовсе не дают — кнопка
+   не срабатывала. Здесь окно разворачивает страница: поле встаёт поверх
+   всего и растягивается на весь экран. Выход — тот же значок или Esc. */
+body.trener-vo-ves-ekran{overflow:hidden}
+body.trener-vo-ves-ekran .pleyer-mesto{
+  position:fixed; inset:0; z-index:120; margin:0;
+  background:#0f141b; display:flex; align-items:flex-start;
+  justify-content:center; overflow-y:auto; overscroll-behavior:contain;
+}
+body.trener-vo-ves-ekran .pleyer-mesto #pleyer{
+  width:min(100vw, calc(100vh * 16 / 9)); min-height:100vh;
+  border-radius:0;
+  /* `overflow:hidden` у кадра делает его прокруткой для липких строк, и
+     строки перестают липнуть: уезжают вместе с полем. В полном экране
+     кадру прятать нечего — поле и есть окно, — и прокрутка у него одна,
+     у всего экрана. */
+  overflow:visible;
+}
+/* Длинный вопрос выше экрана — поле прокручивается, а верхняя и нижняя
+   строки липнут к краям: счёт и значки видны сверху, «Работа над
+   ошибками» — снизу, сколько бы ответов ни было. Оформлены они как
+   верхнее меню страницы: та же подложка, те же скруглённые углы, тот
+   же воздух по краям — иначе строка читалась серой полосой от края
+   до края. */
+/* Воздух по краям даём один раз — полю, а не заданию: тогда липкие
+   строки доходят до самых краёв экрана и отступ у них всегда один. */
+body.trener-vo-ves-ekran .pleyer-mesto{padding:12px 0}
+body.trener-vo-ves-ekran .trener-karta{padding:0 5%}
+body.trener-vo-ves-ekran .trener-verh{
+  position:sticky; top:0; z-index:6; transform:none;
+  padding:12px 18px; background:#16202b; border-radius:18px;
+}
+/* Под полем в полном экране ничего нет: кнопка ошибок встаёт в нижнюю
+   строку поля, а подложку у этой строки не заливаем — на весь экран
+   и так смотришь в одно поле, и полоса под кнопками только мешала. */
+body.trener-vo-ves-ekran .trener-oshibki-pod{display:none}
+body.trener-vo-ves-ekran .trener-upravlenie{
+  position:sticky; bottom:0; z-index:6;
+  margin-bottom:0; padding:12px 18px; background:none; border-radius:0;
+}
+/* Искры: короткий салют вокруг галочки, только при верном ответе.
+   Награда за ответ, а не украшение страницы. */
+.trener-iskry{position:relative; display:inline-block; width:0; height:0}
+.trener-iskry i{
+  position:absolute; left:0; top:0; width:7px; height:7px;
+  border-radius:50%; background:#ffd23f; opacity:0;
+  animation:trener-iskra .8s ease-out forwards;
+}
+@keyframes trener-iskra{
+  0%{transform:translate(-4px,-4px) scale(1); opacity:1}
+  100%{transform:translate(var(--x), var(--y)) scale(.3); opacity:0}
+}
+/* Итог захода: вместо вопроса — счёт и кнопки. Кнопки крупные: сюда
+   попадают мышью, а на телевизоре — пультом. */
+.trener-igra .trener-knopki{display:flex; flex-wrap:wrap; gap:14px;
+  margin-top:4px}
+.trener-igra .trener-knopki .knopka{font-size:24px; padding:14px 20px;
+  max-width:100%; overflow-wrap:break-word}
+/* Узкое поле: кегль и поля меньше — иначе вопрос с четырьмя определениями
+   не влезает в кадр 16:9.
+   Правила стоят ПОСЛЕ общих: при равной точности выигрывает то, что
+   ниже в файле, — иначе эти строки не сработали бы вовсе. */
+@container stranica (max-width:959px){
+  .trener-igra{gap:10px}
+  .trener-vopros{font-size:26px}
+  a.trener-otvet{font-size:19px; padding:9px 12px; gap:10px}
+  .trener-schet, .trener-chto{font-size:17px}
+  .trener-podrobno{font-size:17px}
+  a.knopka-malaya, span.knopka-malaya{font-size:17px; padding:7px 12px}
+  .trener-igra .trener-knopki .knopka{font-size:21px; padding:12px 16px}
+}
+/* Телефон и вертикальный планшет: кегль и поля ещё меньше — вопрос и
+   четыре ответа должны помещаться в кадр. Настройки над кадром мельче:
+   «Даты и определения · Всеобщая история» в сорок пикселей заняли бы
+   пол-экрана. Кристаллы — помельче: их пять в ряд. */
+@container stranica (max-width:639px){
+  /* Телефон: вопросу и ответам — кегль и поля меньше, а воздуху вокруг
+     вопроса — вдвое меньше: тут каждый пиксель на счету, и высокое поле
+     приходится листать. */
+  .trener-karta{padding:3% 4%; gap:10px}
+  .trener-vopros-blok{padding:8px 0 12px; gap:6px}
+  .trener-vopros-zag{font-size:26px}
+  .trener-vopros-pod{font-size:19px}
+  .trener-chto{font-size:16px}
+  a.trener-otvet{font-size:17px; padding:8px 11px; gap:9px;
+    border-width:2px}
+  a.trener-otvet .trener-nomerok{min-width:24px}
+  .trener-podrobno-telo{font-size:17px; padding:12px 14px}
+  .trener-podrobno{font-size:16px}
+  a.knopka-malaya, span.knopka-malaya{font-size:16px; padding:7px 11px}
+  .trener-schet-za{font-size:17px}
+  .trener-oshibki-schet{font-size:17px; gap:6px}
+  .trener-oshibki-schet .trener-krestik svg{width:18px; height:18px}
+  .trener-kristally svg{width:20px; height:20px}
+  .trener-chislo{font-size:18px}
+  .trener-upravlenie{padding-top:22px; gap:10px}
+  .trener-oshibki-pod{margin-left:4%; margin-right:4%}
+  .trener-oshibki-knopka{
+    min-height:0; padding:8px 14px 8px 28px; border-width:3px; font-size:24px;
+  }
+  a#trener-sbros{padding:8px 14px; border-width:3px; font-size:21px}
+  a.trener-strelka, span.trener-strelka{width:44px; height:44px}
+  a.trener-strelka svg, span.trener-strelka svg{width:22px; height:22px}
+}
+/* Телефон и вертикальный планшет: кегль и поля ещё меньше — вопрос и
+   четыре ответа должны помещаться в кадр. Подробности — ниже, в блоке
+   при самих правилах тренажёра: там они и стоят после общих, иначе при
+   равной точности проигрывали бы им. */
+
+/* Статистики под полем нет вовсе: и счёт вопросов, и счёт ошибок стоят
+   в верхней строке поля, «Работа над ошибками» — в нижней. Сноска
+   об учебниках уехала в панель: её читает родитель, а не ребёнок. */
+/* Шапка страницы тренажёра: кнопка настроек и подпись в одной строке,
+   кнопка — слева, над левым верхним углом поля. Так её ищут там же, где
+   начинают читать строку, а не на другом краю экрана. */
+.trener-shapka{
+  flex-direction:row; align-items:center; width:100%; gap:18px;
+}
+/* Над кадром — не имя страницы, а сами настройки: «Даты и определения ·
+   История России · до § 12». Крупно, тем же кеглем, что подпись кадра на
+   видеоуроках; второй строки под ними нет — настройки и есть подпись, а
+   вторая строка повторяла бы их же. Строка бывает длинной, поэтому она
+   тянется и переносится, а не обрезается многоточием. */
+.trener-shapka .pleyer-zag{flex:1 1 auto; min-width:0; font-size:40px;
+  font-weight:600; color:#b9c1d0}
+/* На телефоне та же надпись мельче: «Даты и определения · Всеобщая
+   история · до § 12» в сорок пикселей заняли бы пол-экрана. Правило
+   стоит после общего — иначе при равной точности общее побеждало бы. */
+@container stranica (max-width:639px){
+  .trener-shapka .pleyer-zag{font-size:24px}
+  /* На телефоне первая строка мельче (24 px, междустрочный 1,2 —
+     28,8), и подъём кнопки считается по ней. */
+  a.nastr-knopka{margin-top:0}
+}
+/* Кнопка настроек — первая в строке, слева. Вид тот же, что у кнопки
+   плейлиста на кадре: тёмная плашка с иконкой, жёлтая рамка под курсором
+   и на фокусе. */
+a.nastr-knopka{
+  flex:0 0 auto; margin-left:auto; display:inline-flex; padding:10px;
+  align-self:center; margin-top:0; border-radius:12px;
+  /* Кнопка стоит по ПЕРВОЙ строке надписи, а не по её середине: надпись
+     бывает в две строки, и посередине кнопка уезжала к нижней строке.
+     Первая строка надписи — 48 px (кегль 40, междустрочный 1,2), её
+     середина на 24 px от верха; знак кнопки — 34 px в рамке 3 и поле
+     10, его середина на 30 px. Отсюда подъём на 6 px. */
+  margin-top:-6px;
+  line-height:0; background:rgba(10,13,18,.72); color:#f3f5f9;
+  border:3px solid transparent;
+}
+a.nastr-knopka svg{width:34px; height:34px; display:block}
+a.nastr-knopka:hover, a.nastr-knopka:focus{
+  border-color:#ffd23f; background:rgba(10,13,18,.92);
+}
+
+/* ---- НАСТРОЙКИ ТРЕНАЖЁРА В ПАНЕЛИ ----
+   Панель тренажёра — не список уроков, а настройки: что решаем и до
+   какого параграфа. Устроены они по
+   типу левого меню: та же шапка с крестиком, тот же простой список,
+   та же отметка у выбранной строки (жёлтая полоса и подложка потемнее).
+   Разделы размечают список надписями — как заголовки глав в плейлисте. */
+.nastr-zag{
+  font-size:21px; color:#8b95a5; margin:26px 0 10px; padding-left:28px;
+  hyphens:manual; overflow-wrap:break-word;
+}
+.nastr-zag:first-child{margin-top:0}
+
+a.nastr-stroka{
+  display:flex; position:relative; align-items:baseline; gap:10px;
+  text-decoration:none; color:#c9d2df; background:none;
+  border:3px solid transparent; border-radius:10px;
+  padding:8px 14px 8px 28px;
+  hyphens:manual; overflow-wrap:break-word;
+}
+a.nastr-stroka:hover, a.nastr-stroka:focus, a.nastr-stroka:focus-visible{
+  background-color:#1b212b; outline:none; color:#f3f5f9;
+}
+a.nastr-stroka:hover, a.nastr-stroka:focus-visible{border-color:#ffd23f}
+/* Кольцо выбора: точка внутри загорается у выбранной строки. Так видно,
+   что строки — это «или-или», а не переходы на другую страницу. */
+.nastr-kolco{display:flex; align-items:center; align-self:flex-start;
+  height:1.3em; color:#8b95a5}
+.nastr-kolco svg{width:22px; height:22px; display:block}
+.nastr-kolco .tochka{opacity:0}
+a.nastr-stroka.aktiven .nastr-kolco{color:#ffd23f}
+a.nastr-stroka.aktiven .nastr-kolco .tochka{opacity:1}
+.nastr-tekst{flex:1 1 auto; min-width:0; font-size:24px; line-height:1.3}
+.nastr-schet{flex:0 0 auto; font-size:21px; color:#8b95a5; line-height:1.3}
+/* Номер параграфа — своя колонка, как у пунктов плейлиста: «§ 10–11» и
+   «§ 9» начинают тему на одном месте. */
+.nastr-nomer{flex:0 0 58px; width:58px; font-size:24px; color:#8b95a5;
+  line-height:1.3}
+/* «Ограничить до» — одно поле и список под ним. Списком все пятьдесят
+   параграфов в панели не нужны: ребёнок знает, какой ему нужен, —
+   набирает номер или слово, а под полем показываются совпадения.
+   Отдельной строки-переключателя и подсказок здесь больше нет: поле
+   стоит всегда, а выбранное ограничение видно строкой ниже, с крестиком. */
+.nastr-par[hidden]{display:none}
+/* Полей слева нет: поле само несёт их в себе (см. .nastr-poisk) — так
+   его ширина сходится с шириной строк списка выше. */
+.nastr-okno{margin:2px 0 4px; padding:0}
+/* Поле и знак снятия ограничения — в одной обёртке: крестик стоит
+   в самом поле, у правого его края. */
+.nastr-pole{position:relative; display:block}
+/* Строка «Выберите параграф» — та же строка списка, что и «Весь курс»
+   с учебниками: те же ширина, рост, шрифт и подложка (см.
+   a.nastr-stroka выше). Отличается только надписью в поле. */
+.nastr-poisk{
+  width:100%; box-sizing:border-box; color:#f3f5f9;
+  border:3px solid transparent; border-radius:10px;
+  background:#232c38;
+  /* Рост — как у строки списка: её держит кольцо выбора (1.3em от 30 px
+     шрифта панели), плюс поля строки (8+8) и её рамка (3+3). Число то же,
+     что у a.nastr-stroka: 61 px. */
+  height:calc(1.3 * 30px + 22px);
+  /* Слева — столько же, сколько у строки до её текста: поля строки (28),
+     кольцо выбора (22) и зазор перед текстом (10). Надпись в поле встаёт
+     на одну линию с «Весь курс» и «История России». Справа — место под
+     крестик: выбранный номер не заезжает под него. */
+  padding:8px 46px 8px 60px;
+  font:inherit; font-size:24px; line-height:1.3;
+}
+/* Выбранный параграф отмечен жёлтой полосой у левого края — как
+   выделенная строка списка: полоса и значит «это выбрано». */
+.nastr-poisk.vydelen{
+  background-image:linear-gradient(#ffd23f, #ffd23f);
+  background-repeat:no-repeat;
+  background-position:left center;
+  background-size:8px 100%;
+}
+.nastr-poisk:focus{outline:none; border-color:#ffd23f}
+.nastr-poisk::placeholder{color:#6f7887}
+/* Крестик снятия ограничения — в поле, у правого края. Виден, только
+   когда ограничение стоит. */
+.nastr-pole .nastr-krestik{
+  position:absolute; right:14px; top:50%; transform:translateY(-50%);
+  align-self:auto; color:#8b95a5;
+}
+.nastr-pole .nastr-krestik[hidden]{display:none}
+.nastr-pole .nastr-krestik:hover,
+.nastr-pole .nastr-krestik:focus{color:#f3f5f9; outline:none}
+.nastr-naydennoe{margin-top:6px; max-height:min(34vh, 300px);
+  overflow-y:auto; overscroll-behavior:contain;
+  scrollbar-width:thin; scrollbar-color:#3a4452 transparent}
+.nastr-naydennoe[hidden]{display:none}
+.nastr-naydennoe::-webkit-scrollbar{width:8px}
+.nastr-naydennoe::-webkit-scrollbar-track{background:transparent}
+.nastr-naydennoe::-webkit-scrollbar-thumb{background:#3a4452; border-radius:4px}
+/* Флажок настройки: квадрат с галочкой. Пустой — настройка снята,
+   с галочкой — включена. Тем же знаком, что и верный ответ в тесте:
+   знак один на всё приложение. Квадрат — одного роста с кружочками
+   выбора (22 px): своей крупноты у него быть не должно. Стоит он
+   по первой строке текста, как и кружочки: настройка длинная, и по
+   середине всего текста флажок уезжал бы вниз. */
+.nastr-galochka{
+  flex:0 0 auto; display:flex; align-items:center; justify-content:center;
+  width:22px; height:22px; align-self:flex-start; margin:3px 14px 0 0;
+  border:2px solid #3a4452; border-radius:7px; color:transparent;
+}
+.nastr-galochka svg{width:14px; height:14px; display:block}
+.nastr-stroka.aktiven .nastr-galochka{
+  border-color:#ffd23f; color:#ffd23f;
+}
+
+/* Выбранное ограничение: «§ 12–13» и крестик справа — нажатие снимает
+   ограничение. Строка та же, что у прочих настроек: вид один на всей
+   панели. */
+/* Крестик — знак снятия ограничения: стоит в самом поле поиска
+   (см. .nastr-pole выше). Ростом с иконки панели. */
+.nastr-krestik{display:flex; color:#8b95a5}
+.nastr-krestik svg{width:20px; height:20px; display:block}
+.nastr-pusto{
+  padding:8px 0 8px 28px; font-size:21px; color:#6f7887; line-height:1.4;
+}
+/* Сноска об учебниках — здесь, в панели: её читает родитель. Под полем
+   это место заняла статистика. */
+.nastr-istochnik{
+  margin:26px 0 0; padding-left:28px; font-size:19px; color:#6f7887;
+  line-height:1.45;
+}
+/* Флажка «только по выбранному параграфу» больше нет: параграф в
+   настройках выбирают один раз — «на каком остановились», — и он
+   значит «с начала курса до него». Один и тот же вопрос решался двумя
+   строками, и вторая спорила с первой. */
+
+/* ---- Строка списка В ПАНЕЛИ ПЛЕЙЛИСТА — общий вид, своего нет ----
+   У панели НЕТ своего оформления строк: пункты — тот же простой текст,
+   что в боковом меню и под кадром (правило выше): в покое ни подложки,
+   ни полосы, ни жёлтого номера, наведение — серая подложка. Выделяется
+   только играющий пункт — как везде (.trek.aktiven).
+   Было (до 8 октября): у каждой строки плашка #1b212b и жёлтая полоса
+   слева — список выглядел так, будто активны все пункты разом. */
 
 /* ---- кнопки-иконки: эталон — Tilda Icons ---- */
 .pravo{margin-left:auto; display:flex; align-items:center; gap:14px}
 a.tumbler.ikonka{padding:9px 13px; line-height:0}
 a.tumbler.ikonka svg{width:36px; height:36px; display:block}
+/* Всплывающие подписи — по эталону верхнего меню calc.html:
+   белая карточка, тонкая светло-серая рамка, 12 px скругление,
+   10/14 px поля, тёмный текст, мягкая тень, появляется ниже знака
+   с небольшим зазором. Браузерный title не используем как оформление:
+   подпись берётся из aria-label. */
+.tumbler.ikonka, .panel-zakryt, .nastr-knopka,
+.pleyer-knopka, .trener-znachok, .trener-strelka,
+.pl-strelka, .nastr-krestik, .trener-okno-zakryt,
+.trener-oshibki-schet{position:relative}
+.tumbler.ikonka::after, .panel-zakryt::after, .nastr-knopka::after,
+.pleyer-knopka::after, .trener-znachok::after, .trener-strelka::after,
+.pl-strelka::after, .nastr-krestik::after, .trener-okno-zakryt::after,
+.trener-oshibki-schet::after{
+  content:attr(aria-label); position:absolute; top:calc(100% + 9px);
+  right:-8px; padding:10px 14px; border-radius:12px;
+  background:#fff; color:#1a1a1a; border:1px solid #e5e7eb;
+  font-size:12.5px; font-weight:400; line-height:1.35;
+  white-space:nowrap; opacity:0; pointer-events:none;
+  transform:translateY(-4px); z-index:1000;
+  box-shadow:0 8px 28px rgba(16,24,40,.16);
+  transition:opacity .16s, transform .16s;
+}
+.tumbler.ikonka:hover::after,
+.panel-zakryt:hover::after,
+.nastr-knopka:hover::after,
+.pleyer-knopka:hover::after,
+.trener-znachok:hover::after,
+.trener-strelka:hover::after,
+.pl-strelka:hover::after,
+.nastr-krestik:hover::after,
+.trener-okno-zakryt:hover::after,
+.trener-oshibki-schet:hover::after{
+  opacity:1; transform:none;
+}
+/* У полноэкранного знака подпись не должна возвращать чёрную подложку:
+   всплывает только светлая карточка подсказки. */
+a#trener-vo-ves-ekran::after{right:0}
 
 /* ---- боковое меню ----
    Выезжает справа и сдвигает страницу, а не накрывает её затемнением:
@@ -645,16 +1640,27 @@ body.menu-otkryto .panel{transform:none; visibility:visible;
    раньше список уезжал вместе с шапкой, и чтобы закрыть панель,
    приходилось крутить его обратно вверх. */
 .panel-verh{
-  flex:0 0 auto; display:flex; align-items:flex-start; gap:12px;
-  padding:22px 22px 16px; background:#141a22;
+  flex:0 0 auto; display:flex; align-items:center; gap:12px;
+  padding:18px 14px 14px; background:#141a22;
   border-bottom:2px solid #2a3340;
+}
+/* Заголовок панели — «где мы», а не название раздела: тот же шрифт и
+   тот же приглушённый цвет, что у строки пути под шапкой («7 класс ›
+   История › Видеоуроки»). Раньше он был 28 px, полужирный и белый —
+   спорил с содержимым и выглядел кнопкой. Стоит всегда в одну строку
+   с крестиком: длинное имя не переносится, а обрезается многоточием. */
+.panel-zag{
+  flex:1 1 auto; min-width:0;
+  font-size:23px; font-weight:400; color:#8d97a8;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
 }
 /* Область списка: прокручивается только она. Отступ сверху — воздух
    между разделительной линией и первым пунктом: без него верхняя
    плашка липла к линии вплотную. */
 .panel-telo{
-  flex:1 1 auto; overflow-y:auto; overscroll-behavior:contain;
-  padding:20px 22px 26px;
+  flex:1 1 auto; min-height:0;
+  overflow-y:auto; overscroll-behavior:contain;
+  padding:14px 14px 22px;
 }
 /* Ручка ширины — у левой кромки панели, поверх страницы. Тянем влево —
    панель шире, вправо — уже. С пульта то же самое стрелками. Видна
@@ -689,54 +1695,48 @@ a.panel-zakryt:focus, a.panel-zakryt:hover{border-color:#ffd23f; background:#202
    мы сейчас, отмечена подложкой и жёлтой чёрточкой слева. Место под
    чёрточку оставлено у всех строк, поэтому отметка ничего не сдвигает. */
 a.panel-plitka{
-  display:block; background:none;
-  border:0; border-left:6px solid transparent; border-radius:12px;
-  padding:10px 16px; margin-bottom:2px;
-  color:#c9d2df; text-decoration:none; font-size:30px;
+  display:block; position:relative; background:none;
+  border:3px solid transparent; border-radius:10px;
+  padding:8px 14px 8px 28px; margin-bottom:2px;
+  color:#c9d2df; text-decoration:none; font-size:24px;
   overflow-wrap:break-word;
 }
 a.panel-plitka:focus, a.panel-plitka:hover, a.panel-plitka:focus-visible{
-  background:#1b212b; outline:none; color:#f3f5f9;
+  background-color:#1b212b; outline:none; color:#f3f5f9;
 }
-a.panel-plitka:focus-visible{outline:3px solid #ffd23f; outline-offset:0}
-a.panel-plitka.tuskly{font-size:25px; color:#98a2b3}
+/* Жёлтая рамка — только под курсором и на клавиатурном фокусе; при
+   обычном фокусе (клик мышью) хватает серой подложки. Рамка одинарная:
+   у плашек при наведении их две — жёлтая и мягкое свечение вокруг,
+   у строк списка свечения нет. */
+a.panel-plitka:hover, a.panel-plitka:focus-visible{border-color:#ffd23f}
+a.panel-plitka.tuskly{font-size:22px; color:#98a2b3}
+/* Текущая страница: подложка темнее, жёлтая рамка и жёлтый флажок —
+   короткая чёрточка у левого края (см. общее правило флажка ниже). */
 a.panel-plitka.tekushchiy{
-  background:#232c38; border-left-color:#ffd23f; color:#f3f5f9;
+  background-color:#232c38; border-color:#ffd23f; color:#f3f5f9;
+}
+/* Активная вкладка плейлиста под видеокадром — как активный пункт
+   списка плейлиста, а не как выбранная страница: никакой рамки в покое,
+   только общая подложка и цветная полоса слева. */
+a.pl-plitka.tekushchiy{border-color:transparent}
+a.pl-plitka.tekushchiy:hover, a.pl-plitka.tekushchiy:focus-visible{
+  border-color:#ffd23f;
 }
 
-/* ---- выбор класса: раскрывающийся список в меню ----
-   Обычный details/summary: работает и без javascript, на пульте
-   открывается по OK. Выглядит как обычный текст: ни подложки, ни
-   жёлтой полосы, ни реакции на наведение — это не кнопка-переход,
-   а заголовок списка. Что список раскрывается, видно по стрелке. */
-.vybor-klassa{flex:1 1 auto; min-width:0}
-summary.klass-knopka{
-  display:flex; align-items:center; gap:14px; cursor:pointer;
-  padding:4px 2px; background:none; border:0; color:#f3f5f9;
-  font-size:30px; font-weight:600;
-  list-style:none; hyphens:manual; overflow-wrap:break-word;
+/* ---- название класса в шапке меню ----
+   Просто текст: списка классов здесь больше нет. Класс выбирают
+   плитками на его странице, а раскрывающийся список в меню повторял
+   эти же плитки — и звал не туда. Вид у строки прежний: приглушённое
+   название в шапке панели, слева от крестика. */
+.klass-imya{
+  flex:1 1 auto; min-width:0; padding:6px 0 6px 28px; color:#8d97a8;
+  font-size:23px; hyphens:manual; overflow-wrap:break-word;
 }
-summary.klass-knopka::-webkit-details-marker{display:none}
-summary.klass-knopka > span:first-child{flex:1 1 auto; min-width:0}
-/* Рамки на фокусе нет: при открытии меню фокус встаёт на название
-   класса, и браузер рисовал вокруг него свой прямоугольник — строка
-   выглядела плашкой с обводкой. При наведении название чуть ярче. */
-summary.klass-knopka:focus, summary.klass-knopka:focus-visible{outline:none}
-summary.klass-knopka:hover{color:#f3f5f9}
+/* Стрелка у раскрывающихся строк учебника (см. .kniga-stroka): тот же
+   шеврон, что был у списка классов. */
 .strela{flex:0 0 auto; display:flex; color:inherit; transition:transform .15s}
-.strela svg{width:34px; height:34px; display:block}
-details.vybor-klassa[open] .strela{transform:rotate(180deg)}
-.klass-spisok{padding:12px 0 0 16px}
-/* Пункты списка классов — тоже просто текст: ни подложки, ни жёлтой
-   полосы слева, ни рамки. Отличаются только цветом: текущий класс
-   такой же яркий, как название сверху, остальные — приглушённые. */
-.klass-spisok a.panel-plitka{
-  padding:7px 2px; margin-bottom:2px; font-size:30px; color:#98a2b3;
-}
-.klass-spisok a.panel-plitka:hover,
-.klass-spisok a.panel-plitka:focus,
-.klass-spisok a.panel-plitka:focus-visible{background:#1b212b; outline:none;
-                                           color:#f3f5f9}
+.strela svg{width:24px; height:24px; display:block}
+details.kniga-stroka[open] .strela{transform:rotate(180deg)}
 
 
 /* ---- баннер лекций: полоса во всю ширину страницы предмета ----
@@ -824,6 +1824,81 @@ a.banner-trek.aktiven{color:#f3f5f9}
 }
 /* Плитки под баннером: воздух больше, чем между самими плитками. */
 .setka.posle-bannera{margin-top:64px}
+
+/* ---- знак «Лекции»: баннер, который ведёт на страницу ----
+   Стоит там же, где стоял играющий баннер (выше плиток, во всю ширину
+   страницы), и одет как плитка: жёлтая полоса по левой кромке, то же
+   скругление, та же подсветка при наведении. Отличие одно: это дверь,
+   а не сцена — внутри нет ни кадра, ни списка лекций, а вся плашка
+   целиком ссылка на страницу лекций. Мишень во весь баннер — не для
+   красоты: на телевизоре в неё легко попасть пультом, а две ссылки
+   рядом заставляют целиться. */
+/* Знак — та же плашка, только во всю ширину и выше на 30 %. Текст стоит
+   там же, где у плашек: внизу слева, с теми же полями и тем же шрифтом
+   (классы .nazv и .poyas — общие с плашкой). Раньше текст стоял по
+   центру полосы и был другого размера, поэтому знак читался как другая
+   деталь, а не как плашка раздела. */
+a.banner-znak{
+  --fon-kart:linear-gradient(120deg,#232c39 0%,#171d26 62%);
+  display:flex; flex-direction:column; justify-content:flex-end;
+  align-items:stretch;
+  margin:30px 0 0;
+  border:4px solid transparent; border-radius:var(--radius);
+  text-decoration:none; color:#f3f5f9;
+  /* Второй слой — кадр или фон: у знака с рисунком в --sloi лежит
+     картинка поверх градиента (см. правило плашек выше). Высоту знаку
+     задают ступени раскладки: он выше плашки своей полосы на 30 %
+     (Инструменты/разметка.py, ZNAK_DOLYA). */
+  background-image:linear-gradient(#ffd23f, #ffd23f),
+                   var(--sloi, var(--fon-kart));
+  background-repeat:no-repeat, no-repeat;
+  background-position:left center, left center;
+  background-size:var(--polosa) 100%, 100% 100%;
+  background-origin:border-box, border-box;
+  background-clip:border-box, border-box;
+}
+/* Текст знака — те же классы, что и у плашки (.nazv, .poyas), поэтому
+   и правила у них общие: шрифт названия, цвет и отступ подписи. Размеры
+   задают ступени раскладки (Инструменты/разметка.py) — как у плашки. */
+a.banner-znak .nazv{
+  display:block; font-weight:600; line-height:1.1;
+  hyphens:manual; overflow-wrap:break-word; min-width:0; max-width:100%;
+}
+a.banner-znak .poyas{
+  display:block; margin-top:8px; color:#98a2b3; line-height:1.3;
+  hyphens:manual; overflow-wrap:break-word; min-width:0; max-width:100%;
+}
+
+a.banner-znak:focus, a.banner-znak:hover, a.banner-znak:active{
+  outline:none; border-color:#ffd23f;
+  --fon-kart:linear-gradient(120deg,#2c3745 0%,#252d38 100%);
+  box-shadow:0 0 0 6px rgba(255,210,63,.28);
+}
+
+
+
+/* ---- раздел, который ещё наполнен не весь ----
+   Плашка стоит с первого дня, страница у неё тоже, а материалов пока
+   нет. Пустой белый лист читался бы как поломка, поэтому на странице
+   карточка: что за раздел и что здесь будет. */
+.zagotovka{
+  margin-top:26px; padding:32px 36px;
+  border:2px solid #2a3340; border-radius:22px;
+  background:linear-gradient(165deg,#1f2733 0%,#171d26 100%);
+}
+.zagotovka .zg-nazv{
+  display:block; font-size:30px; font-weight:600; color:#ffd23f;
+}
+.zagotovka .zg-tekst{
+  display:block; margin-top:12px; max-width:880px;
+  font-size:22px; color:#98a2b3; line-height:1.35;
+  hyphens:manual; overflow-wrap:break-word;
+}
+@container stranica (max-width:959px){
+  .zagotovka{padding:24px 22px}
+  .zagotovka .zg-nazv{font-size:26px}
+  .zagotovka .zg-tekst{font-size:20px}
+}
 
 /* ---- кто учится и зачем ----
    Маленькая строка под путём, выше учебника: имя и цель с главного
@@ -954,26 +2029,27 @@ a.plitka.klass .nazv .slovo{
 .tema .chto{display:block; font-size:29px}
 .tema .primech{display:block; font-size:22px; color:#98a2b3; font-style:italic; margin-top:4px}
 .knopki{flex:0 0 auto; display:flex; gap:12px; flex-wrap:wrap; justify-content:flex-end}
+/* Кнопка не бывает шире своего места. Надпись у неё может быть длинной
+   («Образец проверочной работы для школ с углублённым изучением
+   математики…»): с запретом переноса такая кнопка растягивала страницу
+   вбок. Поэтому длинная надпись переносится по словам (короткая от этого
+   не меняется — ей переносить нечего), а слово без пробелов (адрес сайта)
+   ломается по буквам. */
 a.knopka{
   display:inline-block; background:#2b3543; color:#f3f5f9; text-decoration:none;
   border:4px solid transparent; border-radius:16px; padding:16px 22px;
-  font-size:27px; white-space:nowrap;
+  font-size:27px; white-space:normal;
+  flex:0 1 auto; max-width:100%; min-width:0; overflow-wrap:break-word;
 }
 a.knopka .vremya{color:#ffd23f; font-weight:600}
 a.knopka:focus, a.knopka:hover, a.knopka:active{
   outline:none; border-color:#ffd23f; background:#3d4c5f;
 }
 .stroka.net .tema .chto{color:#7d8695}
-/* На узком экране кнопка уступает кадру: длинная надпись переносится
-   по словам, а не вылезает за край и не тянет страницу вбок. Считается
-   по рабочей ширине, как и всё остальное на странице. */
-@container stranica (max-width:959px){
-  /* overflow-wrap: длинное слово без пробелов (адрес сайта в кнопке)
-     иначе вылезает за кнопку и тянет страницу вбок. */
-  a.knopka{white-space:normal; max-width:100%; flex:0 1 auto; min-width:0;
-           overflow-wrap:break-word}
-  .knopki{min-width:0; max-width:100%}
-}
+/* Строка кнопок умеет ужиматься: без этого длинная кнопка не отдаёт
+   место и ряд уезжает вбок (считается по рабочей ширине, как и всё
+   остальное на странице). */
+.knopki{min-width:0; max-width:100%}
 
 .niz{margin-top:44px; color:#6f7887; font-size:22px; line-height:1.5}
 /* Планшет вертикальный и уже: та же контрольная точка 960, что
@@ -999,6 +2075,7 @@ CSS = CSS.replace('/* ПОЛЯ-СТРАНИЦЫ */', _razmetka.polya_css())
 CSS = CSS.replace('/* ЗАПАСНОЙ-ПУТЬ-РАСКЛАДКИ */', _razmetka.zona_css())
 CSS = CSS.replace('/* МЕНЮ-ПАНЕЛЬ */', _razmetka.menyu_css())
 # Имя контейнера рабочей ширины: одно на CSS и на разметку страницы.
+CSS = CSS.replace('SHIRINA-STRANICY', str(_razmetka.SHIRINA_STRANICY))
 CSS = CSS.replace('KONTEYNER-IMYA', _razmetka.KONTEYNER)
 CSS = CSS.replace('ZONA-KLASS', _razmetka.ZONA_KLASS)
 assert 'KONTEYNER-IMYA' not in CSS and 'ZONA-KLASS' not in CSS, \
@@ -1036,6 +2113,43 @@ IKONY = {
     'шеврон': '<path d="M5 9l7 7 7-7"/>',
     'экран': ('<path d="M4 9V4.5h5"/><path d="M20 9V4.5h-5"/>'
               '<path d="M4 15v4.5h5"/><path d="M20 15v4.5h-5"/>'),
+    # «Во весь экран» — те же уголки шире: стрелки наружу. Значок стоит
+    # в строке управления тренажёра, где рядом «настройки» с ползунками,
+    # и уголки читаются как «развернуть», а не как «рамка».
+    'во весь экран': ('<path d="M4 9.5V4h5.5"/><path d="M14.5 4H20v5.5"/>'
+                      '<path d="M20 14.5V20h-5.5"/>'
+                      '<path d="M9.5 20H4v-5.5"/>'),
+    # Настройки: ползунки. Шестерёнка читалась бы как «механика», а
+    # ползунки — это ровно то, что делают в панели: двигают значения.
+    # Рука, которой листают подборку на телефоне: ею подсказываем,
+    # что полосу плашек можно сдвинуть вбок.
+    'листать': ('<path d="M18 11V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2"/>'
+                '<path d="M14 10V4a2 2 0 0 0-2-2a2 2 0 0 0-2 2v2"/>'
+                '<path d="M10 10.5V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2v8"/>'
+                '<path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0'
+                '-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/>'),
+    # Знак вопроса: им вызывается подсказка по нынешнему вопросу.
+    'вопрос': ('<circle cx="12" cy="12" r="9.2"/>'
+               '<path d="M9.4 9.2a2.7 2.7 0 0 1 5.3.7c0 1.8-2.7 2.2-2.7 3.9"/>'
+               '<path d="M12 17.2h.01"/>'),
+    'настройки': ('<path d="M4 7.5h6"/><path d="M14 7.5h6"/>'
+                  '<circle cx="12" cy="7.5" r="2.4"/>'
+                  '<path d="M4 16.5h6"/><path d="M14 16.5h6"/>'
+                  '<circle cx="12" cy="16.5" r="2.4"/>'),
+    'галочка': '<path d="M5.5 12.5l4.6 4.6L18.8 7.4"/>',
+    # Кристалл — награда за верный ответ: огранённый камень. Стоит в
+    # верхней строке поля тренажёра, левее «на весь экран»: собранные
+    # кристаллы. Ромб сам по себе читался бы как «плейлист»; грани
+    # показывают, что это камень.
+    'кристалл': ('<path d="M12 2.6 20.4 9 12 21.4 3.6 9z"/>'
+                 '<path d="M3.6 9h16.8"/>'
+                 '<path d="M12 2.6 8.7 9l3.3 12.4L15.3 9z"/>'),
+    # Крестик-ошибка — того же роста и с тем же штрихом, что кристалл:
+    # знаки стоят рядом в одной строке и читаются парой. Красным его
+    # делает оформление (см. .trener-oshibki-schet).
+    'ошибка': ('<circle cx="12" cy="12" r="8.7"/>'
+               '<path d="M12 7.5v5.8"/>'
+               '<circle cx="12" cy="16.8" r=".9" fill="currentColor" stroke="none"/>'),
 }
 
 
@@ -1051,6 +2165,7 @@ VERH = """<nav class="verh">
    onclick="history.back();return false">{nazad}</a>
 <a class="tumbler ikonka" href="#" aria-label="Вперёд"
    onclick="history.forward();return false">{vpered}</a>
+<span class="verh-imya" id="verh-imya" hidden></span>
 <span class="pravo">{pin}{menyu}</span>
 </nav>
 {put}
@@ -1085,12 +2200,23 @@ JS = """<script>
   /* ---- две выезжающие панели: меню и плейлист ----
      Границы у них одни и те же, и вдвоём они не открываются: открыли
      меню — плейлист закрылся, открыли плейлист — закрылось меню.
-     Плейлист есть только на страницах видеоуроков. */
+     Плейлист есть только на страницах видеоуроков.
+
+     Панель НЕ закрывается сама: что открыто, то и запоминается в
+     браузере (ключ KP), и на следующей странице панель стоит открытой
+     ровно так же. Закрыть её может только человек — крестиком или
+     клавишей Escape. Раньше переход по пунктам меню закрывал панель,
+     и её приходилось открывать заново на каждой странице. */
+  var KP='shkola.panel-otkryt';
+  function panel_pomnit(chto){
+    try{ localStorage.setItem(KP, chto); }catch(e){}
+  }
   window.shkPanel=function(otkryt){
     var b=document.body;
     if(otkryt){
       b.classList.add('menu-otkryto');
       b.classList.remove('pleylist-otkryto');
+      panel_pomnit('menu');
       /* Фокус встаёт на первую строку списка — и в меню, и в плейлисте
          одинаково. Крестик закрытия при открытии не подсвечивается
          нигде: раньше в меню фокус шёл на название класса, а в панели
@@ -1100,6 +2226,7 @@ JS = """<script>
       if(perv) perv.focus();
     } else {
       b.classList.remove('menu-otkryto');
+      panel_pomnit('');
     }
     return false;
   };
@@ -1108,14 +2235,38 @@ JS = """<script>
     if(otkryt){
       b.classList.add('pleylist-otkryto');
       b.classList.remove('menu-otkryto');
+      panel_pomnit('pleylist');
       var p=document.getElementById('pleylist-panel');
       var perv=p && p.querySelector('.panel-telo a');
       if(perv) perv.focus();
     } else {
       b.classList.remove('pleylist-otkryto');
+      panel_pomnit('');
     }
     return false;
   };
+  /* Возврат панели на новой странице. Ключа в памяти ещё нет — панель
+     ничего не помнит: остаётся как собрана страница (на видеоуроках
+     плейлист открыт сразу). Запомнено «menu» — открываем меню,
+     «pleylist» — плейлист (на страницах, где он есть), пусто — панель
+     закрыта. Фокус здесь никуда не ставим: страница только открылась,
+     и рамка на первой строке была бы неожиданной. */
+  (function(){
+    var chto=null;
+    try{ chto=localStorage.getItem(KP); }catch(e){ return; }
+    if(chto===null){ return; }
+    var b=document.body;
+    /* Плейлист во всю ширину экрана сам не открываем: на телефонах и
+       вертикальном планшете он занял бы весь экран вместо кадра. */
+    if(window.innerWidth < MENYU-VO-VSYU && chto==='pleylist'){ chto=''; }
+    if(chto==='menu'){
+      b.classList.add('menu-otkryto'); b.classList.remove('pleylist-otkryto');
+    } else if(chto==='pleylist' && document.getElementById('pleylist-panel')){
+      b.classList.add('pleylist-otkryto'); b.classList.remove('menu-otkryto');
+    } else {
+      b.classList.remove('menu-otkryto'); b.classList.remove('pleylist-otkryto');
+    }
+  })();
   /* Значок меню открывает и закрывает меню. Плейлист вызывается своей
      кнопкой на кадре: так панель возвращается всегда, чем бы её ни
      закрыли. */
@@ -1358,6 +2509,20 @@ JS = """<script>
   }
   imya_stroka();
 
+  /* Имя в самой шапке — по её середине, где у сайтов стоит логотип:
+     то же имя, что написано на главном экране. Пока имени нет, строки
+     тоже нет. Обновляется и когда имя набирают: см. обработчик ввода. */
+  function verh_imya(){
+    var mesto=document.getElementById('verh-imya');
+    if(!mesto){ return; }
+    var imya='';
+    try{ imya=(localStorage.getItem('shkola.imya')||'').trim(); }catch(e){}
+    if(!imya){ mesto.hidden=true; mesto.textContent=''; return; }
+    mesto.textContent=imya;
+    mesto.hidden=false;
+  }
+  verh_imya();
+
   var polya=[['imya', 'shkola.imya'], ['tsel', 'shkola.tsel']];
   for(var p=0; p<polya.length; p++){
     var po=document.getElementById(polya[p][0]);
@@ -1370,6 +2535,9 @@ JS = """<script>
     (function(pole, klyuch){
       pole.addEventListener('input', function(){
         try{ localStorage.setItem(klyuch, pole.value); }catch(e){}
+        /* Имя сменили — в шапке оно тоже меняется, не дожидаясь
+           перехода на другую страницу. */
+        if(klyuch==='shkola.imya'){ verh_imya(); }
       });
     })(po, polya[p][1]);
   }
@@ -1422,6 +2590,57 @@ SHY = '\u00ad'
 не влезло в строку."""
 
 
+TIR = re.compile(r'(?<=[\wА-Яа-яЁё])[—–](?=[\wА-Яа-яЁё])')
+"""Знак промежутка — тире, вплотную зажатое между знаками.
+
+Так записаны и годы («1533—1584»), и номера параграфов («§ 6–7»), и века
+(«XVI—XVII»), и уровни («A2—B1»), и месяцы («Апрель—май»), и строки
+оглавления («А—3»). Полосой из-за этого соединялось не только число
+с числом, поэтому правило берёт любую пару знаков, а не только цифры.
+Дефис (-) не трогаем: «премьер-министр» и «trenazhery-7-klass» — это не
+промежуток.
+"""
+TIR_S_PROBELAMI = re.compile(r'(?<=[IVXLC])\s+[—–]\s+(?=[IVXLC])')
+"""Тот же промежуток века, но записанный с пробелами: «XVII — XIX вв.»."""
+
+
+def tire(tekst):
+    """Промежуток между числами — коротким тире, отделённым пробелом.
+
+    Длинное тире в промежутке («1 607—1 610») читалось полосой, которой
+    цифры и соединялись: год выглядел одним числом. Короткое тире
+    с пробелами отделяет знак от цифр — видно, что это промежуток.
+    Правило одно на всю сборку: и годы, и номера параграфов, и страницы,
+    и века, и уровни, и месяцы.
+    Тире, которое уже отделено пробелами, не трогаем: «2026 — 5
+    комплектов» и «С1 — 2 балла» — это знак между словами, а не
+    промежуток, и он остаётся как был.
+    """
+    if not tekst:
+        return tekst
+    tekst = TIR_S_PROBELAMI.sub(' \u2013 ', str(tekst))
+    return TIR.sub(' \u2013 ', tekst)
+
+
+def tire_html(html):
+    """Правило тире по всей странице — и только в тексте.
+
+    Разметку и скрипты не трогаем: в атрибутах живут номера параграфов
+    (метка пункта, адреса ссылок), и от них зависит, куда ведёт нажатие.
+    """
+    kuski = re.split(r'(<(?:script|style)\b.*?</(?:script|style)>)', html,
+                     flags=re.S | re.I)
+    itog = []
+    for i, kusok in enumerate(kuski):
+        if i % 2:                      # внутри скрипта или оформления
+            itog.append(kusok)
+            continue
+        dla_teksta = re.split(r'(<[^>]*>)', kusok)
+        itog.append(''.join(k if k.startswith('<') else tire(k)
+                            for k in dla_teksta))
+    return ''.join(itog)
+
+
 def myagkie(tekst, min_dlina=10):
     """Расставить мягкие дефисы в длинных словах.
 
@@ -1429,7 +2648,10 @@ def myagkie(tekst, min_dlina=10):
     целым и переносится на следующую строку целиком («кино и» / «докумен-
     талистика» только там, где «документалистика» не влезла бы и одна).
     """
-    if not _SLOGI or not tekst:
+    if not tekst:
+        return tekst
+    tekst = tire(tekst)
+    if not _SLOGI:
         return tekst
     def slovo(m):
         w = m.group(0)
@@ -1718,9 +2940,17 @@ JS_PLAYERA = """<script>
         ? 'banner-trek aktiven' : 'banner-trek';
     }
   }
-  function shapka(zag){
+  function shapka(zag, glava){
     var z=document.getElementById('pleyer-zag');
     if(z && zag){ z.textContent=zag; }
+    /* Над заголовком — глава: «Глава I. Эпоха Великих географических
+       открытий». Приходит из плейлиста вместе с пунктом (data-glava);
+       у пункта вне глав («Введение») её нет, и строки тогда нет. */
+    var p=document.getElementById('pleyer-podzag');
+    if(p){
+      p.textContent = glava || '';
+      p.hidden = !glava;
+    }
   }
   function karta(skryt){
     var v=document.getElementById('pleyer-vybor');
@@ -1734,13 +2964,13 @@ JS_PLAYERA = """<script>
     return false;
   };
 
-  function vklyuchit(kod, zag, nomer, tema, igrat, sekunda){
-    tek={kod:kod, zag:zag, nomer:nomer, tema:tema,
+  function vklyuchit(kod, zag, nomer, tema, igrat, sekunda, glava){
+    tek={kod:kod, zag:zag, nomer:nomer, tema:tema, glava:glava||'',
          vremya:sekunda||0, dosmotren:false};
     zapis();
     poslT=0;
     kadr(kod, sekunda, igrat!==false);
-    shapka(zag);
+    shapka(zag, glava);
     podsvetit(kod);
     karta(true);
     var p=document.getElementById('pleyer');
@@ -1767,7 +2997,8 @@ JS_PLAYERA = """<script>
     if(otkuda!==null){ otkryt_nabor(otkuda); }
     vklyuchit(kod, a.getAttribute('data-zag')||'',
               a.getAttribute('data-nomer')||'',
-              a.getAttribute('data-tema')||'', true, 0);
+              a.getAttribute('data-tema')||'', true, 0,
+              a.getAttribute('data-glava')||'');
     return false;
   };
 
@@ -1827,10 +3058,14 @@ JS_PLAYERA = """<script>
     if(tret){ tret.style.display=''; }
     var nomer=(h.nomer||'').trim();
     var tema=(h.tema||'').trim();
-    /* Фильм или урок? У уроков подпись пункта — «§ 12», у фильмов —
-       время («1 ч 20 мин»). По этому и выбираем слова: на странице
-       кино не должно быть «Следующий параграф». */
+    /* Фильм, лекция или урок? У уроков подпись пункта — «§ 12», у фильмов
+       и лекций на месте номера стоит время («1 ч 20 мин»). Фильм от
+       лекции по подписи уже не отличить, поэтому страница называет себя
+       сама: атрибут на body со словом «лекции». Разные у них только два
+       слова — вопрос в шапке и кнопка «Следующая лекция»; всё остальное
+       («посмотрели», «Посмотреть снова») годится обоим. */
     var kino=!!nomer && nomer.indexOf('§')!==0;
+    var lekcii=kino && document.body.getAttribute('data-rezhim')==='лекции';
     var sled=sosed(1);
     if(h.dosmotren){
       if(t){ t.textContent=(kino ? '«'+tema+'» посмотрели'
@@ -1838,15 +3073,17 @@ JS_PLAYERA = """<script>
                                           : 'Урок закончен')); }
       if(sled){
         knopka('vybor-glavnaya',
-               kino ? 'Следующий фильм'
-                    : (nomer ? 'Начать '+
-                               (sled.getAttribute('data-nomer')||'следующий')
-                             : 'Следующий параграф'), sleduyushchiy);
+               lekcii ? 'Следующая лекция'
+                      : (kino ? 'Следующий фильм'
+                              : (nomer ? 'Начать '+
+                                         (sled.getAttribute('data-nomer')
+                                          || 'следующий')
+                                       : 'Следующий параграф')), sleduyushchiy);
         knopka('vybor-vtoraya',
                kino ? 'Посмотреть снова'
                     : (nomer?'Повторить '+nomer:'Повторить'),
                function(){ vklyuchit(tek.kod, tek.zag, tek.nomer,
-                                     tek.tema, true, 0); });
+                                     tek.tema, true, 0, tek.glava); });
       } else {
         knopka('vybor-glavnaya',
                kino ? 'Посмотреть снова'
@@ -1864,7 +3101,9 @@ JS_PLAYERA = """<script>
         kadr(tek.kod, tek.vremya, true); karta(true);
       });
       knopka('vybor-vtoraya',
-             sled ? (kino?'Следующий фильм':'Следующий параграф') : null,
+             sled ? (lekcii ? 'Следующая лекция'
+                            : (kino ? 'Следующий фильм'
+                                    : 'Следующий параграф')) : null,
              sleduyushchiy);
     }
     karta(false);
@@ -1924,6 +3163,7 @@ JS_PLAYERA = """<script>
     tek.zag=h.zag||'';
     tek.nomer=h.nomer||'';
     tek.tema=h.tema||'';
+    tek.glava=h.glava||'';
     /* Лекцию могли слушать из второй подборки баннера: открываем ту,
        где она лежит, — иначе подсветки не видно. */
     if(window.shkBannerGde){ window.shkBannerGde(h.kod); }
@@ -1943,17 +3183,96 @@ JS_PLAYERA = """<script>
       if(rod && rod.getAttribute('data-nabor')){
         otkryt_nabor(rod.getAttribute('data-nabor'));
       }
+      /* Глава — из самого пункта: в записи её может не быть (урок
+         запоминали до того, как у пунктов появилась глава). */
+      if(!tek.glava){ tek.glava=vse[i].getAttribute('data-glava')||''; }
       break;
     }
     kadr(h.kod, null, false);   // пауза: видно начало урока, не чёрный экран
-    shapka(tek.zag);
+    shapka(tek.zag, tek.glava);
     podsvetit(h.kod);
     pokazat_kartu(tek);
   }
-  if(document.readyState==='complete'){ snachala(); }
-  else { window.addEventListener('load', snachala); }
+  /* ---- переход по метке: «смотреть видео по § 23» ----
+     Из тренажёра на урок ведёт ссылка «видеоуроки.html#par-23»: метка
+     стоит у пункта плейлиста. Запускаем этот пункт тем же путём, что
+     и по клику, — с открытием своего плейлиста и подсветкой. */
+  function po_metke(){
+    var h=location.hash || '';
+    if(h.indexOf('#par-')!==0){ return false; }
+    var a=document.getElementById(h.slice(1));
+    if(!a || !a.className || a.className.indexOf('trek')<0){ return false; }
+    return window.shkIgrat(a);
+  }
+  if(document.readyState==='complete'){ snachala(); po_metke(); }
+  else { window.addEventListener('load', function(){ snachala(); po_metke(); }); }
 })();
 </script>"""
+
+
+def sklonenie(chislo, odin, dva, mnogo):
+    """«1 лекция», «2 лекции», «10 лекций» — по-русски.
+
+    Нужно там, где числительное с существительным считается по данным,
+    а не пишется руками: если подборок станет больше, «10 лекций» в знаке
+    должно пересчитаться само. Исключение 11—14 помним: «11 лекций»,
+    а не «11 лекция».
+    """
+    ostatok = abs(int(chislo)) % 100
+    if 11 <= ostatok <= 14:
+        slovo = mnogo
+    elif ostatok % 10 == 1:
+        slovo = odin
+    elif 2 <= ostatok % 10 <= 4:
+        slovo = dva
+    else:
+        slovo = mnogo
+    return f'{chislo} {slovo}'
+
+
+def banner_ukazatel(zagolovok, podpis, ssylka, fon=None):
+    """Баннер-знак над плитками: вход на страницу лекций.
+
+    От `banner_lekciy` отличается тем, что ничего не играет и плеера
+    с собой не приносит: это дверь. Заголовок («Лекции») и подпись
+    («Мединский · лекции по курсу истории за седьмой класс») — и вся
+    плашка целиком ссылка на страницу лекций. Отдельной кнопки нет:
+    кнопка внутри ссылки только сбивает — с пульта её видно как вторую
+    цель, а мишень и так во весь знак. Счёта разделов и лекций тоже нет:
+    списком их видно на самой странице.
+
+    Рисунок (`fon`, путь от корня пакета) ложится на знак так же, как
+    на плашку предмета, — см. `a.plitka.s-kartinkoy`. Путь пересчитывает
+    `put_kartinki`: он считается от файла оформления, а не от страницы.
+    """
+    cls = 'banner-znak' + (' s-kartinkoy' if fon else '')
+    stil = f' style="--kartinka:url(\'{put_kartinki(fon)}\')"' if fon else ''
+    # Текст — теми же классами, что у плашки (.nazv и .poyas): шрифт,
+    # отступы и переносы не могут разойтись с плашками, потому что
+    # правило у них одно.
+    return (f'<a class="{cls}" href="{ssylka}"{stil}>'
+            f'<span class="nazv">{myagkie(zagolovok)}</span>'
+            f'<span class="poyas">{myagkie(podpis)}</span>'
+            f'</a>')
+
+
+def razdel_gotovitsya(nazvanie='Раздел готовится', tekst=''):
+    """Карточка для раздела, который ещё не наполнен.
+
+    Плашка раздела стоит с первого дня, и страница у неё должна быть
+    с первого дня тоже: ссылка в никуда — ошибка, а пустой белый лист
+    читается как поломка.
+
+    Кроме самой карточки на такой странице ничего нет: ни заголовка,
+    ни подписи, ни подсказки. Заголовок повторял бы плашку, из которой
+    сюда пришли, подсказка про кнопку «Назад» — то же самое, а обещание
+    «материалы подбираются» сказано самими словами карточки. Пустые
+    поля карточки в разметку не попадают.
+    """
+    tek = (f'<span class="zg-tekst">{myagkie(tekst)}</span>'
+           if tekst else '')
+    return (f'<div class="zagotovka">'
+            f'<span class="zg-nazv">{myagkie(nazvanie)}</span>{tek}</div>')
 
 
 def banner_lekciy(nazvanie, podpis, nabor):
@@ -2042,11 +3361,63 @@ BANNER_JS = """<script>
     }
     return false;
   };
+
 })();
 </script>"""
 
 
-def blok_playera(nabor):
+NOMER_RYAD = re.compile(r'^§\s*(\d+)\s*[–—-]\s*(\d+)$')
+"""Номер параграфа-пары: «§ 10–11». В учебнике 7 класса уроки идут парами."""
+
+
+def nomer_stolbikom(nomer):
+    """Номер для колонки списка: «§ 10–11» → «§ 10,» и «11» столбиком.
+
+    Сдвоенный параграф записываем двумя строками с запятой, а не тире:
+    так и единичный («§ 9»), и парный номер остаются в одной колонке —
+    раньше «§ 10–11» была вдвое шире «§ 9» (93 px против 50), колонка
+    разъезжалась, и темы в списке начинались на разном месте.
+    """
+    m = NOMER_RYAD.match((nomer or '').strip())
+    if not m:
+        return nomer
+    return f'§ {m.group(1)},<br>{m.group(2)}'
+
+
+def nomer_v_tekste(nomer):
+    """Тот же номер внутри строки: «§ 10–11» → «§ 10, 11»."""
+    m = NOMER_RYAD.match((nomer or '').strip())
+    if not m:
+        return nomer
+    return f'§ {m.group(1)}, {m.group(2)}'
+
+
+ZNAK_BEZ_NOMERA = ('<svg viewBox="0 0 24 24" aria-hidden="true">'
+                   '<circle cx="12" cy="12" r="8.6" fill="none" '
+                   'stroke="currentColor" stroke-width="2.4"/>'
+                   '<circle cx="12" cy="12" r="2.9" fill="currentColor"/>'
+                   '</svg>')
+"""Знак пункта, у которого нет параграфа: кольцо с точкой внутри.
+
+Стоит там, где у параграфов номер: «Введение», «Итоговое повторение»,
+«Итоги главы». Размером с цифру — колонка номеров от него не съезжает.
+"""
+
+
+def metka_paragrafa(nomer):
+    """Номер параграфа — в метку пункта: «§ 10–11» → «10-11».
+
+    Метка нужна ссылке «смотреть видео по параграфу» из тренажёра: она
+    ставится пункту плейлиста, и по ней урок открывается сразу. Одна
+    и та же метка — и у длинного тире, и у короткого, и у пары: иначе
+    у половины параграфов ссылка вела бы в пустоту.
+    """
+    return (str(nomer).replace('§', '').strip()
+            .replace('–', '-').replace('—', '-').replace(' ', ''))
+
+
+def blok_playera(nabor, vopros=None, kak_v_dannyh=False, zag_spiska='',
+                 niz=''):
     """Плеер, кнопки вариантов под ним и плейлист — в панели справа.
 
     `nabor` — [(название, ryady)]: один или несколько вариантов одного
@@ -2058,6 +3429,15 @@ def blok_playera(nabor):
 
     `ryady` — [(номер, тема, ссылка на видео Rutube)]. Пока страница
     открыта, пункты меняют видео по нажатию, ничего не перезагружая.
+
+    `kak_v_dannyh` — оставить порядок пунктов таким, каким он записан
+    в данных. Нужно странице лекций: лекции пронумерованы сериями
+    (1-я, 2-я, 3-я…), а на месте номера у них стоит время, по которому
+    сортировать нечего — сортировка и рассыпала бы серии.
+
+    `zag_spiska` — надпись над списком под кадром («Плейлисты»,
+    «Подборки»). `niz` — готовая разметка блока «Разделы» (плашки
+    материалов предмета): она идёт последней, под списками.
 
     Возвращает пару: разметку страницы и разметку панели плейлиста
     отдельно. Панель — выезжающая, position:fixed, и стоять она должна
@@ -2082,23 +3462,54 @@ def blok_playera(nabor):
 
         nomerov = sum(1 for r in ryady if r[2] and (r[0] or '').strip())
         grupp = any(not r[2] for r in ryady)
-        poryadok = (sorted(range(len(ryady)), key=klyuch)
-                    if nomerov and not grupp else list(range(len(ryady))))
+        po_nomeram = nomerov and not grupp and not kak_v_dannyh
+        poryadok = (sorted(range(len(ryady)), key=klyuch) if po_nomeram
+                    else list(range(len(ryady))))
 
-        treki = []
+        treki, glava = [], ''
         for i in poryadok:
             nomer, tema, href = ryady[i]
             if not href:
+                # Заголовок главы (или темы курса): он же — подзаголовок
+                # над кадром для всех своих пунктов.
+                glava = tema or ''
                 treki.append(f'<div class="trek-gruppa">{myagkie(tema)}</div>')
                 continue
             kod = id_video(href)
             if not kod:
                 continue
-            nom = (f'<span class="trek-nomer">{nomer}</span>' if nomer else '')
-            zag = f'{nomer} {tema}'.strip().replace('"', '').replace("'", '')
+            if nomer:
+                # Парный параграф встаёт в колонку двумя строками
+                # («§ 10,» и «11») — так и единичный, и парный номер
+                # занимают одну колонку (см. nomer_stolbikom).
+                # Номер параграфа — в фиксированную колонку; время
+                # проигрывания (кино, лекции) — своим классом: оно
+                # длиннее колонки и должно стоять строкой.
+                klass = ('trek-nomer' if nomer.startswith('§')
+                         else 'trek-nomer trek-vremya')
+                nom = (f'<span class="{klass}">'
+                       f'{nomer_stolbikom(nomer)}</span>')
+                # «§ 1. Мир на заре Нового времени» — как в учебнике.
+                # У кино в колонке время, и точка там не нужна.
+                zag = (f'{nomer_v_tekste(nomer)}. {tema}'
+                       if nomer.startswith('§')
+                       else f'{nomer} {tema}')
+            else:
+                nom = (f'<span class="trek-nomer trek-kolco">'
+                       f'{ZNAK_BEZ_NOMERA}</span>')
+                zag = tema
+            zag = zag.strip().replace('"', '').replace("'", '')
+            # Метка пункта — по номеру параграфа: на неё ведёт ссылка
+            # «смотреть видео по параграфу» из тренажёра (см.
+            # metka_paragrafa). Пункты без номера («Введение») остаются
+            # без метки: открывать по номеру у них нечего.
+            nom_metki = metka_paragrafa(nomer)
+            metka = (f' id="par-{nom_metki}"'
+                     if nom_metki and nom_metki[0].isdigit() else '')
             treki.append(f'<a class="trek" href="{href}" data-video="{kod}" '
                          f'data-zag="{myagkie(zag)}" data-nomer="{nomer or ""}" '
                          f'data-tema="{myagkie(tema)}" '
+                         f'data-glava="{myagkie(glava)}"{metka} '
                          f'onclick="return shkIgrat(this)">{nom}'
                          f'<span class="trek-tema">{myagkie(tema)}</span></a>')
         return treki
@@ -2113,11 +3524,22 @@ def blok_playera(nabor):
     # один и тот же: обычный текст, при наведении подложка, у открытого
     # плейлиста подложка и жёлтая чёрточка слева. Нажатие открывает
     # этот плейлист в панели справа — уроки там, где им и место.
-    pod_video = ('<div class="pl-vse">' + ''.join(
-        f'<a class="panel-plitka pl-plitka{" tekushchiy" if n == 0 else ""}" '
-        f'href="#" data-nabor="{n}" onclick="return shkNabor({n})">'
-        f'{myagkie(imya)}</a>'
-        for n, (imya, t) in enumerate(spiski)) + '</div>')
+    # Под кадром: глава (её ставит скрипт вместе с пунктом), линия-
+    # разделитель, надпись и сами строки плейлистов. Открытый плейлист
+    # отмечен так же, как текущий пункт меню (класс tekushchiy).
+    pod_video = (
+        '<div class="pleyer-niz">'
+        '<span class="pleyer-podzag" id="pleyer-podzag" hidden></span>'
+        '<div class="pl-razd"></div>'
+        f'<div class="pl-zagolovok">{myagkie(zag_spiska)}</div>'
+        '<div class="pl-vse">' + ''.join(
+            f'<a class="panel-plitka pl-plitka'
+            f'{" tekushchiy" if n == 0 else ""}" '
+            f'href="#" data-nabor="{n}" onclick="return shkNabor({n})">'
+            f'{myagkie(imya)}</a>'
+            for n, (imya, t) in enumerate(spiski)) + '</div>'
+        f'{niz}'
+        '</div>')
     # Имя плейлиста лежит и в самой панели: шапка панели показывает
     # название того плейлиста, который открыт.
     panely = ''.join(
@@ -2135,8 +3557,19 @@ def blok_playera(nabor):
     # Подписи берём из самих рядов (`nabor`), а не из готовых списков:
     # в `spiski` лежат уже строки разметки, и первый их символ — «<».
     _podpisi = [r[0] for _imya, _ryady in nabor for r in _ryady if r and r[0]]
-    vopros = ('Что будем смотреть?' if _podpisi and not _podpisi[0].startswith('§')
-              else 'С какого параграфа начнём?')
+    # Обычно вопрос выходит из подписей пунктов: у уроков это «§ 12»,
+    # у кино и лекций — время. Но фильм от лекции по подписи не отличить,
+    # поэтому страница лекций называет свой вопрос сама (`vopros`).
+    if vopros is None:
+        vopros = ('Что будем смотреть?'
+                  if _podpisi and not _podpisi[0].startswith('§')
+                  else 'С какого параграфа начнём?')
+    # Списки под кадром: у уроков это плейлисты, у кино и лекций —
+    # подборки. Слово своё у каждой страницы, поэтому его передают сюда.
+    if not zag_spiska:
+        zag_spiska = ('Плейлисты'
+                      if _podpisi and _podpisi[0].startswith('§')
+                      else 'Подборки')
     # Что играет — над плеером: под ним подпись прижималась бы
     # к плейлисту, а сверху у неё своё место и воздух до кадра.
     # Карточка поверх кадра. Показывается только при возврате: текст и
@@ -2171,6 +3604,8 @@ def blok_playera(nabor):
                        'role="separator" aria-orientation="vertical" '
                        'aria-label="Изменить ширину" '
                        'onkeydown="return shkTyan(event)"></div>')
+    # Над заголовком — глава: пока урок не выбран, её нет (в шапке стоит
+    # вопрос), при выборе она приходит из плейлиста вместе с пунктом.
     stranica = (f'<div class="pleyer-wrap">'
                 f'<div class="pleyer-shapka">'
                 f'<span class="pleyer-zag" id="pleyer-zag">'
@@ -2201,18 +3636,19 @@ def zapisat_css():
 def sobrat(zagolovok, podzagolovok, bloki, fayl, put=None,
            podskazka=None, primechanie=None, indeks=False,
            menyu_spisok=None, menyu_zagolovok='',
-           kniga=None, klassy=None, telo_klass='', paneli=''):
+           kniga=None, klassy=None, telo_klass='', paneli='',
+           rezhim=''):
     """Собрать страницу пакета и записать её в Проект/.
 
     `fayl` — путь от корня пакета, например
-    «База данных/8 класс/Геометрия/видеоуроки.html».
+    «База данных/HTML/8 класс/Геометрия/видеоуроки.html».
     `put` — строка пути: [(подпись, путь от корня пакета)], последняя
     без пути. `put=None` означает «это вход».
 
     `menyu_spisok` — [(подпись, путь от корня пакета)] для бокового меню:
     предметы текущего класса. `klassy` — [(название, путь)] всех классов
-    пакета: они уходят в раскрывающийся список в шапке меню, поэтому новый
-    класс появляется в меню сам, без правки шаблона.
+    пакета: списка классов в меню больше нет (класс выбирают плитками на
+    его странице), поэтому довод остался только у вызовов и не читается.
 
     `kniga` — готовая строка учебника (её собирает kniga_stroka). Одна
     и та же на странице предмета и на всех страницах его материалов.
@@ -2224,6 +3660,11 @@ def sobrat(zagolovok, podzagolovok, bloki, fayl, put=None,
     `paneli` — разметка выезжающей панели плейлиста (её отдаёт
     blok_playera). Она ставится тем же слоем, что и меню, — снаружи
     контейнера рабочей ширины.
+
+    `rezhim` — чем страница себя называет (`data-rezhim` на body): пока
+    это нужно только странице лекций («лекции»). Плеер по подписям
+    различает урок и фильм, а лекцию от фильма отличить нечем — и там,
+    где слова другие, страница говорит о себе сама.
     """
     # На страницах-индексах (выбор класса, предмета, материала) ни
     # заголовка, ни подсказки не нужно: где мы, и так видно по
@@ -2255,29 +3696,14 @@ def sobrat(zagolovok, podzagolovok, bloki, fayl, put=None,
     pin = ('<a class="tumbler ikonka" id="pin" href="#" '
            'aria-label="Закрепить">' + ikona('скрепка') + '</a>')
 
-    # Меню: сверху раскрывающийся список классов со стрелкой-маркером,
-    # ниже — предметы текущего класса. Надписи «Меню» нет: это и так
-    # меню, а на её месте должен стоять текущий класс — он и есть
-    # раскрывающийся список. «Выбор класса» отдельным пунктом не нужно
-    # (он в списке), «Открепить» — тоже: домашнюю страницу меняет
-    # скрепка в шапке.
+    # Меню: сверху название класса, ниже — предметы текущего класса.
+    # Списка классов здесь нет: класс выбирают плитками на его странице,
+    # а раскрывающийся список в меню повторял эти же плитки и звал не
+    # туда. «Открепить» отдельным пунктом тоже не нужно: домашнюю
+    # страницу меняет скрепка в шапке.
     zagolovok_klassa = menyu_zagolovok or 'Выберите класс'
-    otkryto = ' open' if put is None else ''
-    klassy_html = ''
-    for tekst, kuda in (klassy or []):
-        cls = ('panel-plitka tekushchiy' if tekst == menyu_zagolovok
-               else 'panel-plitka')
-        klassy_html += (f'<a class="{cls}" '
-                        f'href="{otnositelno(fayl, kuda)}">'
-                        f'{myagkie(tekst)}</a>')
-    spisok_klassov = ''
-    if klassy_html:
-        spisok_klassov = (
-            f'<details class="vybor-klassa"{otkryto}>'
-            f'<summary class="klass-knopka">'
-            f'<span>{myagkie(zagolovok_klassa)}</span>'
-            f'<span class="strela">{ikona("шеврон")}</span></summary>'
-            f'<div class="klass-spisok">{klassy_html}</div></details>')
+    imya_klassa = (f'<span class="klass-imya">{myagkie(zagolovok_klassa)}'
+                   f'</span>')
 
     # Разделитель здесь не нужен: у шапки панели своя нижняя линия, и
     # два разделителя подряд читались одной задвоенной полосой. Список
@@ -2293,7 +3719,7 @@ def sobrat(zagolovok, podzagolovok, bloki, fayl, put=None,
             f'{myagkie(tekst)}</a>'
             for tekst, kuda in menyu_spisok)
     panel = (f'<aside class="panel" id="panel">'
-             f'<div class="panel-verh">{spisok_klassov}'
+             f'<div class="panel-verh">{imya_klassa}'
              f'<a class="panel-zakryt" href="#" aria-label="Закрыть" '
              f'onclick="return shkPanel(false)">{ikona("закрыть")}</a>'
              f'</div><div class="panel-telo">{punkte}</div></aside>'
@@ -2330,6 +3756,9 @@ def sobrat(zagolovok, podzagolovok, bloki, fayl, put=None,
 
     niz = f'<p class="niz">{primechanie}</p>' if primechanie else ''
     telo = f' class="{telo_klass}"' if telo_klass else ''
+    # Признак страницы для скрипта: плеер один на все страницы, а слова
+    # у лекций свои (см. `rezhim` в описании выше).
+    telo += f' data-rezhim="{rezhim}"' if rezhim else ''
     # Выезжающие панели — меню и плейлист — стоят одним слоем СНАРУЖИ
     # контейнера рабочей ширины: внутри него их position:fixed считался
     # бы от контейнера, а не от окна, и панель уехала бы за край
@@ -2359,6 +3788,9 @@ def sobrat(zagolovok, podzagolovok, bloki, fayl, put=None,
 </html>
 """
     html = perevesti_puti(html, fayl)
+    # Одна напоследок: промежутки между числами — коротким тире с пробелом
+    # (см. tire). Страница собрана целиком — здесь и видно все числа.
+    html = tire_html(html)
     polny = os.path.join(PAKET, *fayl.split('/'))
     os.makedirs(os.path.dirname(polny), exist_ok=True)
     with open(polny, 'w', encoding='utf-8') as f:

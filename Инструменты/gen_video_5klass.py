@@ -13,6 +13,7 @@ import io, json, os, sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from _пути import (DATA_PARAGRAFY, DATA_PLAYLISTS, CSS_ISTOCHNIK, STRAN)
+import _tv
 
 OUT = os.path.join(STRAN['5ист'], 'istoriya-5-klass-video.html')
 
@@ -361,6 +362,7 @@ IX—XIII вв.»</em>. Древнего мира у него нет вообщ�
 </body>
 </html>
 """
+    html = _tv.tire_html(html)   # правило тире: см. _tv.tire
     io.open(OUT, 'w', encoding='utf-8').write(html)
     print(f'Готово: {OUT} ({len(html)} байт)')
 

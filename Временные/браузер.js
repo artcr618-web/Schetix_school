@@ -8,7 +8,7 @@ const fs = require('fs');
 const path = require('path');
 const { chromium } = require('./плейрайт.js');
 
-const put = process.argv[2] || 'Проект/База данных/5 класс/География/видеоуроки.html';
+const put = process.argv[2] || 'Проект/База данных/HTML/5 класс/География/видеоуроки.html';
 const imya = path.basename(path.dirname(put)) + '-' + path.basename(put, '.html');
 const kuda = 'Временные/снимки';
 fs.mkdirSync(kuda, { recursive: true });

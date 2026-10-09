@@ -33,9 +33,12 @@ import re
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from _пути import ROOT, VREM, CSS_ISTOCHNIK, CSS_DOP
+from _пути import ROOT, ARH, VREM, CSS_ISTOCHNIK, CSS_DOP
+import _tv
 
-PAPKA = os.path.join(ROOT, '8 класс', 'Геометрия')
+# Страницы-исходники лежат в «Архиве»: там их читает сборка
+# пакета (см. gen_tv_paket.py, ISTOCHNIKI).
+PAPKA = os.path.join(ARH, '8 класс', 'Геометрия')
 
 DATA_RUTUBE = os.path.join(VREM, 'rutube')
 KONTROLNYE = os.path.join(VREM, 'kontrolnye_geometriya8.json')
@@ -988,6 +991,9 @@ def main():
     for imya, f in fayly:
         put = os.path.join(PAPKA, imya)
         html = f(css)
+        # Промежутки между числами — коротким тире с пробелом
+        # (см. _tv.tire): правило одно на весь проект.
+        html = _tv.tire_html(html)
         io.open(put, 'w', encoding='utf-8').write(html)
         skolko = html.count('<a class="btn"')
         print(f'  {imya:<44} {skolko:>4} ссылок, {len(html):>7} байт')

@@ -3,7 +3,7 @@ const { chromium } = require('./плейрайт.js');
 (async () => {
   const b = await chromium.launch();
   const p = await b.newPage({ viewport: { width: 1920, height: 1080 } });
-  for (const [f, imya] of [['Проект/База данных/5 класс.html', 'классы'],
+  for (const [f, imya] of [['Проект/База данных/HTML/5 класс.html', 'классы'],
                            ['Проект/Начать учиться.html', 'главная']]) {
     await p.goto('file://' + path.resolve(f));
     await p.waitForTimeout(500);

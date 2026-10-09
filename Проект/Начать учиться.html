@@ -16,6 +16,7 @@
    onclick="history.back();return false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.5 5 8 12l6.5 7"/></svg></a>
 <a class="tumbler ikonka" href="#" aria-label="Вперёд"
    onclick="history.forward();return false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.5 5 16 12l-6.5 7"/></svg></a>
+<span class="verh-imya" id="verh-imya" hidden></span>
 <span class="pravo"><a class="tumbler ikonka" id="pin" href="#" aria-label="Закрепить"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 17v5"/><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z"/></svg></a><a class="tumbler ikonka" href="#panel" aria-label="Меню" onclick="return shkMenu()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16"/><path d="M4 12h16"/><path d="M4 17h16"/></svg></a></span>
 </nav>
 
@@ -24,11 +25,11 @@
 
 
 <div class="privet"><input type="text" id="imya" autocomplete="off" placeholder="Введи своё имя" aria-label="Введи своё имя"><div class="privet-tsel"><span class="privet-slovo">Цель:</span><span class="privet-merka" id="tsel-merka" aria-hidden="true"></span><input type="text" id="tsel" autocomplete="off" placeholder="чего ты хочешь достичь к окончанию школы" aria-label="Цель на ближайший год"></div></div>
-<div class="setka"><a class="plitka klass" href="База данных/5 класс.html"><span class="nazv"><span class="chislo">5</span><span class="slovo">Класс</span></span></a><a class="plitka klass" href="База данных/7 класс.html"><span class="nazv"><span class="chislo">7</span><span class="slovo">Класс</span></span></a><a class="plitka klass" href="База данных/8 класс.html"><span class="nazv"><span class="chislo">8</span><span class="slovo">Класс</span></span></a></div>
+<div class="setka"><a class="plitka klass" href="База данных/HTML/5 класс.html"><span class="nazv"><span class="chislo">5</span><span class="slovo">Класс</span></span></a><a class="plitka klass" href="База данных/HTML/7 класс.html"><span class="nazv"><span class="chislo">7</span><span class="slovo">Класс</span></span></a><a class="plitka klass" href="База данных/HTML/8 класс.html"><span class="nazv"><span class="chislo">8</span><span class="slovo">Класс</span></span></a></div>
 
 </div>
 </div>
-<aside class="panel" id="panel"><div class="panel-verh"><details class="vybor-klassa" open><summary class="klass-knopka"><span>Выберите класс</span><span class="strela"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 9l7 7 7-7"/></svg></span></summary><div class="klass-spisok"><a class="panel-plitka" href="База данных/5 класс.html">5 класс</a><a class="panel-plitka" href="База данных/7 класс.html">7 класс</a><a class="panel-plitka" href="База данных/8 класс.html">8 класс</a></div></details><a class="panel-zakryt" href="#" aria-label="Закрыть" onclick="return shkPanel(false)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6.5 6.5l11 11"/><path d="M17.5 6.5l-11 11"/></svg></a></div><div class="panel-telo"></div></aside><div class="panel-tyanulka menyu" tabindex="0" role="separator" aria-orientation="vertical" aria-label="Изменить ширину" onkeydown="return shkTyan(event)"></div>
+<aside class="panel" id="panel"><div class="panel-verh"><span class="klass-imya">Выберите класс</span><a class="panel-zakryt" href="#" aria-label="Закрыть" onclick="return shkPanel(false)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6.5 6.5l11 11"/><path d="M17.5 6.5l-11 11"/></svg></a></div><div class="panel-telo"></div></aside><div class="panel-tyanulka menyu" tabindex="0" role="separator" aria-orientation="vertical" aria-label="Изменить ширину" onkeydown="return shkTyan(event)"></div>
 <script>
 (function(){
   var K='shkola.home';
@@ -54,12 +55,23 @@
   /* ---- две выезжающие панели: меню и плейлист ----
      Границы у них одни и те же, и вдвоём они не открываются: открыли
      меню — плейлист закрылся, открыли плейлист — закрылось меню.
-     Плейлист есть только на страницах видеоуроков. */
+     Плейлист есть только на страницах видеоуроков.
+
+     Панель НЕ закрывается сама: что открыто, то и запоминается в
+     браузере (ключ KP), и на следующей странице панель стоит открытой
+     ровно так же. Закрыть её может только человек — крестиком или
+     клавишей Escape. Раньше переход по пунктам меню закрывал панель,
+     и её приходилось открывать заново на каждой странице. */
+  var KP='shkola.panel-otkryt';
+  function panel_pomnit(chto){
+    try{ localStorage.setItem(KP, chto); }catch(e){}
+  }
   window.shkPanel=function(otkryt){
     var b=document.body;
     if(otkryt){
       b.classList.add('menu-otkryto');
       b.classList.remove('pleylist-otkryto');
+      panel_pomnit('menu');
       /* Фокус встаёт на первую строку списка — и в меню, и в плейлисте
          одинаково. Крестик закрытия при открытии не подсвечивается
          нигде: раньше в меню фокус шёл на название класса, а в панели
@@ -69,6 +81,7 @@
       if(perv) perv.focus();
     } else {
       b.classList.remove('menu-otkryto');
+      panel_pomnit('');
     }
     return false;
   };
@@ -77,14 +90,38 @@
     if(otkryt){
       b.classList.add('pleylist-otkryto');
       b.classList.remove('menu-otkryto');
+      panel_pomnit('pleylist');
       var p=document.getElementById('pleylist-panel');
       var perv=p && p.querySelector('.panel-telo a');
       if(perv) perv.focus();
     } else {
       b.classList.remove('pleylist-otkryto');
+      panel_pomnit('');
     }
     return false;
   };
+  /* Возврат панели на новой странице. Ключа в памяти ещё нет — панель
+     ничего не помнит: остаётся как собрана страница (на видеоуроках
+     плейлист открыт сразу). Запомнено «menu» — открываем меню,
+     «pleylist» — плейлист (на страницах, где он есть), пусто — панель
+     закрыта. Фокус здесь никуда не ставим: страница только открылась,
+     и рамка на первой строке была бы неожиданной. */
+  (function(){
+    var chto=null;
+    try{ chto=localStorage.getItem(KP); }catch(e){ return; }
+    if(chto===null){ return; }
+    var b=document.body;
+    /* Плейлист во всю ширину экрана сам не открываем: на телефонах и
+       вертикальном планшете он занял бы весь экран вместо кадра. */
+    if(window.innerWidth < 960 && chto==='pleylist'){ chto=''; }
+    if(chto==='menu'){
+      b.classList.add('menu-otkryto'); b.classList.remove('pleylist-otkryto');
+    } else if(chto==='pleylist' && document.getElementById('pleylist-panel')){
+      b.classList.add('pleylist-otkryto'); b.classList.remove('menu-otkryto');
+    } else {
+      b.classList.remove('menu-otkryto'); b.classList.remove('pleylist-otkryto');
+    }
+  })();
   /* Значок меню открывает и закрывает меню. Плейлист вызывается своей
      кнопкой на кадре: так панель возвращается всегда, чем бы её ни
      закрыли. */
@@ -327,6 +364,20 @@
   }
   imya_stroka();
 
+  /* Имя в самой шапке — по её середине, где у сайтов стоит логотип:
+     то же имя, что написано на главном экране. Пока имени нет, строки
+     тоже нет. Обновляется и когда имя набирают: см. обработчик ввода. */
+  function verh_imya(){
+    var mesto=document.getElementById('verh-imya');
+    if(!mesto){ return; }
+    var imya='';
+    try{ imya=(localStorage.getItem('shkola.imya')||'').trim(); }catch(e){}
+    if(!imya){ mesto.hidden=true; mesto.textContent=''; return; }
+    mesto.textContent=imya;
+    mesto.hidden=false;
+  }
+  verh_imya();
+
   var polya=[['imya', 'shkola.imya'], ['tsel', 'shkola.tsel']];
   for(var p=0; p<polya.length; p++){
     var po=document.getElementById(polya[p][0]);
@@ -339,6 +390,9 @@
     (function(pole, klyuch){
       pole.addEventListener('input', function(){
         try{ localStorage.setItem(klyuch, pole.value); }catch(e){}
+        /* Имя сменили — в шапке оно тоже меняется, не дожидаясь
+           перехода на другую страницу. */
+        if(klyuch==='shkola.imya'){ verh_imya(); }
       });
     })(po, polya[p][1]);
   }

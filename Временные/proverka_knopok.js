@@ -21,10 +21,10 @@ const path = require('path');
 const { chromium } = require('./плейрайт.js');
 
 const stranicy = [
-  'Проект/База данных/5 класс/История/видеоуроки.html',
-  'Проект/База данных/5 класс/История/кино.html',
-  'Проект/База данных/7 класс/История/кино.html',
-  'Проект/База данных/5 класс/История.html',   // страница предмета: баннер
+  'Проект/База данных/HTML/5 класс/История/видеоуроки.html',
+  'Проект/База данных/HTML/5 класс/История/кино.html',
+  'Проект/База данных/HTML/7 класс/История/кино.html',
+  'Проект/База данных/HTML/5 класс/История.html',   // страница предмета: баннер
 ];
 
 let oshibki = 0;
@@ -110,14 +110,16 @@ async function gotovim_kartu(p) {
         const v = document.getElementById('pleyer-vybor');
         return !!v && getComputedStyle(v).display !== 'none';
       });
-      if (pokazana) return true;
+      // Карточка появляется с проявлением: даём ей доиграть, иначе
+      // мерка ловит её на полпути и крестик «не виден».
+      if (pokazana) { await p.waitForTimeout(450); return true; }
     }
   }
   return false;
 }
 
 async function proverit(stranica, rezhim) {
-  console.log('\n=== ' + stranica.replace('Проект/База данных/', '') +
+  console.log('\n=== ' + stranica.replace('Проект/База данных/HTML/', '') +
               '   [' + rezhim + ']');
   const b = await chromium.launch();
   const p = await b.newPage({ viewport: { width: 1440, height: 950 } });
@@ -201,17 +203,27 @@ async function proverit(stranica, rezhim) {
                !document.body.classList.contains('pleylist-otkryto')));
   }
 
-  // --- меню: значок, раскрытие класса, крестик
+  // --- меню: значок, название класса, крестик
+  // Списка классов в меню нет: класс выбирают плитками на его странице,
+  // а в шапке меню стоит просто название класса — без стрелки и
+  // без раскрывающихся строк.
   if (await p.evaluate(() => !!document.querySelector('.shapka-menyu, a[aria-label="Меню"]'))) {
     await zhmem(p, 'a[aria-label="Меню"]');
     const menu = await p.evaluate(() =>
       document.body.classList.contains('menu-otkryto'));
     proverka('значок меню открывает боковое меню', menu);
     if (menu) {
-      await zhmem(p, '#panel summary.klass-knopka');
-      proverka('строка класса раскрывается',
-               await p.evaluate(() =>
-                 !!document.querySelector('#panel details[open]')));
+      const klas = await p.evaluate(() => {
+        const v = document.querySelector('#panel .panel-verh');
+        const im = v && v.querySelector('.klass-imya');
+        return { tekst: im ? im.textContent.trim() : null,
+                 spiskov: document.querySelectorAll(
+                   '#panel .vybor-klassa, #panel .klass-spisok').length,
+                 strelok: v ? v.querySelectorAll('.strela').length : 0 };
+      });
+      proverka('в шапке меню — название класса текстом, без списка классов',
+               !!klas.tekst && klas.spiskov === 0 && klas.strelok === 0,
+               klas);
       await zhmem(p, '#panel .panel-zakryt');
       proverka('крестик закрывает меню',
                await p.evaluate(() =>
@@ -241,6 +253,16 @@ async function proverit(stranica, rezhim) {
   // --- уведомление о продолжении: помещается, крестик на месте и работает
   if (est_pleer && rezhim !== 'песочница') {
     await gotovim_kartu(p);
+    // Перед меркой подводим карточку в окно: страница могла остаться
+    // прокрученной с прошлых нажатий, и крестик оказывался за верхом
+    // окна — тогда `elementFromPoint` о нём ничего не знает (ложное
+    // «накрыт»). Прокрутка — как у живого человека, который дочитал
+    // страницу и вернулся к кадру.
+    await p.evaluate(() => {
+      const kr = document.getElementById('vybor-zakryt');
+      if (kr) { kr.scrollIntoView({ block: 'center' }); }
+    });
+    await p.waitForTimeout(250);
     const karta = await p.evaluate(() => {
       const v = document.getElementById('pleyer-vybor');
       const k = document.querySelector('.vybor-karta');
@@ -270,6 +292,10 @@ async function proverit(stranica, rezhim) {
              v.scrollHeight <= v.clientHeight + 2),
         krestik_sverkhu: (c_r.top - k_r.top) < k_r.height / 2 &&
                          (k_r.right - c_r.right) < 80 * (k_r.width / 920) + 20,
+        skroll: Math.round(scrollY),
+        okno: [innerWidth, innerHeight],
+        krest_polno: [Math.round(c_r.left), Math.round(c_r.top),
+                      Math.round(c_r.right), Math.round(c_r.bottom)],
         krestik_viden: !!document.elementFromPoint(
           Math.round(c_r.left + c_r.width / 2), Math.round(c_r.top + c_r.height / 2)),
         slovo_zakryt: /Закрыть/.test(k.textContent),
@@ -311,7 +337,7 @@ async function proverit(stranica, rezhim) {
 // Узкое окно: уведомление должно сжиматься вместе с кадром и никогда не
 // уезжать под его рамку или за экран.
 async function uzkoe_okno(stranica) {
-  console.log('\n=== узкое окно: ' + stranica.replace('Проект/База данных/', ''));
+  console.log('\n=== узкое окно: ' + stranica.replace('Проект/База данных/HTML/', ''));
   const b = await chromium.launch();
   for (const w of [1920, 1440, 1100, 900, 760, 620, 480, 380]) {
     const p = await b.newPage({ viewport: { width: w, height: 900 } });
@@ -425,8 +451,8 @@ async function uzkoe_okno(stranica) {
       await proverit(f, rezhim);
     }
   }
-  await uzkoe_okno('Проект/База данных/5 класс/История/видеоуроки.html');
-  await uzkoe_okno('Проект/База данных/7 класс/История/кино.html');
+  await uzkoe_okno('Проект/База данных/HTML/5 класс/История/видеоуроки.html');
+  await uzkoe_okno('Проект/База данных/HTML/7 класс/История/кино.html');
   console.log('\nИтог: ошибок ' + oshibki);
   process.exit(oshibki ? 1 : 0);
 })();

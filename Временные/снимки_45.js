@@ -11,8 +11,8 @@ const path = require('path');
 const { chromium } = require('./плейрайт.js');
 
 const kuda = 'Временные/снимки';
-const stranica = 'Проект/База данных/5 класс/История/видеоуроки.html';
-const predmet = 'Проект/База данных/5 класс/История.html';
+const stranica = 'Проект/База данных/HTML/5 класс/История/видеоуроки.html';
+const predmet = 'Проект/База данных/HTML/5 класс/История.html';
 
 (async () => {
   const b = await chromium.launch();
@@ -120,7 +120,7 @@ const predmet = 'Проект/База данных/5 класс/История.
 
   // 5. Два учебника подряд: раньше обложки втыкались друг в друга,
   // теперь между карточками воздух.
-  await p.goto('file://' + path.resolve('Проект/База данных/7 класс/История.html'),
+  await p.goto('file://' + path.resolve('Проект/База данных/HTML/7 класс/История.html'),
                { waitUntil: 'load' });
   await p.waitForTimeout(700);
   await p.evaluate(() => {
